@@ -258,8 +258,8 @@ Examples:
 | --------- | -------- |
 | କ         | CONS_KA  |
 | ଖ         | CONS_KHA |
-| ଅ         | VOWEL_A  |
-| ୧         | NUM_1    |
+| ଅ         | VOW_A  |
+| ୧         | DIGIT_1    |
 
 ---
 
@@ -276,9 +276,9 @@ Example:
 
 * CONS_KA
 * CONS_KHA
-* VOWEL_A
-* VOWEL_AA
-* NUM_0
+* VOW_A
+* VOW_AA
+* DIGIT_0
 
 ---
 
