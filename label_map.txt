@@ -65,4 +65,8 @@ odia_ml_labels = {
     "୭": "DIGIT_7",
     "୮": "DIGIT_8",
     "୯": "DIGIT_9",
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> ee4893d45e109725ffe6b3c1f90bd5b23b8a9afb
