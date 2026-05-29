@@ -1,7 +1,18 @@
 venv/
+.venv/
+node_modules/
+.next/
+frontend/.next/
+frontend/node_modules/
+frontend/.env.local
+backend/.env
+backend/.venv/
 __pycache__/
 .ipynb_checkpoints/
 *.pyc
-data/
-models/
+data/raw/
+data/processed/
+data/samples/
+data/mini_dataset/
 outputs/
+# Keep models/ tracked so the trained .keras artifact can live in the repo.

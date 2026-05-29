@@ -1,0 +1,519 @@
+# Lipi OCR Deployment Plan
+## Full Architecture + Agent Execution Plan
+
+We are building:
+
+Lipi
+An Odia Handwriting Recognition System
+
+Deployment Target:
+Vercel
+
+Frontend:
+Next.js + Tailwind
+
+Backend:
+FastAPI + TensorFlow
+
+Model:
+Keras (.keras)
+
+--------------------------------------------------
+HIGH LEVEL SYSTEM FLOW
+--------------------------------------------------
+
+User Input
+    ↓
+Frontend (Next.js)
+    ↓
+Upload / Draw / Camera Capture
+    ↓
+API Request
+    ↓
+FastAPI Backend
+    ↓
+Image Preprocessing
+    ↓
+TensorFlow OCR Model
+    ↓
+Prediction
+    ↓
+JSON Response
+    ↓
+Frontend UI Display
+
+--------------------------------------------------
+VERY IMPORTANT ARCHITECTURE DECISION
+--------------------------------------------------
+
+Vercel CANNOT properly host heavy TensorFlow Python inference directly.
+
+So:
+
+Frontend:
+Vercel
+
+Backend:
+Render OR Railway
+
+This is the CORRECT architecture.
+
+Trying to run TensorFlow inside Vercel serverless functions is how people accidentally invent latency torture devices.
+
+--------------------------------------------------
+FINAL DEPLOYMENT STRUCTURE
+--------------------------------------------------
+
+Frontend URL:
+https://lipi.vercel.app
+
+Backend API:
+https://lipi-api.onrender.com
+
+Frontend communicates with backend API.
+
+--------------------------------------------------
+FINAL PROJECT STRUCTURE
+--------------------------------------------------
+
+lipi/
+│
+├── frontend/
+│
+├── backend/
+│
+├── models/
+│   └── odia_ocr_cnn.keras
+│
+├── notebooks/
+│
+├── data/
+│
+├── src/
+│
+├── README.md
+└── requirements.txt
+
+==================================================
+PHASE 1
+FRONTEND SETUP
+==================================================
+
+GOAL:
+Create OCR interface.
+
+--------------------------------------------------
+FRONTEND FEATURES
+--------------------------------------------------
+
+1. Upload Image
+2. Live Camera
+3. Draw Character
+4. Preview Area
+5. Prediction Display
+6. Confidence Scores
+7. Top Predictions
+
+--------------------------------------------------
+FRONTEND STACK
+--------------------------------------------------
+
+Next.js
+TypeScript
+Tailwind CSS
+
+--------------------------------------------------
+AGENT TASK
+--------------------------------------------------
+
+Create frontend inside:
+
+frontend/
+
+using:
+
+npx create-next-app@latest .
+
+Enable:
+- TypeScript
+- Tailwind
+- ESLint
+- App Router
+
+--------------------------------------------------
+FRONTEND COMPONENTS
+--------------------------------------------------
+
+frontend/components/
+
+Create:
+
+- UploadBox.tsx
+- CameraCapture.tsx
+- DrawCanvas.tsx
+- PredictionCard.tsx
+- TopPredictions.tsx
+- Header.tsx
+
+--------------------------------------------------
+FRONTEND PAGE STRUCTURE
+--------------------------------------------------
+
+frontend/app/page.tsx
+
+Page layout:
+
+--------------------------------------------------
+
+HEADER
+    Lipi
+    Odia Handwriting Recognition System
+
+INPUT SECTION
+    Upload Image
+    Live Camera
+    Draw Character
+
+PREVIEW PANEL
+
+PREDICTION PANEL
+    Predicted Character
+    Confidence
+    Top 3 Predictions
+
+--------------------------------------------------
+DRAW CHARACTER FEATURE
+--------------------------------------------------
+
+Use:
+HTML Canvas API
+
+Features:
+- draw
+- erase
+- clear
+- predict
+
+Canvas should export:
+base64 PNG image
+
+--------------------------------------------------
+API COMMUNICATION
+--------------------------------------------------
+
+Frontend sends image to backend:
+
+POST /predict
+
+using:
+multipart/form-data
+
+==================================================
+PHASE 2
+BACKEND SETUP
+==================================================
+
+GOAL:
+Load OCR model and perform inference.
+
+--------------------------------------------------
+BACKEND STACK
+--------------------------------------------------
+
+FastAPI
+TensorFlow
+OpenCV
+NumPy
+Pillow
+
+--------------------------------------------------
+BACKEND STRUCTURE
+--------------------------------------------------
+
+backend/
+│
+├── main.py
+├── model_loader.py
+├── predict.py
+├── preprocess.py
+├── requirements.txt
+└── utils/
+
+--------------------------------------------------
+BACKEND RESPONSIBILITIES
+--------------------------------------------------
+
+1. Receive image
+2. Convert to grayscale
+3. Resize to 64×64
+4. Normalize image
+5. Run model prediction
+6. Return prediction JSON
+
+==================================================
+PHASE 3
+MODEL INTEGRATION
+==================================================
+
+OCR MODEL FILE:
+
+models/odia_ocr_cnn.keras
+
+--------------------------------------------------
+HOW MODEL LOADING WORKS
+--------------------------------------------------
+
+FastAPI starts
+    ↓
+TensorFlow loads model into memory
+    ↓
+Model stays loaded
+    ↓
+Incoming requests use same loaded model
+
+IMPORTANT:
+Load model ONLY ONCE.
+
+NOT on every request.
+
+Otherwise prediction becomes painfully slow.
+
+--------------------------------------------------
+MODEL LOADER
+--------------------------------------------------
+
+backend/model_loader.py
+
+Responsibilities:
+- load keras model
+- load label map
+- expose predict function
+
+==================================================
+PHASE 4
+IMAGE PREPROCESSING
+==================================================
+
+VERY IMPORTANT.
+
+Inference preprocessing MUST MATCH training preprocessing.
+
+--------------------------------------------------
+PREPROCESSING PIPELINE
+--------------------------------------------------
+
+Uploaded Image
+    ↓
+Grayscale
+    ↓
+Resize 64×64
+    ↓
+Normalize (0-1)
+    ↓
+Reshape
+    ↓
+Predict
+
+If preprocessing differs from training:
+accuracy collapses.
+
+This mistake destroys MANY ML deployments.
+
+==================================================
+PHASE 5
+API ENDPOINTS
+==================================================
+
+MAIN ENDPOINT:
+
+POST /predict
+
+Input:
+image file
+
+Output:
+
+{
+  "prediction": "CONS_KA",
+  "confidence": 0.94,
+  "top_predictions": [
+    {
+      "label": "CONS_KA",
+      "confidence": 0.94
+    },
+    {
+      "label": "CONS_KHA",
+      "confidence": 0.03
+    }
+  ]
+}
+
+--------------------------------------------------
+ALL INPUT TYPES USE SAME ENDPOINT
+--------------------------------------------------
+
+Upload
+Camera
+Draw Canvas
+
+All become:
+PNG/JPG image
+
+Backend logic remains same.
+
+Very clean architecture.
+
+==================================================
+PHASE 6
+MODEL PREDICTION FLOW
+==================================================
+
+User Draws Character
+    ↓
+Canvas Export
+    ↓
+Frontend Sends Image
+    ↓
+FastAPI Receives Image
+    ↓
+OpenCV Preprocessing
+    ↓
+TensorFlow Prediction
+    ↓
+Softmax Probabilities
+    ↓
+Highest Probability Selected
+    ↓
+JSON Response Returned
+    ↓
+Frontend Updates UI
+
+==================================================
+PHASE 7
+DEPLOYMENT
+==================================================
+
+--------------------------------------------------
+FRONTEND DEPLOYMENT
+--------------------------------------------------
+
+Platform:
+Vercel
+
+Deploy:
+frontend/
+
+Environment Variable:
+
+NEXT_PUBLIC_API_URL
+
+Example:
+
+https://lipi-api.onrender.com
+
+--------------------------------------------------
+BACKEND DEPLOYMENT
+--------------------------------------------------
+
+Platform:
+Render
+
+Deploy:
+backend/
+
+Render runs:
+uvicorn main:app
+
+--------------------------------------------------
+MODEL STORAGE
+--------------------------------------------------
+
+Store:
+odia_ocr_cnn.keras
+
+inside:
+backend/models/
+
+OR:
+download from Google Drive during build.
+
+==================================================
+PHASE 8
+FUTURE FEATURES
+==================================================
+
+Later Add:
+
+1. Word OCR
+2. Sentence OCR
+3. Full Document OCR
+4. Feedback Collection
+5. Dataset Collection Portal
+6. User Correction Feedback
+7. Confidence Heatmaps
+8. Transformer-based OCR
+9. ONNX optimization
+10. Mobile support
+
+==================================================
+IMPORTANT ENGINEERING PRINCIPLES
+==================================================
+
+1.
+Frontend NEVER preprocesses images heavily.
+
+Backend owns preprocessing.
+
+2.
+Training preprocessing == inference preprocessing.
+
+Always.
+
+3.
+Keep model loaded in memory.
+
+4.
+Do NOT optimize early.
+
+Working system first.
+
+5.
+Build MVP before research complexity.
+
+==================================================
+AGENT EXECUTION PRIORITY
+==================================================
+
+PHASE ORDER:
+
+1. Setup frontend
+2. Build UI
+3. Setup FastAPI backend
+4. Load model
+5. Create prediction API
+6. Connect frontend to backend
+7. Test upload mode
+8. Test draw mode
+9. Test camera mode
+10. Deploy frontend/backend
+
+==================================================
+SUCCESS CRITERIA
+==================================================
+
+User can:
+- upload image
+- draw character
+- use camera
+
+and receive:
+- predicted Odia character
+- confidence score
+- top predictions
+
+from deployed OCR model.
+
+At that point:
+Lipi becomes a real usable AI product.
+
+Not just notebooks performing mathematical rituals in isolation.

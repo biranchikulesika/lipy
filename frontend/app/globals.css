@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --background: #f3efe7;
+  --background-deep: #ebe4d7;
+  --foreground: #111827;
+  --muted: #667085;
+  --panel: rgba(255, 255, 255, 0.76);
+  --panel-strong: rgba(255, 255, 255, 0.94);
+  --border: rgba(17, 24, 39, 0.1);
+  --accent: #1f4d6b;
+  --accent-soft: #7ea6bd;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --background: #0d1117;
+    --background-deep: #121824;
+    --foreground: #e5e7eb;
+    --muted: #9aa4b2;
+    --panel: rgba(17, 24, 39, 0.72);
+    --panel-strong: rgba(15, 23, 42, 0.94);
+    --border: rgba(255, 255, 255, 0.12);
+    --accent: #9bc2d8;
+    --accent-soft: #567b92;
+  }
+}
+
+html {
+  min-height: 100%;
+  background: var(--background);
+}
+
+body {
+  min-height: 100vh;
+  color: var(--foreground);
+  background:
+    radial-gradient(circle at top, rgba(31, 77, 107, 0.12), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(126, 166, 189, 0.18), transparent 26%),
+    linear-gradient(180deg, var(--background), var(--background-deep));
+  font-family: var(--font-body), sans-serif;
+}
+
+::selection {
+  background: rgba(31, 77, 107, 0.22);
+}
+
+@layer components {
+  .panel {
+    @apply border border-white/40 bg-white/75 shadow-soft backdrop-blur-xl dark:border-slate-700/70 dark:bg-slate-950/60;
+  }
+
+  .tab-button {
+    @apply inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition;
+  }
+
+  .tab-button-active {
+    @apply border-slate-900/10 bg-slate-900 text-white dark:border-white/10 dark:bg-white dark:text-slate-950;
+  }
+
+  .tab-button-inactive {
+    @apply border-slate-900/10 bg-transparent text-slate-600 hover:bg-slate-900/5 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/5;
+  }
+
+  .primary-button {
+    @apply inline-flex items-center justify-center rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200;
+  }
+
+  .secondary-button {
+    @apply inline-flex items-center justify-center rounded-full border border-slate-900/10 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-900/5 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-white/5;
+  }
+}

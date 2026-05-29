@@ -1,12 +1,6 @@
-# ============================================
-# Lipi - Odia OCR Character Label System
-# ============================================
+"""Canonical Odia OCR label mappings used during training and inference."""
 
-# Unicode Character → ML Label
 odia_ml_labels = {
-    # ========================================
-    # Independent Vowels (Svara Varna)
-    # ========================================
     "ଅ": "VOW_A",
     "ଆ": "VOW_AA",
     "ଇ": "VOW_I",
@@ -18,9 +12,6 @@ odia_ml_labels = {
     "ଐ": "VOW_AI",
     "ଓ": "VOW_O",
     "ଔ": "VOW_AU",
-    # ========================================
-    # Consonants (Byanjana Varna)
-    # ========================================
     "କ": "CONS_KA",
     "ଖ": "CONS_KHA",
     "ଗ": "CONS_GA",
@@ -55,9 +46,6 @@ odia_ml_labels = {
     "ସ": "CONS_SA",
     "ହ": "CONS_HA",
     "ୟ": "CONS_YYA",
-    # ========================================
-    # Digits
-    # ========================================
     "୦": "DIGIT_0",
     "୧": "DIGIT_1",
     "୨": "DIGIT_2",
@@ -70,42 +58,7 @@ odia_ml_labels = {
     "୯": "DIGIT_9",
 }
 
-# ============================================
-# Reverse Mapping
-# ML Label → Unicode Character
-# ============================================
-
 reverse_label_map = {value: key for key, value in odia_ml_labels.items()}
-
-# ============================================
-# Create Class List
-# ============================================
-
 class_names = list(odia_ml_labels.values())
-
-# ============================================
-# ML Label → Numeric ID
-# ============================================
-
 class_to_id = {label: idx for idx, label in enumerate(class_names)}
-
-# ============================================
-# Numeric ID → ML Label
-# ============================================
-
 id_to_class = {idx: label for label, idx in class_to_id.items()}
-
-# ============================================
-# Print Summary
-# ============================================
-
-print("Total Classes:", len(class_names))
-
-print("\nSample Mappings:\n")
-
-for i, (char, label) in enumerate(odia_ml_labels.items()):
-
-    print(f"{char}  →  {label}")
-
-    if i >= 10:
-        break
