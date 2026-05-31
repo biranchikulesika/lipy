@@ -21,8 +21,8 @@ const monoFont = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Lipi | Odia Handwriting Recognition System",
-  description: "Upload, capture, or draw an Odia character and receive a TensorFlow prediction.",
+  title: "LiPi | Odia Handwriting Recognition",
+  description: "A polished academic OCR and dataset contributor workspace for Odia handwriting recognition.",
 };
 
 export default function RootLayout({

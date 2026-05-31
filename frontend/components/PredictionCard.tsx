@@ -1,4 +1,5 @@
 import type { PredictionResponse } from "@/lib/types";
+import { getOdiaCharacter } from "@/lib/odiaCharacters";
 
 interface PredictionCardProps {
   prediction: PredictionResponse | null;
@@ -6,63 +7,100 @@ interface PredictionCardProps {
   error?: string | null;
 }
 
-export function PredictionCard({ prediction, loading = false, error = null }: PredictionCardProps) {
-  return (
-    <section className="panel rounded-[2rem] p-5 sm:p-6">
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <p className="text-sm font-medium uppercase tracking-[0.25em] text-slate-500 dark:text-slate-400">Prediction</p>
-          <h2 className="mt-2 font-display text-xl font-semibold text-slate-950 dark:text-white">Model output</h2>
-        </div>
-        {loading ? (
-          <span className="rounded-full border border-slate-900/10 px-3 py-1 text-xs font-medium text-slate-600 dark:border-white/10 dark:text-slate-300">
-            Running inference
-          </span>
-        ) : null}
-      </div>
+function formatConfidence(value: number) {
+  return `${(value * 100).toFixed(1)}%`;
+}
 
+export function PredictionCard({
+  prediction,
+  loading = false,
+  error = null,
+}: PredictionCardProps) {
+  const hasPrediction = Boolean(prediction);
+  const topPredictions = prediction?.top_predictions.slice(0, 3) ?? [];
+
+  return (
+    <section className="flex min-h-0 flex-1 flex-col gap-3">
       {error ? (
-        <div className="mt-5 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200">
+        <div className="rounded-xl border border-rose-500/20 bg-rose-500/10 px-3 py-2 text-sm text-rose-200">
           {error}
         </div>
       ) : null}
 
-      {!error && !prediction ? (
-        <div className="mt-5 rounded-2xl border border-dashed border-slate-900/10 bg-slate-50/70 p-5 text-sm leading-6 text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
-          Predictions will appear here after an image is uploaded, captured, or drawn.
+      <div className="rounded-xl border border-slate-900/8 bg-white/70 p-4 dark:border-white/10 dark:bg-white/5">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">Detected Character</p>
+          {loading ? <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Running</p> : null}
         </div>
-      ) : null}
 
-      {prediction ? (
-        <div className="mt-5 space-y-4">
-          <div className="rounded-2xl border border-slate-900/10 bg-white/80 p-5 dark:border-white/10 dark:bg-white/5">
-            <p className="text-sm text-slate-500 dark:text-slate-400">Predicted label</p>
-            <div className="mt-2 flex flex-wrap items-end gap-3">
-              <p className="font-mono text-3xl font-semibold tracking-tight text-slate-950 dark:text-white">
-                {prediction.prediction}
-              </p>
-              <span className="rounded-full bg-slate-900 px-3 py-1 text-sm font-medium text-white dark:bg-white dark:text-slate-950">
-                {(prediction.confidence * 100).toFixed(1)}%
-              </span>
+        {hasPrediction ? (
+          <div className="mt-3 flex items-start gap-3 rounded-lg border border-slate-900/8 bg-slate-50/70 p-3 dark:border-white/10 dark:bg-white/5">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-3xl font-semibold text-white dark:bg-white dark:text-slate-950 sm:h-20 sm:w-20 sm:text-4xl">
+              {getOdiaCharacter(prediction!.prediction)}
             </div>
-
-            <div className="mt-4">
-              <div className="mb-2 flex items-center justify-between text-sm text-slate-500 dark:text-slate-400">
-                <span>Confidence</span>
-                <span>{(prediction.confidence * 100).toFixed(1)}%</span>
-              </div>
-              <div className="h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-white/10">
-                <div
-                  className="h-full rounded-full bg-slate-900 dark:bg-white"
-                  style={{ width: `${Math.max(3, prediction.confidence * 100)}%` }}
-                />
-              </div>
+            <div className="min-w-0">
+              <p className="truncate font-mono text-sm font-semibold uppercase tracking-[0.22em] text-slate-600 dark:text-slate-300">{prediction!.prediction}</p>
+              <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">Model label mapped to the predicted Odia character.</p>
             </div>
           </div>
+        ) : (
+          <div className="mt-3 rounded-lg border border-dashed border-slate-900/8 bg-slate-50/70 p-4 text-sm leading-6 text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
+            No prediction yet. Draw, upload, or capture a character to see the detected result.
+          </div>
+        )}
+      </div>
 
-          {loading ? null : <p className="text-sm text-slate-500 dark:text-slate-400">Top 3 predictions are shown below.</p>}
+      <div className="rounded-xl border border-slate-900/8 bg-white/70 p-4 dark:border-white/10 dark:bg-white/5">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">Confidence</p>
+          {loading ? <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Running</p> : null}
         </div>
-      ) : null}
+
+        <div className="mt-3 flex items-end gap-3">
+          <p className="font-mono text-3xl font-semibold leading-none text-slate-950 dark:text-white">
+            {hasPrediction ? formatConfidence(prediction!.confidence) : "0.0%"}
+          </p>
+          <p className="pb-1 text-sm text-slate-600 dark:text-slate-300">
+            {hasPrediction ? "Model confidence" : "Waiting for a prediction"}
+          </p>
+        </div>
+
+        <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200/80 dark:bg-white/10">
+          <div
+            className="h-full rounded-full bg-slate-900 dark:bg-white"
+            style={{ width: hasPrediction ? `${Math.max(3, prediction!.confidence * 100)}%` : "12%" }}
+          />
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-slate-900/8 bg-white/70 p-4 dark:border-white/10 dark:bg-white/5">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">Top Predictions</p>
+          {loading ? <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Running</p> : null}
+        </div>
+
+        <div className="mt-3 space-y-2">
+          {(hasPrediction ? topPredictions : [
+            { label: "Likely candidate", confidence: 0 },
+            { label: "Secondary candidate", confidence: 0 },
+            { label: "Fallback candidate", confidence: 0 },
+          ]).map((item, index) => {
+            const confidence = Math.round(item.confidence * 1000) / 10;
+            const character = hasPrediction ? getOdiaCharacter(item.label) : "•";
+
+            return (
+              <div key={`${item.label}-${index}`} className="grid grid-cols-[auto_auto_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-slate-900/8 bg-slate-50/80 px-3 py-2.5 dark:border-white/10 dark:bg-white/5">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-900 text-[11px] font-semibold text-white dark:bg-white dark:text-slate-950">{index + 1}</span>
+                <span className="font-display text-2xl leading-none text-slate-950 dark:text-white">{character}</span>
+                <div className="min-w-0">
+                  <p className="truncate font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-600 dark:text-slate-300">{item.label}</p>
+                </div>
+                <p className="font-mono text-sm font-semibold text-slate-700 dark:text-slate-200">{hasPrediction ? `${confidence.toFixed(1)}%` : "—"}</p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </section>
   );
 }
