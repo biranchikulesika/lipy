@@ -15,18 +15,71 @@ type ShellView = "ocr" | "lipid" | "about" | "team";
 
 export function AppShell({ children }: AppShellProps) {
 	const pathname = usePathname();
-	const [activeView, setActiveView] = useState<ShellView>(pathname === "/lipid" ? "lipid" : "ocr");
+
+	const [activeView, setActiveView] = useState<ShellView>(
+		pathname === "/lipid" ? "lipid" : "ocr"
+	);
 
 	useEffect(() => {
-		setActiveView(pathname === "/lipid" ? "lipid" : "ocr");
+		if (pathname === "/lipid") {
+			setActiveView("lipid");
+		} else {
+			setActiveView("ocr");
+		}
+
+		window.scrollTo({
+			top: 0,
+			behavior: "smooth",
+		});
 	}, [pathname]);
+
+	const handleOpenOcr = () => {
+		setActiveView("ocr");
+
+		window.scrollTo({
+			top: 0,
+			behavior: "smooth",
+		});
+	};
+
+	const handleOpenAbout = () => {
+		setActiveView("about");
+
+		window.scrollTo({
+			top: 0,
+			behavior: "smooth",
+		});
+	};
+
+	const handleOpenTeam = () => {
+		setActiveView("team");
+
+		window.scrollTo({
+			top: 0,
+			behavior: "smooth",
+		});
+	};
 
 	return (
 		<>
-			<Navbar onOpenAbout={() => setActiveView("about")} onOpenTeam={() => setActiveView("team")} />
-			{activeView === "about" ? <AboutPanel /> : null}
-			{activeView === "team" ? <TeamPanel /> : null}
-			{activeView === "ocr" || activeView === "lipid" ? children : null}
+			<Navbar
+				activeView={
+					activeView === "about"
+						? "about"
+						: activeView === "team"
+							? "team"
+							: "ocr"
+				}
+				onOpenOcr={handleOpenOcr}
+				onOpenAbout={handleOpenAbout}
+				onOpenTeam={handleOpenTeam}
+			/>
+
+			{activeView === "about" && <AboutPanel />}
+
+			{activeView === "team" && <TeamPanel />}
+
+			{(activeView === "ocr" || activeView === "lipid") && children}
 		</>
 	);
 }
