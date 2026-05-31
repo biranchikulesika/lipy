@@ -1,6 +1,6 @@
 fastapi==0.115.6
 uvicorn[standard]==0.32.1
-tensorflow==2.16.1
+tensorflow-cpu==2.16.1
 numpy==1.26.4
 Pillow==11.0.0
 opencv-python-headless==4.10.0.84
