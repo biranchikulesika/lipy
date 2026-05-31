@@ -13,8 +13,8 @@ from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from backend.model_loader import load_prediction_bundle
-from backend.predict import predict_upload
+from model_loader import load_prediction_bundle
+from predict import predict_upload
 
 
 class TopPrediction(BaseModel):

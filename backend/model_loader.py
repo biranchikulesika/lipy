@@ -12,7 +12,7 @@ if str(ROOT_DIR) not in sys.path:
 
 from tensorflow.keras.models import load_model
 
-from src.config.labels import odia_ml_labels
+from labels import odia_ml_labels
 
 
 BASE_DIR = Path(__file__).resolve().parents[1]

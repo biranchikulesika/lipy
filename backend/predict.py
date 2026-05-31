@@ -12,8 +12,8 @@ import numpy as np
 import tensorflow as tf
 from fastapi import UploadFile
 
-from backend.model_loader import load_prediction_bundle
-from backend.preprocess import preprocess_image
+from model_loader import load_prediction_bundle
+from preprocess import preprocess_image
 
 
 def _normalize_probabilities(values: np.ndarray) -> np.ndarray:
