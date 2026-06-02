@@ -46,6 +46,15 @@ body {
   overflow-x: hidden;
 }
 
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 ::selection {
   background: rgba(33, 72, 93, 0.22);
 }
@@ -54,6 +63,8 @@ body {
   .panel {
     @apply border border-white/30 bg-white/70 backdrop-blur-xl dark:border-slate-700/50 dark:bg-slate-950/60;
     box-shadow: 0 14px 30px -26px rgba(15, 23, 42, 0.34);
+    isolation: isolate;
+    box-sizing: border-box;
   }
 
   .tab-button {
@@ -75,4 +86,17 @@ body {
   .secondary-button {
     @apply inline-flex items-center justify-center rounded-md border border-slate-900/10 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-900/5 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-white/5;
   }
+}
+
+/* Prevent media and canvas overflow */
+img, svg, canvas {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Ensure interactive panels don't exceed viewport on mobile */
+.mobile-scrollable {
+  max-height: 90vh;
+  overflow-y: auto;
 }

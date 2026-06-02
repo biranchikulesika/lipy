@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { CameraCapture } from "@/components/CameraCapture";
 import { DrawCanvas } from "@/components/DrawCanvas";
@@ -27,6 +27,7 @@ const MODE_HELPERS: Record<InputMode, string> = {
 
 export function OcrWorkspace() {
 	const [activeMode, setActiveMode] = useState<InputMode>("draw");
+	const [activePage, setActivePage] = useState<0 | 1>(0);
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 	const [prediction, setPrediction] = useState<PredictionResponse | null>(null);
@@ -34,6 +35,11 @@ export function OcrWorkspace() {
 	const [predictionError, setPredictionError] = useState<string | null>(null);
 	const [isPredicting, setIsPredicting] = useState(false);
 	const [helperVisible, setHelperVisible] = useState(true);
+	const inputSectionRef = useRef<HTMLDivElement | null>(null);
+	const resultSectionRef = useRef<HTMLDivElement | null>(null);
+	const hasResults = Boolean(prediction || predictionError || isPredicting);
+	const previousHasResultsRef = useRef(false);
+	const pagerRef = useRef<HTMLElement | null>(null);
 
 	useEffect(() => {
 		if (!selectedFile) {
@@ -59,6 +65,72 @@ export function OcrWorkspace() {
 		const id = window.setTimeout(() => setHelperVisible(true), 60);
 		return () => window.clearTimeout(id);
 	}, [activeMode]);
+
+	useEffect(() => {
+		const isMobile = window.matchMedia("(max-width: 1023px)").matches;
+		const becameVisible = hasResults && !previousHasResultsRef.current;
+
+		if (isMobile && becameVisible) {
+			window.requestAnimationFrame(() => {
+				resultSectionRef.current?.scrollIntoView({
+					behavior: "smooth",
+					block: "nearest",
+					inline: "start",
+				});
+			});
+		}
+
+		previousHasResultsRef.current = hasResults;
+	}, [hasResults]);
+
+	useEffect(() => {
+		const isMobile = window.matchMedia("(max-width: 1023px)").matches;
+
+		if (!isMobile) {
+			return;
+		}
+
+		window.requestAnimationFrame(() => {
+			inputSectionRef.current?.scrollIntoView({
+				behavior: "smooth",
+				block: "nearest",
+				inline: "start",
+			});
+			setActivePage(0);
+		});
+	}, [activeMode]);
+
+	useEffect(() => {
+		const pager = pagerRef.current;
+		if (!pager) {
+			return;
+		}
+
+		const onScroll = () => {
+			if (window.matchMedia("(min-width: 1024px)").matches) {
+				return;
+			}
+
+			const nextPage = pager.scrollLeft > pager.clientWidth / 2 ? 1 : 0;
+			setActivePage((current) => (current === nextPage ? current : nextPage));
+		};
+
+		pager.addEventListener("scroll", onScroll, { passive: true });
+		return () => pager.removeEventListener("scroll", onScroll);
+	}, []);
+
+	const scrollToPage = (pageIndex: 0 | 1) => {
+		const pager = pagerRef.current;
+		if (!pager) {
+			return;
+		}
+
+		pager.scrollTo({
+			left: pageIndex === 0 ? 0 : pager.clientWidth,
+			behavior: "smooth",
+		});
+		setActivePage(pageIndex);
+	};
 
 	const handleFileSelected = (file: File) => {
 		if (!ACCEPTED_TYPES.has(file.type)) {
@@ -114,14 +186,32 @@ export function OcrWorkspace() {
 	};
 
 	return (
-		<main className="relative mx-auto flex h-[calc(100vh-4.25rem)] max-w-[1500px] flex-col gap-3 px-3 pb-3 pt-3 sm:px-4 lg:overflow-hidden lg:px-5 lg:pb-4">
-			<section className="grid min-h-0 flex-1 gap-3 lg:grid-cols-[minmax(0,1.08fr)_minmax(330px,0.92fr)]">
-				<div className="panel flex min-h-0 flex-col rounded-xl p-3 sm:p-4">
+		<main className="relative mx-auto flex h-[calc(100svh-3.75rem)] max-w-[1500px] flex-col gap-3 box-border overflow-hidden px-3 pb-3 pt-3 sm:h-[calc(100svh-4rem)] sm:px-4 lg:h-auto lg:min-h-[calc(100vh-4.25rem)] lg:px-5 lg:pb-4">
+			<div className="flex items-center justify-center gap-2 lg:hidden">
+				<button
+					type="button"
+					aria-label="Show input section"
+					onClick={() => scrollToPage(0)}
+					className={`h-2.5 w-2.5 rounded-full transition ${activePage === 0 ? "bg-slate-900 dark:bg-white" : "bg-slate-400/50 dark:bg-white/25"}`}
+				/>
+				<button
+					type="button"
+					aria-label="Show results section"
+					onClick={() => scrollToPage(1)}
+					className={`h-2.5 w-2.5 rounded-full transition ${activePage === 1 ? "bg-slate-900 dark:bg-white" : "bg-slate-400/50 dark:bg-white/25"}`}
+				/>
+			</div>
+
+			<section ref={pagerRef} className="flex h-full min-h-0 snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain scroll-smooth scrollbar-none lg:grid lg:h-auto lg:grid-cols-[minmax(0,1.08fr)_minmax(330px,0.92fr)] lg:overflow-visible">
+				<div
+					ref={inputSectionRef}
+					className="panel flex h-full min-h-0 w-full shrink-0 snap-start flex-col rounded-xl p-3 sm:p-4 lg:h-auto lg:min-h-[calc(100vh-5.5rem)] lg:w-auto lg:shrink lg:p-4"
+				>
 					<div className="border-b border-slate-900/8 pb-3 dark:border-white/10">
 						<p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">Character Input</p>
 					</div>
 
-					<div className="mt-3 flex items-center justify-center gap-1.5">
+					<div className="mt-3 flex items-center justify-center gap-1.5 overflow-x-auto pb-1 sm:overflow-visible">
 						{INPUT_MODES.map((mode) => {
 							const isActive = activeMode === mode.key;
 
@@ -172,10 +262,15 @@ export function OcrWorkspace() {
 						) : null}
 					</div>
 
-					{inputError ? <p className="mt-3 text-sm text-rose-600 dark:text-rose-400">{inputError}</p> : null}
+					{inputError ? (
+						<p className="mt-3 text-sm text-rose-600 dark:text-rose-400">{inputError}</p>
+					) : null}
 				</div>
 
-				<div className="panel flex min-h-0 flex-col rounded-xl p-3 sm:p-4">
+				<div
+					ref={resultSectionRef}
+					className="panel flex h-full min-h-0 w-full shrink-0 snap-start flex-col rounded-xl p-3 sm:p-4 lg:h-auto lg:min-h-[calc(100vh-5.5rem)] lg:w-auto lg:shrink lg:p-4"
+				>
 					<div className="border-b border-slate-900/8 pb-3 dark:border-white/10">
 						<p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">Recognition Results</p>
 					</div>

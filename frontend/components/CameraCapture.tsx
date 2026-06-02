@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import { InputModeShell } from "@/components/InputModeShell";
+
 interface CameraCaptureProps {
   onFileSelected: (file: File) => void;
   onClear: () => void;
@@ -173,48 +175,51 @@ export function CameraCapture({ onFileSelected, onClear, onPredict, disabled = f
   };
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-2 px-2 py-2 sm:px-3">
-      <div className="flex min-h-0 flex-1 items-center justify-center">
-        <div className="flex aspect-square h-[clamp(300px,32vw,344px)] w-[clamp(300px,32vw,344px)] max-w-full items-center justify-center overflow-hidden rounded-xl border border-slate-900/15 bg-white/90 transition dark:bg-black/20 dark:border-white/15">
+    <InputModeShell
+      helperText={helperText}
+      helperVisible={helperVisible}
+      errorSlot={
+        <div className="relative w-full max-w-[344px] mx-auto">
           {cameraError ? (
-            <div className="p-4 text-center text-sm text-rose-600 dark:text-rose-400">{cameraError}</div>
-          ) : capturedFrameUrl ? (
-            <img src={capturedFrameUrl} alt="Captured camera frame" className="h-full w-full object-contain p-3" />
+            <div role="status" aria-live="polite" className="pointer-events-none absolute inset-x-0 top-[-0.25rem] z-10 -translate-y-full max-h-14 overflow-hidden rounded-xl border border-rose-500/20 bg-rose-500/10 px-3 py-2 text-sm leading-6 text-rose-700 shadow-sm dark:text-rose-200" style={{ display: "-webkit-box", WebkitBoxOrient: "vertical", WebkitLineClamp: 2 }}>
+              {cameraError}
+            </div>
+          ) : null}
+        </div>
+      }
+      actionRow={
+        <div className="mt-2 flex w-full max-w-[320px] items-center gap-2 sm:max-w-[336px]">
+          {capturedFrameUrl ? (
+            <>
+              <button type="button" className="secondary-button flex-1 px-3 py-2 text-xs sm:text-sm" onClick={() => { retakeCapture(); onClear(); setCapturedFile(null); }} disabled={disabled}>
+                Clear
+              </button>
+              <button type="button" className="primary-button flex-1 px-3 py-2 text-xs sm:px-4 sm:text-sm" onClick={() => onPredict(capturedFile ?? undefined)} disabled={!capturedFrameUrl || disabled}>
+                Predict
+              </button>
+            </>
           ) : (
-            <video ref={videoRef} autoPlay playsInline muted className="h-full w-full object-contain p-3" />
+            <>
+              <button type="button" className="secondary-button flex-1 px-3 py-2 text-xs sm:text-sm" onClick={() => { onClear(); retakeCapture(); setCapturedFile(null); }} disabled={disabled || isStarting}>
+                Clear
+              </button>
+              <button type="button" className="primary-button flex-1 px-3 py-2 text-xs sm:px-4 sm:text-sm" onClick={() => void captureAndMaybePredict(true)} disabled={disabled || isStarting}>
+                Predict
+              </button>
+            </>
           )}
         </div>
-      </div>
-
-      {helperText ? (
-        <div className={`mt-2 w-full max-w-[336px] transition-opacity duration-200 ${helperVisible ? "opacity-100" : "opacity-0"} mx-auto text-center`}>
-          <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">{helperText}</p>
-        </div>
-      ) : null}
-
-      <div className="flex w-full max-w-[336px] items-center gap-3 mt-4">
-        {capturedFrameUrl ? (
-          <>
-            <button type="button" className="secondary-button flex-1 px-3 py-2 text-sm" onClick={() => { retakeCapture(); onClear(); setCapturedFile(null); }} disabled={disabled}>
-              Clear
-            </button>
-            <button type="button" className="primary-button flex-1 px-4 py-2 text-sm" onClick={() => onPredict(capturedFile ?? undefined)} disabled={!capturedFrameUrl || disabled}>
-              Predict
-            </button>
-          </>
+      }
+    >
+      <div className="flex aspect-square w-full max-w-[344px] items-center justify-center overflow-hidden rounded-xl border border-slate-900/15 bg-white/90 transition dark:border-white/15 dark:bg-black/20">
+        {cameraError ? (
+          <div className="p-4 text-center text-sm text-rose-600 dark:text-rose-400">{cameraError}</div>
+        ) : capturedFrameUrl ? (
+          <img src={capturedFrameUrl} alt="Captured camera frame" className="h-full w-full object-contain p-3" />
         ) : (
-          <>
-            <button type="button" className="secondary-button flex-1 px-3 py-2 text-sm" onClick={() => { onClear(); retakeCapture(); setCapturedFile(null); }} disabled={disabled || isStarting}>
-              Clear
-            </button>
-            <button type="button" className="primary-button flex-1 px-4 py-2 text-sm" onClick={() => void captureAndMaybePredict(true)} disabled={disabled || isStarting}>
-              Predict
-            </button>
-          </>
+          <video ref={videoRef} autoPlay playsInline muted className="h-full w-full object-contain p-3" />
         )}
       </div>
-
-      {/* camera error shown inside the input box above */}
-    </div>
+    </InputModeShell>
   );
 }
