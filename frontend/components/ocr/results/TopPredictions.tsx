@@ -1,4 +1,4 @@
-import type { PredictionItem } from "@/lib/types";
+import type { PredictionItem } from "@/types/ocr";
 
 interface TopPredictionsProps {
   items: PredictionItem[];
@@ -22,10 +22,10 @@ export function TopPredictions({ items }: TopPredictionsProps) {
             const confidence = Math.round(item.confidence * 1000) / 10;
 
             return (
-              <div key={`${item.label}-${index}`} className="rounded-2xl border border-slate-900/10 bg-white/80 p-4 dark:border-white/10 dark:bg-white/5">
+              <div key={item.label + "-" + index} className="rounded-2xl border border-slate-900/10 bg-white/80 p-4 dark:border-white/10 dark:bg-white/5">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white dark:bg-white dark:text-slate-950">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white dark:bg-slate-200 dark:text-slate-950">
                       {index + 1}
                     </span>
                     <div>
@@ -37,7 +37,7 @@ export function TopPredictions({ items }: TopPredictionsProps) {
                 </div>
 
                 <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-white/10">
-                  <div className="h-full rounded-full bg-slate-900 dark:bg-white" style={{ width: `${Math.max(3, confidence)}%` }} />
+                  <div className="h-full rounded-full bg-slate-900 dark:bg-slate-200" style={{ width: `${Math.max(3, confidence)}%` }} />
                 </div>
               </div>
             );

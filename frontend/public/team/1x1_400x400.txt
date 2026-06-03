@@ -1,0 +1,3 @@
+Place 1:1 aspect ratio images here. 
+Recommended dimensions: 400x400px. 
+Naming convention: firstname.jpeg (e.g., biranchi.jpeg, anushka.jpeg, baibhab.jpeg, soumya.jpeg, prajna.jpeg)

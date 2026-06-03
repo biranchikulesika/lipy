@@ -1,11 +1,6 @@
 "use client";
 
-const CONTRIBUTION_STEPS = [
-	"Prepare centered single-character samples.",
-	"Use PNG or JPEG and keep backgrounds clean.",
-	"Match the label folders in the canonical dataset.",
-	"Verify the crop before uploading a batch.",
-];
+import { CONTRIBUTION_STEPS } from "@/constants/lipi";
 
 export function DatasetContributor() {
 	return (
@@ -23,7 +18,7 @@ export function DatasetContributor() {
 						<div className="mt-3 space-y-2">
 							{CONTRIBUTION_STEPS.map((step, index) => (
 								<div key={step} className="flex items-start gap-3 rounded-lg border border-slate-900/8 bg-slate-50/80 px-3 py-2 dark:border-white/10 dark:bg-white/5">
-									<span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-900 text-xs font-semibold text-white dark:bg-white dark:text-slate-950">{index + 1}</span>
+									<span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-900 text-xs font-semibold text-white dark:bg-slate-200 dark:text-slate-950">{index + 1}</span>
 									<p className="min-w-0 text-sm leading-6 text-slate-700 dark:text-slate-200">{step}</p>
 								</div>
 							))}

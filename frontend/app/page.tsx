@@ -1,10 +1,11 @@
-import { AppShell } from "@/components/AppShell";
-import { OcrWorkspace } from "@/components/OcrWorkspace";
+import { Metadata } from "next";
+import { OcrWorkspace } from "@/components/ocr/OcrWorkspace";
+
+export const metadata: Metadata = {
+	title: "Workspace",
+	description: "Use our advanced ML models to recognize Odia handwriting from uploaded images or drawings.",
+};
 
 export default function Page() {
-	return (
-		<AppShell>
-			<OcrWorkspace />
-		</AppShell>
-	);
+	return <OcrWorkspace />;
 }
