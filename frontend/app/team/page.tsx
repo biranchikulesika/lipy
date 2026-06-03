@@ -9,6 +9,8 @@ export const metadata: Metadata = {
 	description: "Meet the researchers, engineers, and contributors behind the LiPi Odia OCR project.",
 };
 
+export const dynamic = "force-dynamic";
+
 export default function TeamPage() {
 	// Check which profile photos exist in the public directory
 	const validPhotos = TEAM_MEMBERS.map(member => member.photoFilename)
@@ -22,5 +24,7 @@ export default function TeamPage() {
 			}
 		});
 
-	return <TeamPanel validPhotos={validPhotos} />;
+	const shuffledMembers = [...TEAM_MEMBERS].sort(() => Math.random() - 0.5);
+
+	return <TeamPanel validPhotos={validPhotos} members={shuffledMembers} />;
 }
