@@ -25,6 +25,8 @@ export const TEAM_MEMBERS: TeamMember[] = [
     ],
     photoFilename: "anushka.jpeg",
     social: {
+      github: "https://github.com/Gundala-Anushka",
+      linkedin: "https://www.linkedin.com/in/gundala-anushka-3b9995367"
     }
   },
   {
@@ -57,6 +59,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     ],
     photoFilename: "baibhab.jpeg",
     social: {
+      github: "https://github.com/baibhab911"
     }
   },
   {
@@ -71,6 +74,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     ],
     photoFilename: "soumya.jpeg",
     social: {
+      github: "https://github.com/soumyasmitamohapatra2005"
     }
   },
   {
@@ -85,6 +89,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     ],
     photoFilename: "prajna.jpeg",
     social: {
+      github: "https://github.com/prajnadash73-netizen"
     }
   }
 ];
