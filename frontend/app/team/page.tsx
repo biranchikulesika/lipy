@@ -24,7 +24,12 @@ export default function TeamPage() {
 			}
 		});
 
-	const shuffledMembers = [...TEAM_MEMBERS].sort(() => Math.random() - 0.5);
+	// Implement Fisher-Yates shuffle for true randomness
+	const shuffledMembers = [...TEAM_MEMBERS];
+	for (let i = shuffledMembers.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[shuffledMembers[i], shuffledMembers[j]] = [shuffledMembers[j], shuffledMembers[i]];
+	}
 
 	return <TeamPanel validPhotos={validPhotos} members={shuffledMembers} />;
 }
