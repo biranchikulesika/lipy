@@ -39,16 +39,16 @@ function TeamMemberCard({ member, validPhotos }: { member: TeamMember; validPhot
 	return (
 		<div className="flex flex-col h-[420px] w-[85vw] max-w-[320px] shrink-0 snap-center sm:w-full sm:max-w-none shadow-sm rounded-[10px]">
 			{/* Flippable Top Section */}
-			<div
-				className="group relative z-10 flex-1"
+			<div 
+				className="group relative z-10 flex-1" 
 				style={{ perspective: "2000px" }}
 				onClick={() => setIsFlipped(!isFlipped)}
 			>
-				<div
+				<div 
 					className={`relative flex h-full w-full transition-transform duration-700 [transform-style:preserve-3d] sm:group-hover:[transform:rotateY(180deg)] ${isFlipped ? "[transform:rotateY(180deg)]" : ""}`}
 				>
 					{/* Front */}
-					<div
+					<div 
 						className="absolute inset-0 flex flex-col items-center justify-start rounded-t-[10px] border border-b-0 border-slate-900/8 bg-white p-6 dark:border-white/10 dark:bg-slate-950 [backface-visibility:hidden] [-webkit-backface-visibility:hidden]"
 					>
 						<TeamMemberAvatar name={member.name} photoFilename={member.photoFilename} validPhotos={validPhotos} />
@@ -66,7 +66,7 @@ function TeamMemberCard({ member, validPhotos }: { member: TeamMember; validPhot
 					</div>
 
 					{/* Back */}
-					<div
+					<div 
 						className="absolute inset-0 flex flex-col rounded-t-[10px] border border-b-0 border-slate-900/8 bg-slate-50 p-6 dark:border-white/10 dark:bg-slate-900 [backface-visibility:hidden] [-webkit-backface-visibility:hidden] [transform:rotateY(180deg)]"
 					>
 						<p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 mb-5 text-center dark:text-slate-400">
@@ -89,7 +89,7 @@ function TeamMemberCard({ member, validPhotos }: { member: TeamMember; validPhot
 			{/* Static Bottom Section container (Social Links) */}
 			<div className="relative z-20 flex h-[68px] shrink-0 items-center justify-center gap-5 rounded-b-[10px] border border-t-0 border-slate-900/8 bg-white px-6 dark:border-white/10 dark:bg-slate-950">
 				<div className="absolute top-0 left-4 right-4 h-px bg-slate-900/5 dark:bg-white/5" />
-
+				
 				{member.social?.github && (
 					<a href={member.social.github} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
 						<Github className="h-[18px] w-[18px]" />
@@ -114,7 +114,7 @@ export function TeamPanel({ validPhotos = [], members = TEAM_MEMBERS }: { validP
 	return (
 		<main className="mx-auto w-full max-w-[1500px] px-4 py-8 sm:px-6 lg:px-8 xl:py-12">
 			<div className="space-y-12 xl:space-y-16">
-
+				
 				<section className="flex flex-col items-center text-center">
 					<p className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
 						Team

@@ -14,8 +14,7 @@ export const MAIN_NAVIGATION: NavAction[] = [
     id: "lipid",
     label: "LiPiD",
     type: "link",
-    href: "https://lipid-zeta.vercel.app/",
-    isExternal: true,
+    href: "/lipid",
   },
   {
     id: "github",
