@@ -21,12 +21,13 @@ export const TEAM_MEMBERS: TeamMember[] = [
       "Progress tracking",
       "Mentor communication",
       "Presentation preparation",
-      "Code review"
+      "Code contribution and review"
     ],
-    photoFilename: "anushka.jpeg",
+    photoFilename: "anushka.webp",
     social: {
       github: "https://github.com/Gundala-Anushka",
-      linkedin: "https://www.linkedin.com/in/gundala-anushka-3b9995367"
+      linkedin: "https://www.linkedin.com/in/gundala-anushka-3b9995367",
+      email: "mailto:gundalaanushka7@gmail.com"
     }
   },
   {
