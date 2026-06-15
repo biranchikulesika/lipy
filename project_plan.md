@@ -1,582 +1,308 @@
-# Lipi
+# Lipi Project Plan
 
-## Complete Project Plan
+## 1. Goal
 
-### Odia Handwritten OCR System
+Lipi is an Odia handwritten character recognition project. The immediate goal is high-accuracy single-character OCR. The longer-term goal is a usable OCR system that can support word-level and document-level Odia recognition.
 
----
+The project has three main work areas:
 
-# 1. Project Overview
+- Dataset collection and curation
+- Model training and evaluation
+- Web deployment through an independent frontend and backend
 
-Lipi is a machine learning project focused on handwritten Odia character recognition.
+## 2. Current Team Workflow
 
-The project aims to:
+We no longer use the Google Colab website as the primary editing environment.
 
-* Build a structured Odia OCR pipeline
-* Create and manage handwritten Odia datasets
-* Train deep learning models for character recognition
-* Develop a deployable OCR system
-* Support regional language AI research
+The team writes and runs notebooks in VS Code, then connects those notebook cells to a Google Colab ipykernel through the VS Code Google Colab extension. This gives us:
 
----
+- VS Code editing, Git, and file navigation
+- Colab GPU/TPU compute when needed
+- Google Drive access for large datasets and trained models
+- A normal repository workflow without manually editing notebooks in the Colab web UI
 
-# 2. Core Objectives
-
-## Phase 1: Foundation
-
-* Setup project architecture
-* Setup GitHub workflow
-* Setup Google Colab environment
-* Setup Google Drive dataset storage
-* Create label system
-* Create initial handwritten dataset
-
-## Phase 2: Dataset Engineering
-
-* Collect handwritten character samples
-* Build dataset indexing pipeline
-* Create preprocessing pipeline
-* Resize and normalize images
-* Build train/test split pipeline
-* Create data augmentation pipeline
-
-## Phase 3: Machine Learning
-
-* Train first CNN model
-* Evaluate model accuracy
-* Analyze prediction failures
-* Improve preprocessing
-* Experiment with architectures
-
-## Phase 4: OCR System
-
-* Build prediction pipeline
-* Support full image inference
-* Detect characters from uploaded images
-* Build word-level recognition
-* Build deployable OCR application
-
----
-
-# 3. Technology Stack
-
-| Category             | Tools              |
-| -------------------- | ------------------ |
-| Language             | Python             |
-| IDE                  | VS Code            |
-| Notebook Environment | Google Colab       |
-| Version Control      | Git + GitHub       |
-| Dataset Storage      | Google Drive       |
-| Image Processing     | OpenCV, Pillow     |
-| Data Handling        | Pandas, NumPy      |
-| Visualization        | Matplotlib         |
-| Deep Learning        | TensorFlow / Keras |
-| Deployment           | Streamlit (later)  |
-
----
-
-# 4. Project Workflow
-
-## Development Workflow
+## 3. Development Flow
 
 ```text
 VS Code
-   ↓
-Git Push
-   ↓
-GitHub
-   ↓
-Colab Git Pull
-   ↓
-Model Training
+  -> open repository
+  -> open notebook from notebooks/
+  -> connect notebook kernel to Google Colab ipykernel
+  -> run cells using Colab compute
+  -> save notebook changes locally
+  -> commit and push changes with Git
 ```
 
----
+Team members should treat VS Code as the source of truth for notebook edits. Colab is used as the remote Python runtime, not as the main place to manage project files.
 
-## Dataset Workflow
-
-```text
-Local Dataset Collection
-   ↓
-Google Drive Upload
-   ↓
-Google Colab Access
-   ↓
-Preprocessing
-   ↓
-Training
-```
-
----
-
-# 5. Project Structure
+## 4. Repository Structure
 
 ```text
 lipi/
-│
-├── data/
-│   ├── raw/
-│   ├── processed/
-│   ├── samples/
-│   └── mini_dataset/
-│
-├── notebooks/
-│   ├── 01_dataset_exploration.ipynb
-│   ├── 02_preprocessing.ipynb
-│   ├── 03_first_cnn.ipynb
-│   ├── 04_full_training.ipynb
-│   └── 05_evaluation.ipynb
-│
-├── src/
-│   ├── config/
-│   │   └── labels.py
-│   │
-│   ├── preprocessing/
-│   ├── training/
-│   ├── evaluation/
-│   └── deployment/
-│
-├── models/
-├── outputs/
-├── requirements.txt
-├── README.md
-└── lipi.ipynb
+|-- backend/
+|   |-- models/
+|   |   `-- odia_ocr_cnn.keras
+|   |-- config.py
+|   |-- labels.py
+|   |-- main.py
+|   |-- model_loader.py
+|   |-- predict.py
+|   |-- preprocess.py
+|   |-- requirements.txt
+|   `-- runtime.txt
+|-- data/
+|   `-- mini_dataset/
+|       `-- <CLASS_NAME>/
+|-- notebooks/
+|   |-- 01_dataset_exploration.ipynb
+|   |-- 02_preprocessing.ipynb
+|   |-- 03_first_cnn.ipynb
+|   |-- 04_full_training.ipynb
+|   `-- 05_evaluation.ipynb
+|-- outputs/
+|   |-- metrics/
+|   |-- models/
+|   `-- training/
+|-- frontend/
+|-- L.ipynb
+|-- README.md
+|-- project_plan.md
+`-- requirements.txt
 ```
 
----
+Important deployment rule:
 
-# 6. Google Drive Structure
+- `frontend/` is deployed independently on Vercel.
+- `backend/` is deployed independently on Railway.
+- Railway selects the `backend/` folder, so backend runtime code must not require files outside `backend/`.
+- Vercel selects the `frontend/` folder, so frontend runtime code must not require files outside `frontend/`.
 
-```text
-MyDrive/
-└── lipi/
-    ├── dataset/
-    │   └── mini_dataset/
-    │
-    ├── models/
-    ├── outputs/
-    └── exports/
-```
+## 5. Dataset Structure
 
----
-
-# 7. GitHub Workflow
-
-## Initial Setup
-
-### Initialize Git
-
-```bash
-git init
-```
-
----
-
-### Add Remote Repository
-
-```bash
-git remote add origin https://github.com/biranchikulesika/lipi.git
-```
-
----
-
-### First Push
-
-```bash
-git add .
-git commit -m "Initial project setup"
-git branch -M main
-git push -u origin main
-```
-
----
-
-## Daily Workflow
-
-### Push Local Changes
-
-```bash
-git add .
-git commit -m "updated preprocessing"
-git push
-```
-
----
-
-### Pull Latest Changes in Colab
-
-```python
-%cd /content/lipi
-!git pull
-```
-
----
-
-# 8. Google Colab Workflow
-
-## Clone Repository
-
-```python
-!git clone https://github.com/biranchikulesika/lipi.git
-```
-
----
-
-## Move into Project Folder
-
-```python
-%cd /content/lipi
-```
-
----
-
-## Mount Google Drive
-
-```python
-from google.colab import drive
-
-drive.mount('/content/drive')
-```
-
----
-
-## Dataset Path
-
-```python
-DATASET_DIR = "/content/drive/MyDrive/lipi/dataset/mini_dataset"
-```
-
----
-
-# 9. Label System
-
-The project uses structured ML-friendly labels.
-
-Examples:
-
-| Character | ML Label |
-| --------- | -------- |
-| କ         | CONS_KA  |
-| ଖ         | CONS_KHA |
-| ଅ         | VOW_A  |
-| ୧         | DIGIT_1    |
-
----
-
-# 10. Dataset Collection Guidelines
-
-## Initial Dataset Goal
-
-Start with:
-
-* 5 to 10 classes
-* 10 images per class
-
-Example:
-
-* CONS_KA
-* CONS_KHA
-* VOW_A
-* VOW_AA
-* DIGIT_0
-
----
-
-## Image Collection Rules
-
-### Good Images
-
-* White background
-* Dark pen or marker
-* Proper lighting
-* Centered character
-* Tight crop
-* One character per image
-
----
-
-### Bad Images
-
-* Blurry
-* Shadowed
-* Multiple characters
-* Crooked orientation
-* Fingers or objects visible
-
----
-
-## Folder Example
+The reference notebook `L.ipynb` defines the dataset format. Training notebooks follow the same structure:
 
 ```text
 mini_dataset/
-└── CONS_KA/
-    ├── ka_1.jpg
-    ├── ka_2.jpg
-    └── ka_3.jpg
+|-- CONS_KA/
+|-- CONS_KHA/
+|-- CONS_GA/
+|-- VOW_A/
+`-- ...
 ```
 
----
+Each folder name is the class label. Each image inside that folder is one handwritten sample for that class.
 
-# 11. Notebook Responsibilities
+The notebooks use:
 
-## lipi.ipynb
+- `MIN_IMAGES = 25`
+- sorted valid class folders
+- `label_map = {class_name: integer_id}`
+- grayscale image loading
+- resize to `64 x 64`
+- normalization to `0..1`
+- final shape `(samples, 64, 64, 1)`
 
-Purpose:
+## 6. Google Drive Layout
 
-* Project introduction
-* Setup guide
-* Dataset access
-* Team onboarding
+Google Drive stores large files that should not live in Git.
 
-Do NOT use for:
+Recommended Drive paths:
 
-* experiments
-* random testing
-* debugging
-* model training
+```text
+MyDrive/
+|-- lipi/
+|   `-- mini_dataset/
+|       `-- <CLASS_NAME>/
+`-- lipi_models/
+    `-- lipi_odia_ocr_<model_family>_<YYYYMMDD_HHMMSS>.keras
+```
 
----
+The default notebook dataset path is:
 
-## notebooks/01_dataset_exploration.ipynb
+```text
+/content/drive/MyDrive/lipi/mini_dataset
+```
 
-Purpose:
+The default Google Drive model output path is:
 
-* visualize dataset
-* inspect classes
-* analyze image distribution
+```text
+/content/drive/MyDrive/lipi_models/
+```
 
----
+## 7. Local Artifact Layout
 
-## notebooks/02_preprocessing.ipynb
+Notebook-generated files are saved under `outputs/`:
 
-Purpose:
+```text
+outputs/
+|-- metrics/
+|-- models/
+`-- training/
+```
 
-* resizing
-* normalization
-* thresholding
-* augmentation
+Model naming convention:
 
----
+```text
+lipi_odia_ocr_<model_family>_<YYYYMMDD_HHMMSS>.keras
+```
 
-## notebooks/03_first_cnn.ipynb
+Examples:
 
-Purpose:
+```text
+lipi_odia_ocr_baseline_cnn_20260615_153000.keras
+lipi_odia_ocr_full_cnn_best_20260615_161500.keras
+```
 
-* first CNN architecture
-* basic training
-* validation
+Do not train directly into `backend/models/`. After evaluating models, copy the chosen deployment model to:
 
----
+```text
+backend/models/odia_ocr_cnn.keras
+```
 
-## notebooks/04_full_training.ipynb
+## 8. Notebook Responsibilities
 
-Purpose:
+### `L.ipynb`
 
-* larger dataset training
-* checkpointing
-* optimization
+Reference notebook. Use it to understand the original data layout, label creation, and preprocessing approach.
 
----
+### `notebooks/01_dataset_exploration.ipynb`
 
-## notebooks/05_evaluation.ipynb
+Use for:
 
-Purpose:
+- dataset path verification
+- class folder inspection
+- image count summaries
+- sample visualization
 
-* confusion matrix
-* prediction analysis
-* error analysis
-* evaluation metrics
+### `notebooks/02_preprocessing.ipynb`
 
----
+Use for:
 
-# 12. Machine Learning Roadmap
+- grayscale conversion
+- resizing
+- normalization
+- shape verification
+- visual inspection of processed samples
 
-## Stage 1
+### `notebooks/03_first_cnn.ipynb`
 
-Learn:
+Use for:
 
-* image loading
-* labels
-* folder-based datasets
-* dataframe creation
+- simple baseline CNN
+- quick training check
+- confirming the dataset can learn
 
----
+### `notebooks/04_full_training.ipynb`
 
-## Stage 2
+Use for:
 
-Learn:
+- accuracy-focused training
+- data augmentation
+- class weighting
+- best-model checkpointing
+- local and Google Drive model saving
+- training curves
 
-* image preprocessing
-* grayscale conversion
-* resizing
-* normalization
+### `notebooks/05_evaluation.ipynb`
 
----
+Use for:
 
-## Stage 3
+- loading a saved model
+- accuracy, precision, recall, F1
+- classification report
+- confusion matrix
+- prediction inspection
 
-Learn:
+## 9. Training Workflow
 
-* CNN basics
-* convolution layers
-* pooling layers
-* activation functions
-* softmax classification
+1. Open VS Code.
+2. Open the `lipi` repository.
+3. Open a notebook from `notebooks/`.
+4. Connect the notebook kernel to the Google Colab ipykernel using the VS Code Google Colab extension.
+5. Run the setup cells.
+6. Verify the dataset path and class counts.
+7. Run preprocessing and training.
+8. Save generated model artifacts locally and to Google Drive.
+9. Evaluate the model.
+10. Copy the chosen `.keras` file into `backend/models/odia_ocr_cnn.keras` for deployment.
 
----
+## 10. Backend Workflow
 
-## Stage 4
+The backend is a FastAPI service hosted on Railway.
 
-Learn:
+Local run:
 
-* training loops
-* epochs
-* batch size
-* validation
-* overfitting
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
 
----
+Railway service folder:
 
-## Stage 5
+```text
+backend/
+```
 
-Learn:
+Railway start command:
 
-* evaluation metrics
-* confusion matrices
-* prediction decoding
-* deployment basics
+```bash
+uvicorn main:app --host 0.0.0.0 --port $PORT
+```
 
----
+Backend model path:
 
-# 13. Recommended Learning Order
+```text
+backend/models/odia_ocr_cnn.keras
+```
 
-1. Python basics
-2. NumPy
-3. Pandas
-4. OpenCV
-5. Image preprocessing
-6. Neural network basics
-7. CNN fundamentals
-8. TensorFlow / Keras
-9. OCR pipeline design
-10. Deployment
+## 11. Frontend Workflow
 
----
+The frontend is hosted separately on Vercel and lives in `frontend/`.
 
-# 14. Important Engineering Rules
+The frontend communicates with the backend through the backend API URL. Frontend deployment and implementation details are intentionally kept separate from backend and notebook work.
 
-## Rule 1
+## 12. Engineering Rules
 
-Never mix:
+- Do not commit datasets to Git.
+- Do not commit notebook output artifacts unless there is a clear reason.
+- Keep backend runtime self-contained inside `backend/`.
+- Keep frontend runtime self-contained inside `frontend/`.
+- Keep experimental training outputs in `outputs/` and Google Drive.
+- Use clear timestamped model names.
+- Evaluate with a confusion matrix before choosing a deployment model.
+- Update `README.md` whenever workflow, structure, or deployment expectations change.
 
-* experiments
-* production code
-* setup scripts
+## 13. Roadmap
 
-inside one notebook.
+### Current
 
----
+- Improve dataset quality
+- Train stronger single-character OCR models
+- Evaluate class-level failures with confusion matrices
+- Select stable deployment models
 
-## Rule 2
+### Next
 
-GitHub stores:
+- Expand dataset size and writer diversity
+- Improve preprocessing for camera/upload images
+- Add more robust model architectures
+- Automate model comparison reports
 
-* code
-* notebooks
-* configs
+### Later
 
-NOT datasets.
+- Word-level OCR
+- Line-level OCR
+- Sentence/document OCR
+- Mobile-friendly OCR workflows
 
----
+## 14. Success Criteria
 
-## Rule 3
+The project is healthy when:
 
-Google Drive stores:
-
-* datasets
-* trained models
-* outputs
-
----
-
-## Rule 4
-
-Always use:
-
-* clear folder names
-* consistent labels
-* structured pipelines
-
----
-
-## Rule 5
-
-Debug data first.
-
-Most ML problems are actually:
-
-* dataset problems
-* preprocessing problems
-* labeling problems
-
-not model problems.
-
----
-
-# 15. Future Expansion Ideas
-
-## Character-Level OCR
-
-Recognize single handwritten characters.
-
----
-
-## Word-Level OCR
-
-Recognize complete handwritten words.
-
----
-
-## Sentence-Level OCR
-
-Recognize complete handwritten sentences.
-
----
-
-## Mobile OCR App
-
-Deploy OCR system on mobile devices.
-
----
-
-## Web OCR Tool
-
-Build browser-based OCR system using Streamlit.
-
----
-
-# 16. Immediate Next Steps
-
-## Current Priority
-
-1. Collect initial handwritten dataset
-2. Upload dataset to Google Drive
-3. Verify dataset access in Colab
-4. Build dataset dataframe
-5. Visualize samples
-6. Start preprocessing pipeline
-
----
-
-# 17. Final Goal
-
-Build a complete Odia handwritten OCR pipeline capable of:
-
-* recognizing handwritten characters
-* handling real-world image noise
-* supporting regional language digitization
-* enabling future NLP and OCR research for Odia language
-
----
-
-# End of Project Plan
+- New team members can understand the workflow from `README.md`.
+- Notebooks can run from VS Code using the Colab ipykernel.
+- Dataset labels are consistent across training and backend inference.
+- Model artifacts are clearly named and saved locally plus Google Drive.
+- Backend can deploy on Railway using only files inside `backend/`.
+- Frontend can deploy on Vercel using only files inside `frontend/`.
