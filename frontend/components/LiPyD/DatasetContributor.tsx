@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import ContributorSetup from '@/components/lipid/ContributorSetup';
-import CanvasBoard from '@/components/lipid/CanvasBoard';
+import ContributorSetup from '@/components/lipyd/ContributorSetup';
+import CanvasBoard from '@/components/lipyd/CanvasBoard';
 
 export function DatasetContributor() {
   const [view, setView] = useState('home');
