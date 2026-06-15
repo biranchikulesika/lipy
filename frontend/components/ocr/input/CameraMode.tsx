@@ -135,7 +135,7 @@ export const CameraContent = forwardRef<InputModeRef, CameraContentProps>(
 				return null;
 			}
 
-			const file = new File([blob], "lipi-camera.png", { type: "image/png" });
+			const file = new File([blob], "lipy-camera.png", { type: "image/png" });
 			const nextUrl = URL.createObjectURL(blob);
 
 			setCapturedFrameUrl(nextUrl);

@@ -38,7 +38,7 @@ Team members should treat VS Code as the source of truth for notebook edits. Col
 ## 4. Repository Structure
 
 ```text
-lipi/
+lipy/
 |-- backend/
 |   |-- models/
 |   |   `-- odia_ocr_cnn.keras
@@ -110,7 +110,7 @@ Recommended Drive paths:
 
 ```text
 MyDrive/
-|-- lipi/
+|-- lipy/
 |   `-- mini_dataset/
 |       `-- <CLASS_NAME>/
 `-- lipi_models/
@@ -120,7 +120,7 @@ MyDrive/
 The default notebook dataset path is:
 
 ```text
-/content/drive/MyDrive/lipi/mini_dataset
+/content/drive/MyDrive/lipy/mini_dataset
 ```
 
 The default Google Drive model output path is:
@@ -216,7 +216,7 @@ Use for:
 ## 9. Training Workflow
 
 1. Open VS Code.
-2. Open the `lipi` repository.
+2. Open the `lipy` repository.
 3. Open a notebook from `notebooks/`.
 4. Connect the notebook kernel to the Google Colab ipykernel using the VS Code Google Colab extension.
 5. Run the setup cells.

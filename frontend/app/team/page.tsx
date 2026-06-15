@@ -6,7 +6,7 @@ import path from "path";
 
 export const metadata: Metadata = {
 	title: "Our Team",
-	description: "Meet the researchers, engineers, and contributors behind the LiPi Odia OCR project.",
+	description: "Meet the researchers, engineers, and contributors behind the LiPy Odia OCR project.",
 };
 
 export const dynamic = "force-dynamic";

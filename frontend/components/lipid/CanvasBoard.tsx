@@ -15,7 +15,7 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
   const { clearCanvas, getImageBlob } = useCanvasDrawing(canvasRef, strokeWidth);
   const [currentChar, setCurrentChar] = useState<OdiaCharacter | null>(sessionConfig.mode === 'mixed-random' ? null : sessionConfig.selected || odiaCharacters[0]);
   const [invalidMsg, setInvalidMsg] = useState('');
-  
+
   const [completed, setCompleted] = useState(0);
   const [skipped, setSkipped] = useState(0);
   const syncState = useDatasetSync(sessionConfig);
@@ -64,9 +64,9 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
       } catch (e) { }
     }
     loadStats();
-    window.addEventListener('lipi:samples-updated', loadStats);
-    window.addEventListener('lipi:scheduler-state-changed', loadStats);
-    
+    window.addEventListener('lipy:samples-updated', loadStats);
+    window.addEventListener('lipy:scheduler-state-changed', loadStats);
+
     function handleDocClick(e: any) {
       try {
         if (strokeWrapperRef.current && !strokeWrapperRef.current.contains(e.target)) {
@@ -75,7 +75,7 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
       } catch (err) { }
     }
     document.addEventListener('click', handleDocClick);
-    
+
     function handleKeyDown(e: KeyboardEvent) {
       if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) return;
       if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
@@ -92,10 +92,10 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
       }
     }
     window.addEventListener('keydown', handleKeyDown);
-    
+
     return () => {
-      window.removeEventListener('lipi:samples-updated', loadStats);
-      window.removeEventListener('lipi:scheduler-state-changed', loadStats);
+      window.removeEventListener('lipy:samples-updated', loadStats);
+      window.removeEventListener('lipy:scheduler-state-changed', loadStats);
       window.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('click', handleDocClick);
       mounted = false;
@@ -119,7 +119,7 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
       const next = Number(e?.detail?.strokeWidth);
       if (!Number.isNaN(next) && next > 0) setStrokeWidth(next);
     };
-    window.addEventListener('lipi:stroke-width-changed', onStrokeChange);
+    window.addEventListener('lipy:stroke-width-changed', onStrokeChange);
     const onStrokePreviewChange = (e: any) => {
       const next = e?.detail?.strokeWidth;
       if (next == null || Number.isNaN(Number(next))) {
@@ -128,10 +128,10 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
       }
       setStrokePreviewWidth(Number(next));
     };
-    window.addEventListener('lipi:stroke-preview-changed', onStrokePreviewChange);
+    window.addEventListener('lipy:stroke-preview-changed', onStrokePreviewChange);
     return () => {
-      window.removeEventListener('lipi:stroke-width-changed', onStrokeChange);
-      window.removeEventListener('lipi:stroke-preview-changed', onStrokePreviewChange);
+      window.removeEventListener('lipy:stroke-width-changed', onStrokeChange);
+      window.removeEventListener('lipy:stroke-preview-changed', onStrokePreviewChange);
     };
   }, []);
 
@@ -220,7 +220,7 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
     });
     await queueSampleUpload(sampleRecord as any, blob);
     await schedulerService.recordCharacterOutcome(sessionConfig, currentChar, 'completed');
-    try { window.dispatchEvent(new CustomEvent('lipi:samples-updated')); } catch (e) { }
+    try { window.dispatchEvent(new CustomEvent('lipy:samples-updated')); } catch (e) { }
     clearCanvas();
     if (sessionConfig.mode === 'mixed-random') {
       transitionTo(async () => {
@@ -246,7 +246,7 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
   async function handleSwitchToMixedRandom() {
     const nextSessionConfig = { ...(sessionConfig || {}), mode: 'mixed-random' };
     try { onSessionConfigChange && onSessionConfigChange(nextSessionConfig); } catch (e) { }
-    try { window.dispatchEvent(new CustomEvent('lipi:scheduler-state-changed')); } catch (e) { }
+    try { window.dispatchEvent(new CustomEvent('lipy:scheduler-state-changed')); } catch (e) { }
     transitionTo(async () => {
       const nextCharacter = await schedulerService.getNextCharacter(nextSessionConfig);
       setCurrentChar(nextCharacter || odiaCharacters[0]);
@@ -259,7 +259,7 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
         <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 tracking-[0.2em] mb-2 pl-2">YOUR DRAWING</div>
         <div className="relative w-full aspect-square rounded-3xl border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden shadow-sm flex items-center justify-center group touch-none mb-3 lg:mb-6">
           <canvas ref={canvasRef} className="block h-full w-full touch-none" />
-          
+
           {/* Target Character Overlay */}
           <div className={`absolute top-3 left-3 lg:top-4 lg:left-4 z-10 flex flex-col items-center justify-center rounded-2xl bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200/50 dark:border-slate-700/50 shadow-sm p-2 w-20 h-20 lg:w-28 lg:h-28 pointer-events-none backdrop-blur-md transition-opacity duration-150 ${animating ? 'opacity-0' : 'opacity-100'}`}>
             <span className="text-5xl lg:text-[5rem] leading-none text-slate-900 dark:text-white font-medium select-none pb-1">
@@ -269,7 +269,7 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
               {currentChar?.id || 'LOAD'}
             </div>
           </div>
-          
+
           {strokePreviewWidth != null && (
             <div
               className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-slate-900 dark:bg-white shadow-md opacity-30 transition-all duration-75"
@@ -344,7 +344,7 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
             {sessionConfig && sessionConfig.mode === 'single-character' ? 'Save' : 'Save & Next'}
           </button>
         </div>
-        
+
         {/* Compact stats */}
         <div className="flex flex-col items-center justify-center pt-3 lg:pt-4 gap-2">
           <div className="flex items-center gap-1 w-full max-w-[160px] h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
@@ -354,7 +354,7 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
             <span>Done: <span className="text-slate-900 dark:text-white">{completed}</span></span>
             <span className="opacity-40">•</span>
             <span>Skipped: <span className="text-slate-900 dark:text-white">{skipped}</span></span>
-            
+
             {syncState.lastError ? (
               <>
                 <span className="opacity-40">•</span>

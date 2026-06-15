@@ -17,7 +17,7 @@ export default function ContributorSetup({ onStart }: { onStart: (cfg: any) => v
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [leaveConfirmMsg, setLeaveConfirmMsg] = useState('');
   const [deviceSampleCount, setDeviceSampleCount] = useState(0);
-  
+
   const [exporting, setExporting] = useState(false);
   const [exportComplete, setExportComplete] = useState(false);
 
@@ -106,7 +106,7 @@ export default function ContributorSetup({ onStart }: { onStart: (cfg: any) => v
         if (count > cachedDev) {
             try { localStorage.setItem(devKey, String(count)); } catch(e) {}
         }
-        
+
         if (mounted) setDeviceSampleCount(count);
       } catch (e) {
         if (mounted) setDeviceSampleCount(0);
@@ -163,7 +163,7 @@ export default function ContributorSetup({ onStart }: { onStart: (cfg: any) => v
     if (exporting) return;
     setExporting(true);
     setExportComplete(false);
-    
+
     try {
       const cfg = { name, contributorId, mode: mode === 'single' ? 'single-character' : 'mixed-random', selected };
       await exportDataset(cfg);
@@ -180,7 +180,7 @@ export default function ContributorSetup({ onStart }: { onStart: (cfg: any) => v
   return (
     <div className="space-y-6 text-center max-w-md mx-auto w-full panel rounded-xl p-6 sm:p-8 border border-slate-900/8 dark:border-white/10 bg-white/70 dark:bg-white/5">
       <div className="space-y-1">
-        <h2 className="text-3xl font-semibold tracking-tight text-slate-950 dark:text-white">LiPi-D</h2>
+        <h2 className="text-3xl font-semibold tracking-tight text-slate-950 dark:text-white">LiPy-D</h2>
         <p className="text-base text-slate-500 dark:text-slate-400">Help build the Odia handwriting dataset.</p>
       </div>
 
@@ -287,7 +287,7 @@ export default function ContributorSetup({ onStart }: { onStart: (cfg: any) => v
           </div>
         </div>
       )}
-      
+
       {!editing && (
         <div className="flex items-center justify-center gap-4 text-sm pt-4 border-t border-slate-900/5 dark:border-white/5">
             <button className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition" onClick={() => setShowLeaveConfirm(true)}>Reset profile</button>

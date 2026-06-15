@@ -68,7 +68,7 @@ export const DrawContent = forwardRef<InputModeRef, DrawContentProps>(
 							}
 
 							resolve(
-								new File([blob], "lipi-drawing.png", {
+								new File([blob], "lipy-drawing.png", {
 									type: "image/png",
 								})
 							);

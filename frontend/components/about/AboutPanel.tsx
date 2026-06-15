@@ -25,25 +25,25 @@ export function AboutPanel() {
 	return (
 		<main className="mx-auto w-full max-w-[1400px] px-4 py-8 sm:px-6 lg:px-8 xl:py-12">
 			<div className="space-y-12 md:space-y-20">
-				
+
 				{/* 1. HERO SECTION */}
 				<section className="relative flex flex-col items-center text-center">
 					<div className="absolute inset-0 -z-10 flex items-center justify-center opacity-30 dark:opacity-20 pointer-events-none">
 						<div className="h-64 w-64 rounded-full bg-blue-500 blur-3xl filter" />
 						<div className="h-64 w-64 rounded-full bg-indigo-500 blur-3xl filter -ml-32" />
 					</div>
-					
+
 					<div className="inline-flex items-center gap-2 rounded-full border border-blue-600/20 bg-blue-50/50 px-3 py-1.5 text-xs font-semibold text-blue-700 dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-300 backdrop-blur-sm">
 						<GraduationCap className="h-4 w-4" />
 						<span className="uppercase tracking-widest">Academic Project</span>
 					</div>
 
 					<h1 className="mt-6 font-display text-4xl font-extrabold tracking-tight text-slate-950 dark:text-white sm:text-5xl lg:text-7xl">
-						About <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">LiPi</span>
+						About <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">LiPy</span>
 					</h1>
 
 					<p className="mt-6 max-w-2xl text-base leading-relaxed text-slate-600 dark:text-slate-400 sm:text-lg">
-						LiPi is an Odia Handwriting Recognition System combining machine learning, human-contributed 
+						LiPy is an Odia Handwriting Recognition System combining machine learning, human-contributed
 						dataset generation, and language technology research to build an interactive OCR platform.
 					</p>
 				</section>
@@ -98,7 +98,7 @@ export function AboutPanel() {
 							<div className="absolute -right-10 -top-10 text-slate-100 dark:text-white/[0.03]">
 								<BookOpen className="h-48 w-48" strokeWidth={1} />
 							</div>
-							
+
 							<div className="relative z-10">
 								<h2 className="flex items-center gap-3 text-2xl font-bold text-slate-950 dark:text-white">
 									<Target className="h-6 w-6 text-indigo-500" />
@@ -110,7 +110,7 @@ export function AboutPanel() {
 								</p>
 								<p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-400 sm:text-base">
 									While OCR technologies are widely available for major languages, resources for
-									handwritten Odia script remain limited. LiPi explores practical machine learning solutions while 
+									handwritten Odia script remain limited. LiPy explores practical machine learning solutions while
 									contributing toward language technology research.
 								</p>
 							</div>
@@ -131,7 +131,7 @@ export function AboutPanel() {
 							</p>
 							<div className="mt-5 sm:mt-6 h-px w-full bg-slate-900/10 dark:bg-white/10" />
 							<p className="mt-5 sm:mt-6 text-sm leading-relaxed text-slate-700 dark:text-slate-300 sm:text-base">
-								Carried out by second-year students of the 5-Year Integrated MCA programme at 
+								Carried out by second-year students of the 5-Year Integrated MCA programme at
 								<strong> Utkal University, Bhubaneswar</strong>.
 							</p>
 						</div>
@@ -188,7 +188,7 @@ export function AboutPanel() {
 				{/* 5. LIPI ECOSYSTEM VISUALIZATION */}
 				<section className="rounded-[24px] border border-slate-900/10 bg-slate-900 p-6 dark:border-white/10 dark:bg-slate-950 sm:p-10 relative overflow-hidden">
 					<div className="relative z-10 flex flex-col items-center">
-						<h2 className="text-2xl font-semibold text-white md:text-3xl">The LiPi Ecosystem</h2>
+						<h2 className="text-2xl font-semibold text-white md:text-3xl">The LiPy Ecosystem</h2>
 						<p className="mt-4 max-w-2xl text-center text-sm leading-relaxed text-slate-400 sm:text-base">
 							A unified workflow from crowdsourced dataset collection through preprocessing and model training, ending in real-time inference.
 						</p>
@@ -227,7 +227,7 @@ export function AboutPanel() {
 										<step.icon className="h-7 w-7" />
 									</div>
 									<div className="text-center text-xs font-medium tracking-wide text-white uppercase">{step.title}</div>
-									
+
 									{/* Connectors */}
 									{i < 5 && (
 										<div className="absolute left-1/2 top-8 -z-10 ml-8 h-[2px] w-[calc(100%+2rem)] bg-gradient-to-r from-white/20 to-white/5" />
@@ -236,11 +236,11 @@ export function AboutPanel() {
 							))}
 						</div>
 					</div>
-					
+
 					{/* Abstract Background Design */}
 					<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[300px] bg-indigo-500/10 blur-[100px] rounded-full pointer-events-none" />
 				</section>
-				
+
 				{/* 6. TECH STACK & STATUS ROW */}
 				<section className="grid gap-6 md:grid-cols-2">
 					{/* Tech Stack */}
@@ -266,7 +266,7 @@ export function AboutPanel() {
 							})}
 						</div>
 					</div>
-					
+
 					{/* Status & Future Work */}
 					<div className="flex flex-col gap-6">
 						<div className="rounded-[20px] border border-slate-900/10 bg-white/70 backdrop-blur-md p-6 shadow-sm dark:border-white/10 dark:bg-slate-950/60 sm:p-8 h-full">
@@ -285,7 +285,7 @@ export function AboutPanel() {
 									</div>
 								))}
 							</div>
-							
+
 							<div className="mt-8 pt-6 border-t border-slate-900/5 dark:border-white/5">
 								<h3 className="flex items-center gap-2 text-sm font-bold text-slate-950 dark:text-white mb-4">
 									<Zap className="h-4 w-4 text-amber-500" /> Future Scope
@@ -303,7 +303,7 @@ export function AboutPanel() {
 						</div>
 					</div>
 				</section>
-				
+
 			</div>
 		</main>
 	);

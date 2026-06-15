@@ -37,7 +37,7 @@ export function Navbar() {
 		"relative px-4 py-2 text-[12px] font-semibold tracking-[0.15em] transition-colors duration-200 sm:text-[13px]";
 	const internalActiveClass = "text-slate-900 dark:text-slate-100";
 	const internalInactiveClass = "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300";
-	
+
 	const externalClass =
 		"group flex items-center justify-center gap-2 rounded-md border border-slate-200 dark:border-white/10 bg-transparent px-5 py-2 text-[12px] font-semibold tracking-[0.15em] text-slate-500 dark:text-slate-400 transition-colors hover:border-slate-300 hover:text-slate-800 dark:hover:border-white/20 dark:hover:text-slate-300 sm:text-[13px]";
 
@@ -49,7 +49,7 @@ export function Navbar() {
 			<div className="mx-auto flex h-[4.5rem] max-w-[1500px] items-center justify-between px-4 sm:px-6 lg:px-8">
 				<Link href="/" className="flex flex-col items-start justify-center">
 					<span className="font-display text-[16px] font-bold tracking-[0.15em] text-slate-950 dark:text-white sm:text-[18px]">
-						LiPi
+						LiPy
 					</span>
 				</Link>
 

@@ -17,7 +17,7 @@ This README is the main reference for the project structure, workflow, and usage
 ## Project Structure
 
 ```text
-lipi/
+lipy/
 |-- backend/
 |   |-- models/
 |   |   `-- odia_ocr_cnn.keras
@@ -53,10 +53,10 @@ lipi/
 
 The project is split into separate hosted services:
 
-| Folder | Purpose | Hosting |
-| --- | --- | --- |
-| `frontend/` | Web UI | Vercel |
-| `backend/` | FastAPI OCR API | Railway |
+| Folder       | Purpose                | Hosting                   |
+| ------------ | ---------------------- | ------------------------- |
+| `frontend/`  | Web UI                 | Vercel                    |
+| `backend/`   | FastAPI OCR API        | Railway                   |
 | `notebooks/` | ML training/evaluation | VS Code + Colab ipykernel |
 
 Important:
@@ -99,7 +99,7 @@ Each folder is one class. Each file inside the folder is one handwritten image f
 Default Google Drive dataset path:
 
 ```text
-/content/drive/MyDrive/lipi/mini_dataset
+/content/drive/MyDrive/lipy/mini_dataset
 ```
 
 Local fallback path:
@@ -156,14 +156,14 @@ That exact filename is the default model used by the Railway backend.
 
 ## Notebook Guide
 
-| Notebook | Purpose |
-| --- | --- |
-| `L.ipynb` | Reference notebook for data layout, labels, and original preprocessing |
-| `notebooks/01_dataset_exploration.ipynb` | Check dataset path, class folders, image counts, sample images |
-| `notebooks/02_preprocessing.ipynb` | Verify grayscale, resize, normalization, and tensor shapes |
-| `notebooks/03_first_cnn.ipynb` | Train a simple baseline CNN |
-| `notebooks/04_full_training.ipynb` | Train stronger model with augmentation, class weighting, checkpoints, metrics |
-| `notebooks/05_evaluation.ipynb` | Load a saved model, generate metrics and confusion matrix |
+| Notebook                                 | Purpose                                                                       |
+| ---------------------------------------- | ----------------------------------------------------------------------------- |
+| `L.ipynb`                                | Reference notebook for data layout, labels, and original preprocessing        |
+| `notebooks/01_dataset_exploration.ipynb` | Check dataset path, class folders, image counts, sample images                |
+| `notebooks/02_preprocessing.ipynb`       | Verify grayscale, resize, normalization, and tensor shapes                    |
+| `notebooks/03_first_cnn.ipynb`           | Train a simple baseline CNN                                                   |
+| `notebooks/04_full_training.ipynb`       | Train stronger model with augmentation, class weighting, checkpoints, metrics |
+| `notebooks/05_evaluation.ipynb`          | Load a saved model, generate metrics and confusion matrix                     |
 
 Recommended order:
 
@@ -227,10 +227,10 @@ Start command: uvicorn main:app --host 0.0.0.0 --port $PORT
 
 Backend environment variables:
 
-| Variable | Use |
-| --- | --- |
+| Variable          | Use                                                                    |
+| ----------------- | ---------------------------------------------------------------------- |
 | `LIPI_MODEL_PATH` | Optional override for model path inside the backend service filesystem |
-| `CORS_ORIGINS` | Optional comma-separated list of allowed frontend origins |
+| `CORS_ORIGINS`    | Optional comma-separated list of allowed frontend origins              |
 
 ## Frontend
 

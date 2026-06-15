@@ -3,7 +3,7 @@ import { getSupabaseClient, isSupabaseConfigured } from './supabaseClient';
 import { odiaCharacters } from './odiaCharacters';
 import { ensureValidSessionId, isValidContributorName, isValidMode } from './validators';
 
-const STORAGE_BUCKET = 'lipi-samples';
+const STORAGE_BUCKET = 'lipy-samples';
 const MAX_BLOB_BYTES = 4 * 1024 * 1024;
 const characterIds = new Set(odiaCharacters.map((item) => item.id));
 
@@ -75,7 +75,7 @@ async function refreshState(patch = {}) {
 
   try {
     if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('lipi:sync-state-changed', { detail: { ...state } }));
+      window.dispatchEvent(new CustomEvent('lipy:sync-state-changed', { detail: { ...state } }));
     }
   } catch (e) { }
 

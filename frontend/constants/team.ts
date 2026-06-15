@@ -33,7 +33,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
   {
     name: "Biranchi Kulesika",
     role: "Technical Lead",
-    description: "Developed the LiPiD dataset contributor platform, trained the LiPi CNN model, built the OCR application, designed the system architecture, and managed deployment workflows.",
+    description: "Developed the LiPiD dataset contributor platform, trained the LiPy CNN model, built the OCR application, designed the system architecture, and managed deployment workflows.",
     contributions: [
       "CNN model development",
       "Platform development",

@@ -24,7 +24,7 @@ export async function exportDataset(sessionConfig: any = {}) {
   }
 
   const metadata = {
-    dataset_name: 'LiPi Handwriting Dataset',
+    dataset_name: 'LiPy Handwriting Dataset',
     language: 'Odia',
     created_at: new Date().toISOString(),
     total_samples: samples.length,

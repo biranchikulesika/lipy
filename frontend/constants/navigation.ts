@@ -20,7 +20,7 @@ export const MAIN_NAVIGATION: NavAction[] = [
     id: "github",
     label: "GitHub",
     type: "link",
-    href: "https://github.com/biranchikulesika/lipi",
+    href: "https://github.com/biranchikulesika/lipy",
     isExternal: true,
   },
 ];

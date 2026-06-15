@@ -107,7 +107,7 @@ function writeStoredState(sessionKey: string, state: any) {
 function emitStateChange(state: any) {
   try {
     if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('lipi:scheduler-state-changed', { detail: getPublicState(state) }));
+      window.dispatchEvent(new CustomEvent('lipy:scheduler-state-changed', { detail: getPublicState(state) }));
     }
   } catch (e) { }
 }
@@ -410,7 +410,7 @@ async function loadSessionTotals(sessionConfig: any) {
     const devKey = `lipi_device_sample_count_${String(sessionConfig?.contributorId || '').trim()}`;
     cachedDev = Number(localStorage.getItem(devKey) || 0) || 0;
   } catch(e) {}
-  
+
   return { datasetCounts, contributorCompletedCount: Math.max(contributorCompletedCount, cachedDev) };
 }
 
