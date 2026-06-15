@@ -1,12 +1,12 @@
-'use client';
+﻿'use client';
 import React, { useRef, useEffect, useState } from 'react';
-import useCanvasDrawing from '@/hooks/lipid/useCanvasDrawing';
-import { odiaCharacters, OdiaCharacter } from '@/lib/lipid/odiaCharacters';
-import { saveSample } from '@/lib/lipid/storageService';
-import { generateFilename } from '@/lib/lipid/filenameService';
-import { createClientSampleId, queueSampleUpload } from '@/lib/lipid/datasetSyncService';
-import schedulerService from '@/lib/lipid/randomCharacterService';
-import useDatasetSync from '@/hooks/lipid/useDatasetSync';
+import useCanvasDrawing from '@/hooks/LiPyD/useCanvasDrawing';
+import { odiaCharacters, OdiaCharacter } from '@/lib/LiPyD/odiaCharacters';
+import { saveSample } from '@/lib/LiPyD/storageService';
+import { generateFilename } from '@/lib/LiPyD/filenameService';
+import { createClientSampleId, queueSampleUpload } from '@/lib/LiPyD/datasetSyncService';
+import schedulerService from '@/lib/LiPyD/randomCharacterService';
+import useDatasetSync from '@/hooks/LiPyD/useDatasetSync';
 
 export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { sessionConfig: any, onSessionConfigChange?: (cfg: any) => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -112,7 +112,7 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
       }
       return null;
     };
-    const saved = getCookie('lipi_stroke_width');
+    const saved = getCookie('lipy_stroke_width');
     if (saved) setStrokeWidth(Number(saved) || 16);
 
     const onStrokeChange = (e: any) => {
@@ -143,7 +143,7 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
       d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
       document.cookie = `${cname}=${encodeURIComponent(cvalue)};expires=${d.toUTCString()};path=/`;
     };
-    try { setCookie('lipi_stroke_width', String(next)); } catch (e) { }
+    try { setCookie('lipy_stroke_width', String(next)); } catch (e) { }
     setStrokePreviewWidth(next);
   };
 

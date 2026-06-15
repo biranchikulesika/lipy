@@ -1,4 +1,4 @@
-export const STATS = [
+﻿export const STATS = [
   { label: "Character Classes", value: "43" },
   { label: "Dataset Samples", value: "1370+" },
   { label: "Recognition Model", value: "CNN" },
@@ -34,7 +34,7 @@ export const STATUS = [
   { title: "Dataset Collection", value: "Active" },
   { title: "Model Training", value: "Active" },
   { title: "OCR Interface", value: "Operational" },
-  { title: "LiPiD Platform", value: "Operational" },
+  { title: "LiPyD Platform", value: "Operational" },
 ];
 
 export const FUTURE_WORK = [

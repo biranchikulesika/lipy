@@ -1,8 +1,8 @@
-# Lipi Project Plan
+﻿# LiPy Project Plan
 
 ## 1. Goal
 
-Lipi is an Odia handwritten character recognition project. The immediate goal is high-accuracy single-character OCR. The longer-term goal is a usable OCR system that can support word-level and document-level Odia recognition.
+LiPy is an Odia handwritten character recognition project. The immediate goal is high-accuracy single-character OCR. The longer-term goal is a usable OCR system that can support word-level and document-level Odia recognition.
 
 The project has three main work areas:
 
@@ -113,8 +113,8 @@ MyDrive/
 |-- lipy/
 |   `-- mini_dataset/
 |       `-- <CLASS_NAME>/
-`-- lipi_models/
-    `-- lipi_odia_ocr_<model_family>_<YYYYMMDD_HHMMSS>.keras
+`-- lipy_models/
+    `-- LiPy_odia_ocr_<model_family>_<YYYYMMDD_HHMMSS>.keras
 ```
 
 The default notebook dataset path is:
@@ -126,7 +126,7 @@ The default notebook dataset path is:
 The default Google Drive model output path is:
 
 ```text
-/content/drive/MyDrive/lipi_models/
+/content/drive/MyDrive/lipy_models/
 ```
 
 ## 7. Local Artifact Layout
@@ -143,14 +143,14 @@ outputs/
 Model naming convention:
 
 ```text
-lipi_odia_ocr_<model_family>_<YYYYMMDD_HHMMSS>.keras
+lipy_odia_ocr_<model_family>_<YYYYMMDD_HHMMSS>.keras
 ```
 
 Examples:
 
 ```text
-lipi_odia_ocr_baseline_cnn_20260615_153000.keras
-lipi_odia_ocr_full_cnn_best_20260615_161500.keras
+lipy_odia_ocr_baseline_cnn_20260615_153000.keras
+lipy_odia_ocr_full_cnn_best_20260615_161500.keras
 ```
 
 Do not train directly into `backend/models/`. After evaluating models, copy the chosen deployment model to:

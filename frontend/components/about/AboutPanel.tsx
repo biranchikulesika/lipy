@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { STATS, CHALLENGES, STACK, STATUS, FUTURE_WORK } from "@/constants/about";
 import {
@@ -185,7 +185,7 @@ export function AboutPanel() {
 					</div>
 				</section>
 
-				{/* 5. LIPI ECOSYSTEM VISUALIZATION */}
+				{/* 5. LiPy ECOSYSTEM VISUALIZATION */}
 				<section className="rounded-[24px] border border-slate-900/10 bg-slate-900 p-6 dark:border-white/10 dark:bg-slate-950 sm:p-10 relative overflow-hidden">
 					<div className="relative z-10 flex flex-col items-center">
 						<h2 className="text-2xl font-semibold text-white md:text-3xl">The LiPy Ecosystem</h2>
@@ -196,7 +196,7 @@ export function AboutPanel() {
 						{/* Mobile Workflow (Vertical) */}
 						<div className="mt-10 flex w-full flex-col gap-3 md:hidden">
 							{[
-								{ title: "LiPiD Collection", icon: Users2 },
+								{ title: "LiPyD Collection", icon: Users2 },
 								{ title: "Preparation", icon: Database },
 								{ title: "Image Processing", icon: Layers },
 								{ title: "CNN Training", icon: Cpu },

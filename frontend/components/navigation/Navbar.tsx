@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -56,7 +56,7 @@ export function Navbar() {
 				<nav aria-label="Primary navigation" className="hidden lg:flex items-center gap-2">
 					<div className="flex items-center gap-1">
 						{internalLinks.map((item) => {
-							const isActive = pathname === item.href || (item.id === "ocr" && pathname === "/lipid");
+							const isActive = pathname === item.href || (item.id === "ocr" && pathname === "/LiPyD");
 							return (
 								<Link
 									key={item.id}
@@ -132,7 +132,7 @@ export function Navbar() {
 							>
 								<nav className="flex flex-col gap-1" aria-label="Mobile navigation">
 									{internalLinks.map((item) => {
-										const isActive = pathname === item.href || (item.id === "ocr" && pathname === "/lipid");
+										const isActive = pathname === item.href || (item.id === "ocr" && pathname === "/LiPyD");
 										return (
 											<Link
 												key={item.id}

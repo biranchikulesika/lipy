@@ -12,7 +12,7 @@ export function DatasetContributor() {
   const updateSessionConfig = (updates: any) => {
     setSessionConfig((current: any) => {
       const next = { ...(current || {}), ...(updates || {}) };
-      try { localStorage.setItem('lipi_session_config', JSON.stringify(next)); } catch (e) { }
+      try { localStorage.setItem('lipy_session_config', JSON.stringify(next)); } catch (e) { }
       return next;
     });
   };

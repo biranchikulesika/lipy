@@ -1,4 +1,4 @@
-import Dexie, { Table } from 'dexie';
+﻿import Dexie, { Table } from 'dexie';
 
 export interface SampleRecord {
   id?: number;
@@ -60,13 +60,13 @@ export interface UploadQueueRecord {
   mimeType: string;
 }
 
-export class LiPiDatabase extends Dexie {
+export class LiPyDatabase extends Dexie {
   samples!: Table<SampleRecord, number>;
   contributors!: Table<ContributorRecord, number>;
   uploadQueue!: Table<UploadQueueRecord, string>;
 
   constructor() {
-    super('LiPiDB');
+    super('LiPyDB');
     this.version(1).stores({ samples: '++id,characterId,filename,timestamp' });
     this.version(2).stores({ samples: '++id,characterId,filename,timestamp', contributors: '++id,contributorId,sessionId' });
     this.version(3).stores({
@@ -77,7 +77,7 @@ export class LiPiDatabase extends Dexie {
   }
 }
 
-const db = new LiPiDatabase();
+const db = new LiPyDatabase();
 
 function nowIso() {
   return new Date().toISOString();
@@ -98,8 +98,8 @@ export async function saveSample(sample: Omit<SampleRecord, 'id'>) {
   };
   const id = await db.samples.add(record);
   try {
-    const devKey = `lipi_device_sample_count_${record.contributorId}`;
-    const sessKey = `lipi_session_sample_count_${record.contributorId}_${record.sessionId}`;
+    const devKey = `lipy_device_sample_count_${record.contributorId}`;
+    const sessKey = `lipy_session_sample_count_${record.contributorId}_${record.sessionId}`;
     try {
       const prevDev = Number(localStorage.getItem(devKey) || 0) || 0;
       localStorage.setItem(devKey, String(prevDev + 1));
@@ -111,7 +111,7 @@ export async function saveSample(sample: Omit<SampleRecord, 'id'>) {
   } catch (e) { }
   try {
     if (record && record.contributorId && record.sessionId && record.timestamp) {
-      const key = `lipi_last_sample_ts_${record.contributorId}_${record.sessionId}`;
+      const key = `lipy_last_sample_ts_${record.contributorId}_${record.sessionId}`;
       try { localStorage.setItem(key, record.timestamp) } catch (e) { }
     }
   } catch (e) { }

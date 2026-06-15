@@ -1,8 +1,8 @@
-import { odiaCharacters, OdiaCharacter, CharacterType } from './odiaCharacters';
+﻿import { odiaCharacters, OdiaCharacter, CharacterType } from './odiaCharacters';
 import { getAllSamples } from './storageService';
 
 const STATE_VERSION = 1;
-const STORAGE_PREFIX = 'lipi_mixed_scheduler_state_v1_';
+const STORAGE_PREFIX = 'lipy_mixed_scheduler_state_v1_';
 const QUEUE_SIZE = 24;
 const RECENT_LIMIT = 5;
 const FATIGUE_WINDOW = 8;
@@ -407,7 +407,7 @@ async function loadSessionTotals(sessionConfig: any) {
 
   let cachedDev = 0;
   try {
-    const devKey = `lipi_device_sample_count_${String(sessionConfig?.contributorId || '').trim()}`;
+    const devKey = `lipy_device_sample_count_${String(sessionConfig?.contributorId || '').trim()}`;
     cachedDev = Number(localStorage.getItem(devKey) || 0) || 0;
   } catch(e) {}
 

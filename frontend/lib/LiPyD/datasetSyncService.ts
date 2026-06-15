@@ -153,7 +153,7 @@ function buildRemotePayload(sample: any, storagePath: string) {
 }
 
 async function upsertRemoteMetadata(client: any, sample: any, storagePath: string) {
-  const contributorResult = await client.from('lipi_contributors').upsert(
+  const contributorResult = await client.from('lipy_contributors').upsert(
     {
       contributor_id: sample.contributorId,
       contributor_name: sample.contributorName,
@@ -163,7 +163,7 @@ async function upsertRemoteMetadata(client: any, sample: any, storagePath: strin
   );
   if (contributorResult.error) throw contributorResult.error;
 
-  const sessionResult = await client.from('lipi_sessions').upsert(
+  const sessionResult = await client.from('lipy_sessions').upsert(
     {
       contributor_id: sample.contributorId,
       session_id: sample.sessionId,
@@ -176,7 +176,7 @@ async function upsertRemoteMetadata(client: any, sample: any, storagePath: strin
   );
   if (sessionResult.error) throw sessionResult.error;
 
-  const sampleResult = await client.from('lipi_samples').upsert(buildRemotePayload(sample, storagePath), {
+  const sampleResult = await client.from('lipy_samples').upsert(buildRemotePayload(sample, storagePath), {
     onConflict: 'client_sample_id',
   });
   if (sampleResult.error) throw sampleResult.error;

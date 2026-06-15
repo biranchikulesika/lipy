@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from typing import List
 
@@ -27,7 +27,7 @@ class PredictionResponse(BaseModel):
     top_predictions: List[TopPrediction]
 
 
-app = FastAPI(title="Lipi OCR API", version="1.0.0")
+app = FastAPI(title="LiPy OCR API", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,

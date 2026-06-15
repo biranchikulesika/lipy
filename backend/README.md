@@ -1,4 +1,4 @@
-# Lipi Backend
+﻿# LiPy Backend
 
 FastAPI OCR service for Railway deployment.
 
@@ -33,7 +33,7 @@ backend/models/odia_ocr_cnn.keras
 Training notebooks save timestamped model artifacts outside the backend:
 
 ```text
-outputs/models/lipi_odia_ocr_<model_family>_<YYYYMMDD_HHMMSS>.keras
+outputs/models/lipy_odia_ocr_<model_family>_<YYYYMMDD_HHMMSS>.keras
 ```
 
 Copy the chosen model into `backend/models/odia_ocr_cnn.keras` before deploying.

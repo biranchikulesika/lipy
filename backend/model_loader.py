@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from functools import lru_cache
 from typing import Dict, List
@@ -28,7 +28,7 @@ def load_prediction_bundle() -> tuple:
     if not model_path.exists():
         raise FileNotFoundError(
             f"TensorFlow model not found at {model_path}. "
-            f"Place the trained model there or set LIPI_MODEL_PATH."
+            f"Place the trained model there or set LIPY_MODEL_PATH."
         )
 
     model = load_model(str(model_path), compile=False)

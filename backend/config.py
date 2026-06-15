@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import os
 from pathlib import Path
@@ -13,7 +13,7 @@ TOP_K = 3
 
 
 def get_model_path() -> Path:
-    override = os.getenv("LIPI_MODEL_PATH")
+    override = os.getenv("LIPY_MODEL_PATH")
     if override:
         return Path(override).expanduser().resolve()
     return DEFAULT_MODEL_PATH

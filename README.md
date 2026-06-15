@@ -1,6 +1,6 @@
-# Lipi
+﻿# LiPy
 
-Lipi is an Odia handwritten character recognition project. It includes dataset exploration, model training, evaluation, and a deployable OCR API.
+LiPy is an Odia handwritten character recognition project. It includes dataset exploration, model training, evaluation, and a deployable OCR API.
 
 This README is the main reference for the project structure, workflow, and usage.
 
@@ -124,14 +124,14 @@ Notebook preprocessing follows the reference notebook:
 Training notebooks save models with this naming convention:
 
 ```text
-lipi_odia_ocr_<model_family>_<YYYYMMDD_HHMMSS>.keras
+lipy_odia_ocr_<model_family>_<YYYYMMDD_HHMMSS>.keras
 ```
 
 Examples:
 
 ```text
-lipi_odia_ocr_baseline_cnn_20260615_153000.keras
-lipi_odia_ocr_full_cnn_best_20260615_161500.keras
+lipy_odia_ocr_baseline_cnn_20260615_153000.keras
+lipy_odia_ocr_full_cnn_best_20260615_161500.keras
 ```
 
 Local model output:
@@ -143,7 +143,7 @@ outputs/models/
 Google Drive model output:
 
 ```text
-/content/drive/MyDrive/lipi_models/
+/content/drive/MyDrive/lipy_models/
 ```
 
 The backend does not automatically use models from `outputs/` or Google Drive. After choosing the best model, copy it to:
@@ -229,7 +229,7 @@ Backend environment variables:
 
 | Variable          | Use                                                                    |
 | ----------------- | ---------------------------------------------------------------------- |
-| `LIPI_MODEL_PATH` | Optional override for model path inside the backend service filesystem |
+| `LIPY_MODEL_PATH` | Optional override for model path inside the backend service filesystem |
 | `CORS_ORIGINS`    | Optional comma-separated list of allowed frontend origins              |
 
 ## Frontend

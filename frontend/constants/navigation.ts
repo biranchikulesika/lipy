@@ -1,4 +1,4 @@
-export interface NavAction {
+﻿export interface NavAction {
   id: string;
   label: string;
   type: "action" | "link";
@@ -11,10 +11,10 @@ export const MAIN_NAVIGATION: NavAction[] = [
   { id: "about", label: "ABOUT", type: "link", href: "/about" },
   { id: "team", label: "TEAM", type: "link", href: "/team" },
   {
-    id: "lipid",
-    label: "LiPiD",
+    id: "LiPyD",
+    label: "LiPyD",
     type: "link",
-    href: "/lipid",
+    href: "/LiPyD",
   },
   {
     id: "github",

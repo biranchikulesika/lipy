@@ -1,4 +1,4 @@
-import { countSamplesByKey } from './storageService';
+﻿import { countSamplesByKey } from './storageService';
 
 function shortRandomSuffix(length = 6): string {
   return Math.random().toString(36).substring(2, 2 + length);
@@ -22,7 +22,7 @@ export async function generateFilename({ characterId, contributorId, sessionId =
     next = existing + 1;
   } catch (e) {
     try {
-      const key = `lipi_sample_counter_${contributorId}_${sessionId}_${characterId}`;
+      const key = `lipy_sample_counter_${contributorId}_${sessionId}_${characterId}`;
       const raw = localStorage.getItem(key) || '0';
       let n = parseInt(raw, 10) || 0;
       n = n + 1;
@@ -45,7 +45,7 @@ export async function generateFilename({ characterId, contributorId, sessionId =
 
 export function generateSessionId(): string {
   try {
-    const key = 'lipi_session_counter';
+    const key = 'lipy_session_counter';
     const raw = localStorage.getItem(key) || '0';
     let n = parseInt(raw, 10) || 0;
     n = n + 1;

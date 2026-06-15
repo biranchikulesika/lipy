@@ -1,4 +1,4 @@
-import JSZip from 'jszip';
+﻿import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { getAllSamples, SampleRecord } from './storageService';
 
@@ -46,11 +46,11 @@ export async function exportDataset(sessionConfig: any = {}) {
   const dateStr = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}`;
   const timeStr = `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
   const contribPart = sessionConfig && sessionConfig.contributorId ? `_${sessionConfig.contributorId}` : '';
-  const filename = `LiPi_Dataset${contribPart}_${uniqueChars}chars_${dateStr}_${timeStr}.zip`;
+  const filename = `LiPy_Dataset${contribPart}_${uniqueChars}chars_${dateStr}_${timeStr}.zip`;
   saveAs(content, filename);
   try {
     if (sessionConfig && sessionConfig.contributorId) {
-      const key = `lipi_last_export_ts_${sessionConfig.contributorId}_${sessionConfig.sessionId || 'S01'}`;
+      const key = `lipy_last_export_ts_${sessionConfig.contributorId}_${sessionConfig.sessionId || 'S01'}`;
       try { localStorage.setItem(key, new Date().toISOString()); } catch (e) {}
     }
   } catch (e) {}

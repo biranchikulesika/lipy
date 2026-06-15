@@ -1,10 +1,10 @@
-'use client';
+﻿'use client';
 import React, { useState, useEffect } from 'react';
 import CharacterSearch from './CharacterSearch';
-import { generateSessionId } from '@/lib/lipid/filenameService';
-import { getAllSamples, saveContributor } from '@/lib/lipid/storageService';
-import { OdiaCharacter } from '@/lib/lipid/odiaCharacters';
-import { exportDataset } from '@/lib/lipid/exportService';
+import { generateSessionId } from '@/lib/LiPyD/filenameService';
+import { getAllSamples, saveContributor } from '@/lib/LiPyD/storageService';
+import { OdiaCharacter } from '@/lib/LiPyD/odiaCharacters';
+import { exportDataset } from '@/lib/LiPyD/exportService';
 
 export default function ContributorSetup({ onStart }: { onStart: (cfg: any) => void }) {
   const [name, setName] = useState('');
@@ -44,8 +44,8 @@ export default function ContributorSetup({ onStart }: { onStart: (cfg: any) => v
 
   useEffect(() => {
     try {
-      const savedName = getCookie('lipi_name');
-      const savedId = getCookie('lipi_contributorId');
+      const savedName = getCookie('lipy_name');
+      const savedId = getCookie('lipy_contributorId');
       if (savedName && savedId) {
         setName(savedName);
         setContributorId(savedId);
@@ -53,7 +53,7 @@ export default function ContributorSetup({ onStart }: { onStart: (cfg: any) => v
         return;
       }
       try {
-        const raw = localStorage.getItem('lipi_session_config');
+        const raw = localStorage.getItem('lipy_session_config');
         if (raw) {
           const cfg = JSON.parse(raw);
           if (cfg?.name && cfg?.contributorId) {
@@ -88,7 +88,7 @@ export default function ContributorSetup({ onStart }: { onStart: (cfg: any) => v
       }
 
       try {
-        const devKey = `lipi_device_sample_count_${String(contributorId || '').trim()}`;
+        const devKey = `lipy_device_sample_count_${String(contributorId || '').trim()}`;
         const cachedDev = Number(localStorage.getItem(devKey) || 0) || 0;
 
         const samples = await getAllSamples();
@@ -129,18 +129,18 @@ export default function ContributorSetup({ onStart }: { onStart: (cfg: any) => v
     setName(trimmed);
     setEditingNameInline(false);
     try {
-      const sessionId = localStorage.getItem('lipi_session_config') ? JSON.parse(localStorage.getItem('lipi_session_config') || '{}')?.sessionId : '';
+      const sessionId = localStorage.getItem('lipy_session_config') ? JSON.parse(localStorage.getItem('lipy_session_config') || '{}')?.sessionId : '';
       if (sessionId) {
         saveContributor({ name: trimmed, contributorId, sessionId, mode: mode === 'single' ? 'single-character' : 'mixed-random', started_at: new Date().toISOString() }).catch(() => { });
       }
     } catch (e) { }
-    try { setCookie('lipi_name', trimmed); } catch (e) { }
+    try { setCookie('lipy_name', trimmed); } catch (e) { }
     try {
-      const raw = localStorage.getItem('lipi_session_config');
+      const raw = localStorage.getItem('lipy_session_config');
       if (raw) {
         const cfg = JSON.parse(raw);
         cfg.name = trimmed;
-        localStorage.setItem('lipi_session_config', JSON.stringify(cfg));
+        localStorage.setItem('lipy_session_config', JSON.stringify(cfg));
       }
     } catch (e) { }
   }
@@ -150,10 +150,10 @@ export default function ContributorSetup({ onStart }: { onStart: (cfg: any) => v
     const sessionId = generateSessionId();
     const cfg = { name, contributorId, mode: mode === 'single' ? 'single-character' : 'mixed-random', selected, sessionId };
     saveContributor({ name, contributorId, sessionId, mode: cfg.mode, started_at: new Date().toISOString() }).catch(() => { });
-    try { localStorage.setItem('lipi_session_config', JSON.stringify(cfg)); } catch (e) { }
+    try { localStorage.setItem('lipy_session_config', JSON.stringify(cfg)); } catch (e) { }
     try {
-      setCookie('lipi_name', name);
-      setCookie('lipi_contributorId', contributorId);
+      setCookie('lipy_name', name);
+      setCookie('lipy_contributorId', contributorId);
     } catch (e) { }
 
     onStart(cfg);
@@ -180,7 +180,7 @@ export default function ContributorSetup({ onStart }: { onStart: (cfg: any) => v
   return (
     <div className="space-y-6 text-center max-w-md mx-auto w-full panel rounded-xl p-6 sm:p-8 border border-slate-900/8 dark:border-white/10 bg-white/70 dark:bg-white/5">
       <div className="space-y-1">
-        <h2 className="text-3xl font-semibold tracking-tight text-slate-950 dark:text-white">LiPy-D</h2>
+        <h2 className="text-3xl font-semibold tracking-tight text-slate-950 dark:text-white">LiPyD</h2>
         <p className="text-base text-slate-500 dark:text-slate-400">Help build the Odia handwriting dataset.</p>
       </div>
 
@@ -282,7 +282,7 @@ export default function ContributorSetup({ onStart }: { onStart: (cfg: any) => v
             <div className="text-base text-slate-500 dark:text-slate-400 mt-2">{leaveConfirmMsg || 'Clear saved contributor and start over?'}</div>
             <div className="mt-6 flex gap-3 justify-end">
               <button className="rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800" onClick={() => setShowLeaveConfirm(false)}>Cancel</button>
-              <button className="rounded-xl bg-slate-900 dark:bg-slate-100 px-4 py-2 text-sm font-medium text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-200" onClick={() => { deleteCookie('lipi_name'); deleteCookie('lipi_contributorId'); setName(''); setContributorId(''); setEditing(true); setShowLeaveConfirm(false); }}>Confirm</button>
+              <button className="rounded-xl bg-slate-900 dark:bg-slate-100 px-4 py-2 text-sm font-medium text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-200" onClick={() => { deleteCookie('lipy_name'); deleteCookie('lipy_contributorId'); setName(''); setContributorId(''); setEditing(true); setShowLeaveConfirm(false); }}>Confirm</button>
             </div>
           </div>
         </div>
