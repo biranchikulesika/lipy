@@ -1,12 +1,12 @@
 ﻿'use client';
 import React, { useRef, useEffect, useState } from 'react';
-import useCanvasDrawing from '@/hooks/LiPyD/useCanvasDrawing';
-import { odiaCharacters, OdiaCharacter } from '@/lib/LiPyD/odiaCharacters';
-import { saveSample } from '@/lib/LiPyD/storageService';
-import { generateFilename } from '@/lib/LiPyD/filenameService';
-import { createClientSampleId, queueSampleUpload } from '@/lib/LiPyD/datasetSyncService';
-import schedulerService from '@/lib/LiPyD/randomCharacterService';
-import useDatasetSync from '@/hooks/LiPyD/useDatasetSync';
+import useCanvasDrawing from '@/hooks/lipyd/useCanvasDrawing';
+import { odiaCharacters, OdiaCharacter } from '@/lib/lipyd/odiaCharacters';
+import { saveSample } from '@/lib/lipyd/storageService';
+import { generateFilename } from '@/lib/lipyd/filenameService';
+import { createClientSampleId, queueSampleUpload } from '@/lib/lipyd/datasetSyncService';
+import schedulerService from '@/lib/lipyd/randomCharacterService';
+import useDatasetSync from '@/hooks/lipyd/useDatasetSync';
 
 export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { sessionConfig: any, onSessionConfigChange?: (cfg: any) => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);

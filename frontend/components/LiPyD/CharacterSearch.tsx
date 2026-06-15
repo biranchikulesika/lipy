@@ -1,6 +1,6 @@
 ﻿'use client';
 import React, { useState, useMemo, useRef } from 'react';
-import { odiaCharacters, OdiaCharacter } from '@/lib/LiPyD/odiaCharacters';
+import { odiaCharacters, OdiaCharacter } from '@/lib/lipyd/odiaCharacters';
 
 export default function CharacterSearch({ onSelect, selected, onStart, startLabel = 'Start Collecting' }: { onSelect: (c: OdiaCharacter | null) => void, selected: OdiaCharacter | null, onStart?: () => void, startLabel?: string }) {
   const [q, setQ] = useState('');

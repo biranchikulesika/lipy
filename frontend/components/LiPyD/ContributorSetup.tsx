@@ -1,10 +1,10 @@
 ﻿'use client';
 import React, { useState, useEffect } from 'react';
 import CharacterSearch from './CharacterSearch';
-import { generateSessionId } from '@/lib/LiPyD/filenameService';
-import { getAllSamples, saveContributor } from '@/lib/LiPyD/storageService';
-import { OdiaCharacter } from '@/lib/LiPyD/odiaCharacters';
-import { exportDataset } from '@/lib/LiPyD/exportService';
+import { generateSessionId } from '@/lib/lipyd/filenameService';
+import { getAllSamples, saveContributor } from '@/lib/lipyd/storageService';
+import { OdiaCharacter } from '@/lib/lipyd/odiaCharacters';
+import { exportDataset } from '@/lib/lipyd/exportService';
 
 export default function ContributorSetup({ onStart }: { onStart: (cfg: any) => void }) {
   const [name, setName] = useState('');

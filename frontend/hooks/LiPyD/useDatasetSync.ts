@@ -1,6 +1,6 @@
 ﻿import { useEffect, useState } from 'react';
-import { bootDatasetSync, processUploadQueue, subscribeSyncState } from '@/lib/LiPyD/datasetSyncService';
-import { isSupabaseConfigured } from '@/lib/LiPyD/supabaseClient';
+import { bootDatasetSync, processUploadQueue, subscribeSyncState } from '@/lib/lipyd/datasetSyncService';
+import { isSupabaseConfigured } from '@/lib/lipyd/supabaseClient';
 
 const initialState = {
   online: typeof navigator !== 'undefined' ? navigator.onLine : true,
