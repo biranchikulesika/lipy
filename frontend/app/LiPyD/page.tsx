@@ -1,5 +1,5 @@
 ﻿import { Metadata } from "next";
-import { DatasetContributor } from "@/components/LiPyD/DatasetContributor";
+import { DatasetContributor } from "@/components/lipyd/DatasetContributor";
 
 export const metadata: Metadata = {
 	title: "LiPy Dataset",
