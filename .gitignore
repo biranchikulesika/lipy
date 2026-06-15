@@ -15,5 +15,4 @@ data/processed/
 data/samples/
 data/mini_dataset/
 outputs/
-# Keep models/ tracked so the trained .keras artifact can live in the repo.
 frontend/.env

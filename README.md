@@ -1,74 +1,115 @@
 # Lipi
 
-Lipi is a production-ready MVP for Odia handwritten character recognition.
+Lipi is an Odia handwritten character recognition project.
 
-The app is split into two deployable services:
+The project is split into independent deployable folders:
 
-- Frontend: Next.js + TypeScript + Tailwind on Vercel
-- Backend: FastAPI + TensorFlow on Render
+- `frontend/` runs on Vercel.
+- `backend/` runs on Railway.
+- `notebooks/` is for dataset exploration, training, and evaluation.
 
-The browser never runs ML preprocessing or inference. Images are always sent to the backend through multipart/form-data, preprocessed there, and then passed into the TensorFlow model.
+The hosted backend is selected from the `backend/` folder, so backend runtime code must not depend on files outside `backend/`.
 
-## Repository Layout
+## Structure
 
 ```text
 lipi/
-├── frontend/
 ├── backend/
-├── models/
-│   └── odia_ocr_cnn.keras
-├── notebooks/
+│   ├── models/
+│   │   └── odia_ocr_cnn.keras
+│   ├── config.py
+│   ├── labels.py
+│   ├── main.py
+│   ├── model_loader.py
+│   ├── predict.py
+│   ├── preprocess.py
+│   ├── requirements.txt
+│   └── runtime.txt
 ├── data/
-├── src/
+│   └── mini_dataset/
+│       └── <CLASS_NAME>/
+├── notebooks/
+├── outputs/
+│   ├── metrics/
+│   ├── models/
+│   └── training/
+├── L.ipynb
 ├── README.md
-└── .gitignore
+└── requirements.txt
 ```
 
-## Local Development
+## Dataset
 
-### Backend
+The notebooks follow the reference layout from `L.ipynb`:
 
-1. Place the trained model at models/odia_ocr_cnn.keras.
-2. Install backend dependencies:
+```text
+mini_dataset/
+├── CONS_KA/
+├── CONS_KHA/
+├── VOW_A/
+└── ...
+```
+
+In Colab, the default dataset path is:
+
+```text
+/content/drive/MyDrive/lipi/mini_dataset
+```
+
+Locally, the fallback path is:
+
+```text
+data/mini_dataset
+```
+
+## Training Artifacts
+
+Training notebooks save model files using this convention:
+
+```text
+lipi_odia_ocr_<model_family>_<YYYYMMDD_HHMMSS>.keras
+```
+
+Local model artifacts are saved to:
+
+```text
+outputs/models/
+```
+
+When Google Drive is mounted in Colab, the same model is also saved to:
+
+```text
+/content/drive/MyDrive/lipi_models/
+```
+
+The backend does not automatically read from `outputs/` or Google Drive. After choosing a model, copy it into:
+
+```text
+backend/models/odia_ocr_cnn.keras
+```
+
+## Backend
+
+Install and run from inside `backend/`:
 
 ```bash
 cd backend
 pip install -r requirements.txt
+uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
-3. Run the API:
+Railway should use `backend/` as the selected service folder.
 
-```bash
-cd backend
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
-```
+Environment variables:
 
-If you prefer to run from the repo root, use `uvicorn backend.main:app` instead.
-
-### Frontend
-
-1. Install frontend dependencies:
-
-```bash
-cd frontend
-npm install
-```
-
-2. Create frontend/.env.local:
-
-```bash
-NEXT_PUBLIC_API_URL=http://localhost:8000
-```
-
-3. Run the app:
-
-```bash
-npm run dev
-```
+- `LIPI_MODEL_PATH`: optional model override inside the Railway service filesystem.
+- `CORS_ORIGINS`: optional comma-separated list of allowed frontend origins.
 
 ## API
 
-POST /predict
+`GET /health`
+
+`POST /predict`
 
 Request:
 
@@ -81,55 +122,12 @@ Response:
 
 ```json
 {
-	"prediction": "CONS_KA",
-	"confidence": 0.94,
-	"top_predictions": [
-		{ "label": "CONS_KA", "confidence": 0.94 },
-		{ "label": "CONS_KHA", "confidence": 0.03 },
-		{ "label": "CONS_GA", "confidence": 0.01 }
-	]
+  "prediction": "CONS_KA",
+  "confidence": 0.94,
+  "top_predictions": [
+    { "label": "CONS_KA", "confidence": 0.94 },
+    { "label": "CONS_KHA", "confidence": 0.03 },
+    { "label": "CONS_GA", "confidence": 0.01 }
+  ]
 }
 ```
-
-## Deployment
-
-### Vercel
-
-1. Set the project root to frontend/.
-2. Add NEXT_PUBLIC_API_URL with the Render backend URL.
-3. Build command: npm run build.
-
-### Render
-
-1. Create a Python web service from the repo root or the backend/ folder.
-2. Install command:
-
-```bash
-pip install -r backend/requirements.txt
-```
-
-3. Start command:
-
-```bash
-uvicorn main:app --host 0.0.0.0 --port $PORT
-```
-
-If the service root is the repository root, use `uvicorn backend.main:app --host 0.0.0.0 --port $PORT` instead.
-
-4. Set CORS_ORIGINS to your Vercel domain if you want to lock CORS down.
-
-## Environment Variables
-
-Frontend:
-
-- NEXT_PUBLIC_API_URL
-
-Backend:
-
-- LIPI_MODEL_PATH optional override for models/odia_ocr_cnn.keras
-- CORS_ORIGINS optional comma-separated allowlist
-
-## Notes
-
-- The training label order is sourced from src/config/labels.py.
-- The backend loads the TensorFlow model once at startup and reuses it for every request.

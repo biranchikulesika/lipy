@@ -1,19 +1,19 @@
 from __future__ import annotations
 
-import sys
-from pathlib import Path
 from typing import Any, Dict, List
-
-ROOT_DIR = Path(__file__).resolve().parents[1]
-if str(ROOT_DIR) not in sys.path:
-    sys.path.insert(0, str(ROOT_DIR))
 
 import numpy as np
 import tensorflow as tf
 from fastapi import UploadFile
 
-from model_loader import load_prediction_bundle
-from preprocess import preprocess_image
+try:
+    from .config import TOP_K
+    from .model_loader import load_prediction_bundle
+    from .preprocess import preprocess_image
+except ImportError:
+    from config import TOP_K
+    from model_loader import load_prediction_bundle
+    from preprocess import preprocess_image
 
 
 def _normalize_probabilities(values: np.ndarray) -> np.ndarray:
@@ -43,7 +43,7 @@ def predict_upload(upload: UploadFile) -> Dict[str, Any]:
     probabilities = _normalize_probabilities(np.asarray(raw_output))
     scores = probabilities[0]
 
-    top_indices = np.argsort(scores)[::-1][:3]
+    top_indices = np.argsort(scores)[::-1][:TOP_K]
     top_predictions: List[Dict[str, Any]] = [
         {
             "label": class_names[index],

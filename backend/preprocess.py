@@ -6,8 +6,10 @@ import cv2
 import numpy as np
 from PIL import Image, ImageOps, UnidentifiedImageError
 
-
-IMAGE_SIZE = 64
+try:
+    from .config import IMAGE_SIZE
+except ImportError:
+    from config import IMAGE_SIZE
 
 
 def preprocess_image(image_bytes: bytes) -> np.ndarray:

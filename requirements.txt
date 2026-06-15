@@ -1,0 +1,9 @@
+tensorflow-cpu==2.16.1
+numpy==1.26.4
+pandas>=2.2.0
+Pillow==11.0.0
+opencv-python-headless==4.10.0.84
+scikit-learn>=1.4.0
+matplotlib>=3.8.0
+seaborn>=0.13.0
+jupyter>=1.0.0

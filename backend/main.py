@@ -1,20 +1,19 @@
 from __future__ import annotations
 
-import os
-import sys
-from pathlib import Path
 from typing import List
-
-ROOT_DIR = Path(__file__).resolve().parents[1]
-if str(ROOT_DIR) not in sys.path:
-    sys.path.insert(0, str(ROOT_DIR))
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from model_loader import load_prediction_bundle
-from predict import predict_upload
+try:
+    from .config import get_allowed_origins
+    from .model_loader import load_prediction_bundle
+    from .predict import predict_upload
+except ImportError:
+    from config import get_allowed_origins
+    from model_loader import load_prediction_bundle
+    from predict import predict_upload
 
 
 class TopPrediction(BaseModel):
@@ -28,19 +27,11 @@ class PredictionResponse(BaseModel):
     top_predictions: List[TopPrediction]
 
 
-def _resolve_allowed_origins() -> list[str]:
-    raw = os.getenv("CORS_ORIGINS")
-    if not raw:
-        return ["*"]
-    origins = [origin.strip() for origin in raw.split(",") if origin.strip()]
-    return origins or ["*"]
-
-
 app = FastAPI(title="Lipi OCR API", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=_resolve_allowed_origins(),
+    allow_origins=get_allowed_origins(),
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
