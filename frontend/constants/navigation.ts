@@ -14,7 +14,7 @@ export const MAIN_NAVIGATION: NavAction[] = [
     id: "LiPyD",
     label: "LiPyD",
     type: "link",
-    href: "/LiPyD",
+    href: "/lipyd",
   },
   {
     id: "github",
