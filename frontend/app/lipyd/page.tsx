@@ -3,7 +3,7 @@ import { DatasetContributor } from "@/components/lipyd/DatasetContributor";
 
 export const metadata: Metadata = {
 	title: "LiPy Dataset",
-	description: "Contribute traces and handwritten characters to the LiPyD open-source dataset for Odia character recognition.",
+	description: "Contribute handwritten odia characters to the LiPy Dataset.",
 };
 
 export default function LiPyDPage() {

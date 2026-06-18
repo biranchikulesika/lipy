@@ -6,13 +6,12 @@ import path from "path";
 
 export const metadata: Metadata = {
 	title: "Our Team",
-	description: "Meet the researchers, engineers, and contributors behind the LiPy Odia OCR project.",
+	description: "Meet the people behind the LiPy Odia Handwriting Recognition system.",
 };
 
 export const dynamic = "force-dynamic";
 
 export default function TeamPage() {
-	// Check which profile photos exist in the public directory
 	const validPhotos = TEAM_MEMBERS.map(member => member.photoFilename)
 		.filter((filename): filename is string => {
 			if (!filename) return false;
@@ -24,7 +23,7 @@ export default function TeamPage() {
 			}
 		});
 
-	// Implement Fisher-Yates shuffle for true randomness
+	// Guys this is for randomising the order of team members on each page load. This is to ensure that no one feels left out or less important than others. The order of team members is randomized on each page load, so everyone gets a fair chance to be seen :)
 	const shuffledMembers = [...TEAM_MEMBERS];
 	for (let i = shuffledMembers.length - 1; i > 0; i--) {
 		const j = Math.floor(Math.random() * (i + 1));

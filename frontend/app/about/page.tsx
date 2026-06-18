@@ -4,7 +4,7 @@ import { ClientOnly } from "@/components/ClientOnly";
 
 export const metadata: Metadata = {
     title: "About LiPy",
-    description: "Learn about the LiPy project, the architecture of our Odia OCR engine, and how it works.",
+    description: "Learn about the LiPy project, the architecture of our Odia Handwriting Recognition system, and how it works.",
 };
 
 export default function AboutPage() {

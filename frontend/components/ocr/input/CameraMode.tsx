@@ -71,7 +71,7 @@ export const CameraContent = forwardRef<InputModeRef, CameraContentProps>(
 				} catch {
 					if (isMounted) {
 						const err =
-							"We couldn't access your camera. Please allow camera permissions in your browser settings and try again.";
+							"Please allow camera permissions in your browser settings and try again.";
 						setCameraError(err);
 					}
 				}

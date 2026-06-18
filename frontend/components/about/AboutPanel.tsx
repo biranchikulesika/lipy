@@ -43,8 +43,8 @@ export function AboutPanel() {
 					</h1>
 
 					<p className="mt-6 max-w-2xl text-base leading-relaxed text-slate-600 dark:text-slate-400 sm:text-lg">
-						LiPy is an Odia Handwriting Recognition System combining machine learning, human-contributed
-						dataset generation, and language technology research to build an interactive OCR platform.
+						LiPy is an Odia Handwritten Character Recognition System combining machine learning and crowsourced
+						dataset generation to build an web-based OCR platform.
 					</p>
 				</section>
 
