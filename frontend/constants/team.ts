@@ -8,6 +8,8 @@
     github?: string;
     linkedin?: string;
     email?: string;
+    website?: string;
+    instagram?: string;
   };
 }
 
@@ -45,7 +47,9 @@ export const TEAM_MEMBERS: TeamMember[] = [
     social: {
       github: "https://github.com/biranchikulesika",
       linkedin: "https://linkedin.com/in/biranchikulesika",
-      email: "mailto:biranchikulesika@gmail.com"
+      email: "mailto:biranchi@kulesika.in",
+      website: "https://kulesika.in/",
+      instagram: "https://www.instagram.com/biranchikulesika/"
     }
   },
   {
@@ -60,7 +64,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     ],
     photoFilename: "baibhab.jpeg",
     social: {
-      github: "https://github.com/baibhab911"
+      github: "https://github.com/baibhab911",
     }
   },
   {

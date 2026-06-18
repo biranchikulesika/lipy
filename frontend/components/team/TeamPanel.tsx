@@ -1,7 +1,7 @@
 "use client";
 
 import { TEAM_MEMBERS, type TeamMember } from "@/constants/team";
-import { Github, Linkedin, Mail, GraduationCap, Building2, UserCheck } from "lucide-react";
+import { Github, Linkedin, Mail, GraduationCap, Building2, UserCheck, Globe, Instagram } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -35,6 +35,7 @@ function TeamMemberAvatar({ name, photoFilename, validPhotos }: { name: string; 
 
 function TeamMemberCard({ member, validPhotos }: { member: TeamMember; validPhotos: string[] }) {
 	const [isFlipped, setIsFlipped] = useState(false);
+	const socialIconClass = "text-slate-400 transition-colors duration-200";
 
 	return (
 		<div className="flex flex-col h-[420px] w-[85vw] max-w-[320px] shrink-0 snap-center sm:w-full sm:max-w-none shadow-sm rounded-[10px]">
@@ -91,18 +92,60 @@ function TeamMemberCard({ member, validPhotos }: { member: TeamMember; validPhot
 				<div className="absolute top-0 left-4 right-4 h-px bg-slate-900/5 dark:bg-white/5" />
 
 				{member.social?.github && (
-					<a href={member.social.github} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+					<a
+						href={member.social.github}
+						target="_blank"
+						rel="noreferrer"
+						className={`${socialIconClass} hover:text-slate-900 dark:hover:text-white`}
+						aria-label="GitHub"
+					>
 						<Github className="h-[18px] w-[18px]" />
 					</a>
 				)}
+
 				{member.social?.linkedin && (
-					<a href={member.social.linkedin} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-blue-500 transition-colors">
+					<a
+						href={member.social.linkedin}
+						target="_blank"
+						rel="noreferrer"
+						className={`${socialIconClass} hover:text-[#0A66C2]`}
+						aria-label="LinkedIn"
+					>
 						<Linkedin className="h-[18px] w-[18px]" />
 					</a>
 				)}
+
+				{member.social?.website && (
+					<a
+						href={member.social.website}
+						target="_blank"
+						rel="noreferrer"
+						className={`${socialIconClass} hover:text-emerald-600 dark:hover:text-emerald-400`}
+						aria-label="Website"
+					>
+						<Globe className="h-[18px] w-[18px]" />
+					</a>
+				)}
+
 				{member.social?.email && (
-					<a href={member.social.email} className="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+					<a
+						href={member.social.email}
+						className={`${socialIconClass} hover:text-amber-600 dark:hover:text-amber-400`}
+						aria-label="Email"
+					>
 						<Mail className="h-[18px] w-[18px]" />
+					</a>
+				)}
+
+				{member.social?.instagram && (
+					<a
+						href={member.social.instagram}
+						target="_blank"
+						rel="noreferrer"
+						className={`${socialIconClass} hover:text-pink-500`}
+						aria-label="Instagram"
+					>
+						<Instagram className="h-[18px] w-[18px]" />
 					</a>
 				)}
 			</div>
