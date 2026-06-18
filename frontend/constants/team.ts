@@ -17,7 +17,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
   {
     name: "Gundala Anushka",
     role: "Project Lead",
-    description: "Coordinated project activities, communicated with mentors, managed progress tracking, reviewed implementation work, and led project presentations.",
+    description: "Co-ordinated project activities, communicated with mentors, managed progress tracking, reviewed implementation work, and led project presentations.",
     contributions: [
       "Project planning",
       "Progress tracking",
