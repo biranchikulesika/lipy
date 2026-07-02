@@ -92,7 +92,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
       "Manual data filtering",
       "Documentation support"
     ],
-    photoFilename: "prajna.jpeg",
+    photoFilename: "prajna.jpg",
     social: {
       github: "https://github.com/prajnadash73-netizen"
     }
