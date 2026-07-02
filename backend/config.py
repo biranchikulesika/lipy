@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import os
 from pathlib import Path
@@ -16,7 +16,13 @@ def get_model_path() -> Path:
     override = os.getenv("LIPY_MODEL_PATH")
     if override:
         return Path(override).expanduser().resolve()
-    return DEFAULT_MODEL_PATH
+    
+    keras_files = list(MODEL_DIR.glob("*.keras"))
+    if not keras_files:
+        return DEFAULT_MODEL_PATH
+        
+    keras_files.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+    return keras_files[0]
 
 
 def get_allowed_origins() -> list[str]:
