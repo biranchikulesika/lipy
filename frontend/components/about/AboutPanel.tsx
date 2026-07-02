@@ -1,310 +1,272 @@
 "use client";
 
-import { STATS, CHALLENGES, STACK, STATUS, FUTURE_WORK } from "@/constants/about";
+import { STATS, CHALLENGES, STACK, FUTURE_WORK } from "@/constants/about";
 import {
-	BookOpen,
 	Database,
 	Scan,
 	Layers,
-	Code2,
 	PenTool,
 	Cpu,
 	Globe,
-	Activity,
 	CheckCircle2,
 	Zap,
 	Server,
 	LayoutTemplate,
-	BarChart3,
 	Target,
 	Users2,
-	GraduationCap
+	GraduationCap,
+	ChevronDown,
+	Sparkles
 } from "lucide-react";
 
 export function AboutPanel() {
 	return (
-		<main className="mx-auto w-full max-w-[1400px] h-[calc(100dvh-4.5rem)] overflow-y-auto px-4 py-8 sm:px-6 lg:px-8 xl:py-12">
-			<div className="space-y-12 md:space-y-20">
+		<main className="w-full h-[calc(100dvh-4.5rem)] overflow-y-auto snap-y snap-mandatory scroll-smooth bg-white dark:bg-[#030712] selection:bg-verdigris-500/30">
+			
+			{/* SLIDE 1: HERO */}
+			<section className="snap-start min-h-[calc(100dvh-4.5rem)] w-full flex flex-col items-center justify-center relative px-6 text-center overflow-hidden">
+				{/* Premium Animated Background */}
+				<div className="absolute inset-0 -z-10 flex items-center justify-center pointer-events-none">
+					<div className="absolute top-1/4 -left-1/4 h-[500px] w-[500px] rounded-full bg-verdigris-400/20 dark:bg-verdigris-600/20 blur-[100px] mix-blend-multiply dark:mix-blend-screen animate-pulse duration-1000" />
+					<div className="absolute bottom-1/4 -right-1/4 h-[600px] w-[600px] rounded-full bg-blue-400/20 dark:bg-blue-600/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-pulse duration-[3000ms]" />
+					<div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] dark:opacity-10 opacity-30" />
+				</div>
+				
+				<div className="inline-flex items-center gap-2 rounded-full border border-verdigris-500/30 bg-white/50 px-4 py-2 text-xs sm:text-sm font-semibold text-verdigris-700 dark:border-verdigris-400/20 dark:bg-black/30 dark:text-verdigris-300 backdrop-blur-xl mb-12 shadow-lg shadow-verdigris-500/10 transition-transform hover:scale-105">
+					<GraduationCap className="h-4 w-4 sm:h-5 sm:w-5" />
+					<span className="uppercase tracking-[0.2em]">Academic Research Project</span>
+				</div>
+				
+				<h1 className="font-display text-6xl font-extrabold tracking-tighter text-slate-900 dark:text-white sm:text-8xl lg:text-9xl relative">
+					Meet <span className="text-transparent bg-clip-text bg-gradient-to-br from-verdigris-500 via-teal-400 to-blue-600 drop-shadow-sm">LiPy</span>
+					<Sparkles className="absolute -top-6 -right-12 h-10 w-10 text-verdigris-400 animate-bounce" />
+				</h1>
+				
+				<p className="mt-10 max-w-3xl text-lg sm:text-2xl leading-relaxed text-slate-600 dark:text-slate-400 font-medium">
+					An Odia Handwritten Character Recognition System uniting deep learning and crowdsourced data into a beautifully modern platform.
+				</p>
 
-				{/* 1. HERO SECTION */}
-				<section className="relative flex flex-col items-center text-center">
-					<div className="absolute inset-0 -z-10 flex items-center justify-center opacity-30 dark:opacity-20 pointer-events-none">
-						<div className="h-64 w-64 rounded-full bg-verdigris-500 blur-3xl filter" />
-						<div className="h-64 w-64 rounded-full bg-verdigris-500 blur-3xl filter -ml-32" />
+				{/* Scroll Indicator */}
+				<div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-50 animate-bounce">
+					<span className="text-xs font-semibold tracking-widest uppercase text-slate-500 dark:text-slate-400">Discover</span>
+					<ChevronDown className="h-5 w-5 text-slate-400" />
+				</div>
+			</section>
+
+			{/* SLIDE 2: BACKGROUND & ACADEMIC CONTEXT */}
+			<section className="snap-start min-h-[calc(100dvh-4.5rem)] w-full flex flex-col justify-center px-6 py-24 relative overflow-hidden bg-slate-50/50 dark:bg-white/[0.02]">
+				{/* Watermark */}
+				<Target className="absolute -right-32 top-1/2 -translate-y-1/2 h-[600px] w-[600px] text-slate-200 dark:text-white/[0.02] -z-10 rotate-12" />
+
+				<div className="max-w-[1400px] mx-auto w-full grid lg:grid-cols-2 gap-16 lg:gap-32 items-center">
+					<div className="space-y-10">
+						<div className="inline-flex items-center gap-4">
+							<div className="p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-2xl">
+								<Target className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+							</div>
+							<h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white">Project Context</h2>
+						</div>
+						<p className="text-lg sm:text-xl leading-loose text-slate-600 dark:text-slate-400">
+							Handwritten character recognition remains a complex barrier due to infinite stroke variations. While AI technologies dominate major languages, handwritten Odia script research is highly restricted. <span className="font-semibold text-verdigris-600 dark:text-verdigris-400">LiPy bridges this gap.</span>
+						</p>
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8">
+							{["Build Odia character dataset", "CNN model classification", "Real-time OCR interface", "Future tech research"].map((goal, i) => (
+								<div key={i} className="group flex items-start gap-4 p-4 rounded-2xl hover:bg-white dark:hover:bg-white/5 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-white/10 hover:shadow-xl hover:shadow-slate-200/20 dark:hover:shadow-none">
+									<CheckCircle2 className="mt-1 h-6 w-6 shrink-0 text-verdigris-500 transition-transform group-hover:scale-110" />
+									<span className="text-base font-semibold text-slate-700 dark:text-slate-300">{goal}</span>
+								</div>
+							))}
+						</div>
 					</div>
-
-					<div className="inline-flex items-center gap-2 rounded-full border border-verdigris-600/20 bg-verdigris-50/50 px-3 py-1.5 text-xs font-semibold text-blue-700 dark:border-verdigris-400/20 dark:bg-verdigris-500/10 dark:text-blue-300 backdrop-blur-sm">
-						<GraduationCap className="h-4 w-4" />
-						<span className="uppercase tracking-widest">Academic Project</span>
+					
+					<div className="relative p-10 sm:p-14 rounded-[40px] bg-white dark:bg-[#0A0A0A] border border-slate-200 dark:border-white/5 shadow-2xl shadow-slate-200/50 dark:shadow-none overflow-hidden group">
+						<div className="absolute top-0 right-0 w-64 h-64 bg-verdigris-400/10 dark:bg-verdigris-500/10 blur-[80px] rounded-full transition-transform group-hover:scale-150" />
+						
+						<div className="relative z-10 space-y-10">
+							<div className="inline-flex items-center gap-4">
+								<div className="p-3 bg-verdigris-100 dark:bg-verdigris-900/30 rounded-2xl">
+									<Users2 className="h-8 w-8 text-verdigris-600 dark:text-verdigris-400" />
+								</div>
+								<h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 dark:text-white">Academic Roots</h2>
+							</div>
+							
+							<div className="space-y-8">
+								<div className="flex flex-col gap-2">
+									<span className="text-sm font-bold tracking-widest uppercase text-slate-400">Mentorship</span>
+									<p className="text-xl sm:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-200">
+										Developed under the <span className="text-indigo-600 dark:text-indigo-400">NIELIT Bhubaneswar</span> Internship Programme with guidance from Bijaylaxmi Behera.
+									</p>
+								</div>
+								
+								<div className="h-px w-full bg-gradient-to-r from-slate-200 via-slate-300 to-transparent dark:from-white/10 dark:via-white/5" />
+								
+								<div className="flex flex-col gap-2">
+									<span className="text-sm font-bold tracking-widest uppercase text-slate-400">Execution</span>
+									<p className="text-xl leading-relaxed text-slate-700 dark:text-slate-300">
+										Implemented by second-year students of the 5-Year Integrated MCA programme at <span className="font-semibold text-slate-900 dark:text-white">Utkal University, Bhubaneswar</span>.
+									</p>
+								</div>
+							</div>
+						</div>
 					</div>
+				</div>
+			</section>
 
-					<h1 className="mt-6 font-display text-4xl font-extrabold tracking-tight text-slate-950 dark:text-white sm:text-5xl lg:text-7xl">
-						About <span className="text-transparent bg-clip-text bg-gradient-to-r from-verdigris-600 to-verdigris-600 dark:from-verdigris-400 dark:to-verdigris-400">LiPy</span>
-					</h1>
-
-					<p className="mt-6 max-w-2xl text-base leading-relaxed text-slate-600 dark:text-slate-400 sm:text-lg">
-						LiPy is an Odia Handwritten Character Recognition System combining machine learning and crowsourced
-						dataset generation to build an web-based OCR platform.
+			{/* SLIDE 3: THE ECOSYSTEM WORKFLOW */}
+			<section className="snap-start min-h-[calc(100dvh-4.5rem)] w-full flex flex-col items-center justify-center px-6 py-24 relative overflow-hidden bg-slate-950 text-white">
+				{/* Dark Glassmorphic Background */}
+				<div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-verdigris-900/20 via-[#030712] to-[#030712]" />
+				
+				<div className="max-w-[1400px] mx-auto w-full text-center relative z-10">
+					<h2 className="text-5xl sm:text-6xl font-extrabold tracking-tight mb-6">The Ecosystem</h2>
+					<p className="text-xl sm:text-2xl text-slate-400 max-w-4xl mx-auto mb-24 font-light">
+						A completely unified architecture moving seamlessly from crowdsourced dataset generation into real-time browser inference.
 					</p>
-				</section>
-
-				{/* 2. STATS OVERVIEW - Bento style for desktop, cards for mobile */}
-				<section>
-					{/* Mobile Version (2x2 Grid) - Hidden on desktop */}
-					<div className="md:hidden grid grid-cols-2 gap-3">
-						{STATS.map((item, i) => {
-							const StatIcon = [Layers, Database, Cpu, Globe][i % 4];
-							return (
-								<div key={item.label} className="flex flex-col gap-3 rounded-[12px] border border-verdigris-900/10 bg-white/70 backdrop-blur-md p-4 shadow-sm dark:border-white/10 dark:bg-verdigris-950/60">
-									<div className="flex h-10 w-10 items-center justify-center rounded-[8px] bg-verdigris-100 text-slate-700 dark:bg-white/5 dark:text-slate-300">
-										<StatIcon className="h-5 w-5" />
-									</div>
-									<div>
-										<p className="text-2xl font-bold text-slate-950 dark:text-white leading-tight">{item.value}</p>
-										<p className="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">{item.label}</p>
-									</div>
+					
+					<div className="flex flex-col lg:flex-row justify-between items-center gap-12 lg:gap-4 relative w-full px-4">
+						{/* Glowing Connecting Line (Desktop) */}
+						<div className="hidden lg:block absolute top-12 left-[10%] right-[10%] h-[2px] bg-gradient-to-r from-transparent via-verdigris-500 to-transparent opacity-30" />
+						<div className="hidden lg:block absolute top-12 left-[10%] right-[10%] h-[2px] bg-gradient-to-r from-transparent via-verdigris-400 to-transparent blur-sm opacity-50 animate-pulse" />
+						
+						{[
+							{ title: "Collection", desc: "Browser Canvas", icon: Users2 },
+							{ title: "Preparation", desc: "Data Formatting", icon: Database },
+							{ title: "Processing", desc: "OpenCV Core", icon: Layers },
+							{ title: "Training", desc: "Keras CNN", icon: Cpu },
+							{ title: "Inference", desc: "FastAPI Runtime", icon: Server },
+							{ title: "OCR Results", desc: "React UI", icon: Scan }
+						].map((step, i) => (
+							<div key={step.title} className="flex flex-col items-center group w-full lg:w-auto relative cursor-default">
+								{/* Glassmorphic Orb */}
+								<div className="relative flex h-24 w-24 items-center justify-center rounded-[2rem] bg-white/5 border border-white/10 backdrop-blur-xl transition-all duration-500 group-hover:bg-verdigris-500/20 group-hover:border-verdigris-400/50 group-hover:-translate-y-4 mb-6 z-10">
+									<step.icon className="h-10 w-10 text-slate-300 transition-colors duration-500 group-hover:text-white" />
+									{/* Hover glow */}
+									<div className="absolute inset-0 bg-verdigris-400/20 blur-xl rounded-[2rem] opacity-0 transition-opacity duration-500 group-hover:opacity-100 -z-10" />
 								</div>
-							);
-						})}
+								
+								<div className="text-2xl font-bold tracking-tight text-white mb-2 transition-transform duration-500 group-hover:-translate-y-2">{step.title}</div>
+								<div className="text-sm font-semibold tracking-wide uppercase text-slate-500 transition-transform duration-500 group-hover:-translate-y-2">{step.desc}</div>
+							</div>
+						))}
 					</div>
+				</div>
+			</section>
 
-					{/* Desktop Version (Bento grid) - Hidden on mobile */}
-					<div className="hidden md:grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-						{STATS.map((item, i) => {
-							const StatIcon = [Layers, Database, Cpu, Globe][i % 4];
-							return (
-								<div key={item.label} className="group relative overflow-hidden rounded-[16px] border border-verdigris-900/10 bg-white/70 backdrop-blur-md p-6 shadow-sm transition-all hover:shadow-md dark:border-white/10 dark:bg-verdigris-950/60">
-									<div className="absolute right-0 top-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-verdigris-50 opacity-50 transition-transform group-hover:scale-150 dark:bg-white/5" />
-									<div className="relative z-10 flex flex-col gap-4">
-										<div className="flex h-12 w-12 items-center justify-center rounded-[10px] bg-verdigris-100 text-slate-700 dark:bg-white/5 dark:text-slate-300">
-											<StatIcon className="h-6 w-6" />
-										</div>
-										<div>
-											<p className="text-3xl font-extrabold text-slate-950 dark:text-white">{item.value}</p>
-											<p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-400">{item.label}</p>
-										</div>
-									</div>
-								</div>
-							);
-						})}
-					</div>
-				</section>
-
-				{/* 3. PROJECT BACKGROUND & GOALS - Bento Grid Layout */}
-				<section>
-					<div className="grid gap-6 md:grid-cols-12 lg:grid-rows-2 lg:h-[500px]">
-						{/* Background Panel (Spans 8 cols on desktop) */}
-						<div className="relative overflow-hidden rounded-[20px] border border-verdigris-900/10 bg-white/70 backdrop-blur-md p-6 md:col-span-12 lg:col-span-7 lg:row-span-1 shadow-sm dark:border-white/10 dark:bg-verdigris-950/60 sm:p-8">
-							<div className="absolute -right-10 -top-10 text-slate-100 dark:text-white/[0.03]">
-								<BookOpen className="h-48 w-48" strokeWidth={1} />
-							</div>
-
-							<div className="relative z-10">
-								<h2 className="flex items-center gap-3 text-2xl font-bold text-slate-950 dark:text-white">
-									<Target className="h-6 w-6 text-indigo-500" />
-									Project Background
-								</h2>
-								<p className="mt-5 text-sm leading-7 text-slate-600 dark:text-slate-400 sm:text-base">
-									Handwritten character recognition remains a challenging problem due to differences in
-									writing styles, stroke variations, and the availability of language-specific datasets.
-								</p>
-								<p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-400 sm:text-base">
-									While OCR technologies are widely available for major languages, resources for
-									handwritten Odia script remain limited. LiPy explores practical machine learning solutions while
-									contributing toward language technology research.
-								</p>
-							</div>
-						</div>
-
-						{/* Academic Context (Spans 5 cols on desktop) */}
-						<div className="flex flex-col justify-center rounded-[20px] border border-verdigris-900/10 bg-gradient-to-br from-verdigris-50 to-verdigris-50 p-6 md:col-span-12 lg:col-span-5 lg:row-span-2 shadow-sm dark:border-white/10 dark:from-verdigris-950/20 dark:to-verdigris-950/20 sm:p-8">
-							<div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6 sm:flex-col sm:items-start text-left">
-								<div className="flex shrink-0 h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-[12px] bg-white text-indigo-600 shadow-sm dark:bg-verdigris-500/20 dark:text-indigo-300">
-									<Users2 className="h-6 w-6 sm:h-7 sm:w-7" />
-								</div>
-								<h2 className="text-xl sm:text-2xl font-bold text-slate-950 dark:text-white leading-tight">
-									Academic Context
-								</h2>
-							</div>
-							<p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300 sm:text-base">
-								Developed under the <strong>NIELIT Bhubaneswar Internship Programme</strong> with guidance from Bijaylaxmi Behera.
-							</p>
-							<div className="mt-5 sm:mt-6 h-px w-full bg-verdigris-900/10 dark:bg-white/10" />
-							<p className="mt-5 sm:mt-6 text-sm leading-relaxed text-slate-700 dark:text-slate-300 sm:text-base">
-								Carried out by second-year students of the 5-Year Integrated MCA programme at
-								<strong> Utkal University, Bhubaneswar</strong>.
-							</p>
-						</div>
-
-						{/* Goals Panel (Spans 7 cols on desktop) */}
-						<div className="rounded-[20px] border border-verdigris-900/10 bg-white/70 backdrop-blur-md p-6 md:col-span-12 lg:col-span-7 lg:row-span-1 shadow-sm dark:border-white/10 dark:bg-verdigris-950/60 sm:p-8">
-							<h2 className="text-xl font-bold text-slate-950 dark:text-white mb-5">Primary Goals</h2>
-							<div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-4">
-								{[
-									"Build Odia character dataset",
-									"ML model for classification",
-									"Real-time OCR interface",
-									"Dataset contributor platform",
-									"Regional language computing",
-									"Future tech research"
-								].map((goal, i) => (
-									<div key={i} className="flex items-start gap-2.5">
-										<CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
-										<span className="text-sm font-medium text-slate-600 dark:text-slate-300 leading-snug">{goal}</span>
-									</div>
-								))}
-							</div>
-						</div>
-					</div>
-				</section>
-
-				{/* 4. THE CHALLENGES - Mobile Swipe Cards vs Desktop Grid */}
-				<section className="space-y-6 md:space-y-8">
-					<h2 className="text-2xl font-semibold text-center text-slate-950 dark:text-white md:text-3xl">
-						The Challenge
-					</h2>
-					<div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+			{/* SLIDE 4: CHALLENGES */}
+			<section className="snap-start min-h-[calc(100dvh-4.5rem)] w-full flex flex-col justify-center px-6 py-24 bg-white dark:bg-[#050505]">
+				<div className="max-w-[1400px] mx-auto w-full">
+					<h2 className="text-5xl sm:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-20 md:mb-32 text-center md:text-left">The Obstacles</h2>
+					
+					<div className="grid md:grid-cols-3 gap-16 md:gap-12 lg:gap-20">
 						{CHALLENGES.map((item, i) => {
 							const Icon = [PenTool, Database, Scan][i % 3];
 							return (
-								<div key={item.title} className="relative overflow-hidden rounded-[16px] border border-verdigris-900/10 bg-verdigris-50/70 p-5 sm:p-8 backdrop-blur-md dark:border-white/10 dark:bg-verdigris-900/40">
-									<div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-6 sm:flex-col sm:items-start text-left">
-										<div className="shrink-0 inline-flex rounded-[10px] bg-verdigris-200/50 p-2.5 sm:p-3 dark:bg-verdigris-800/50 text-slate-700 dark:text-slate-300">
-											<Icon className="h-5 w-5 sm:h-6 sm:w-6" />
-										</div>
-										<h3 className="text-base sm:text-lg font-bold text-slate-950 dark:text-white leading-tight">
-											{item.title}
-										</h3>
+								<div key={item.title} className="relative group flex flex-col">
+									{/* Massive Faint Number Background */}
+									<div className="absolute -top-16 -left-8 text-[150px] font-black text-slate-100 dark:text-white/[0.02] -z-10 transition-transform duration-700 group-hover:-translate-y-4 group-hover:-translate-x-4">
+										0{i + 1}
 									</div>
-									<p className="text-sm leading-relaxed text-slate-600 dark:text-slate-400 mt-2 sm:mt-0">
+									
+									<div className="mb-8 p-4 inline-flex rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 transition-colors duration-500 group-hover:bg-verdigris-50 dark:group-hover:bg-verdigris-900/30">
+										<Icon className="h-8 w-8 text-slate-400 transition-colors duration-500 group-hover:text-verdigris-500 dark:group-hover:text-verdigris-400" />
+									</div>
+									
+									<h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-6 tracking-tight">
+										{item.title}
+									</h3>
+									
+									<p className="text-lg leading-relaxed text-slate-600 dark:text-slate-400 font-medium">
 										{item.description}
 									</p>
 								</div>
 							);
 						})}
 					</div>
-				</section>
+				</div>
+			</section>
 
-				{/* 5. LiPy ECOSYSTEM VISUALIZATION */}
-				<section className="rounded-[24px] border border-verdigris-900/10 bg-verdigris-900 p-6 dark:border-white/10 dark:bg-verdigris-950 sm:p-10 relative overflow-hidden">
-					<div className="relative z-10 flex flex-col items-center">
-						<h2 className="text-2xl font-semibold text-white md:text-3xl">The LiPy Ecosystem</h2>
-						<p className="mt-4 max-w-2xl text-center text-sm leading-relaxed text-slate-400 sm:text-base">
-							A unified workflow from crowdsourced dataset collection through preprocessing and model training, ending in real-time inference.
-						</p>
-
-						{/* Mobile Workflow (Vertical) */}
-						<div className="mt-10 flex w-full flex-col gap-3 md:hidden">
-							{[
-								{ title: "LiPyD Collection", icon: Users2 },
-								{ title: "Preparation", icon: Database },
-								{ title: "Image Processing", icon: Layers },
-								{ title: "CNN Training", icon: Cpu },
-								{ title: "OCR Recognition", icon: Scan },
-								{ title: "Prediction Results", icon: BarChart3 }
-							].map((step, i) => (
-								<div key={step.title} className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
-									<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/10 text-white">
-										<step.icon className="h-5 w-5" />
-									</div>
-									<div className="text-sm font-semibold text-white">{step.title}</div>
-								</div>
-							))}
+			{/* SLIDE 5: TECH STACK & BY THE NUMBERS */}
+			<section className="snap-start min-h-[calc(100dvh-4.5rem)] w-full flex flex-col justify-center px-6 py-24 relative overflow-hidden bg-slate-50 dark:bg-black">
+				<div className="max-w-[1400px] mx-auto w-full grid lg:grid-cols-2 gap-24 lg:gap-16 items-center">
+					
+					{/* By the numbers (Typography focused) */}
+					<div className="space-y-16">
+						<div>
+							<h2 className="text-sm font-bold tracking-[0.2em] uppercase text-verdigris-600 dark:text-verdigris-400 mb-4">Project Scale</h2>
+							<h3 className="text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white">By The Numbers</h3>
 						</div>
-
-						{/* Desktop Workflow (Horizontal Flow) */}
-						<div className="mt-16 hidden w-full items-center justify-between gap-2 md:flex lg:px-10">
-							{[
-								{ title: "Collection", icon: Users2 },
-								{ title: "Preparation", icon: Database },
-								{ title: "Processing", icon: Layers },
-								{ title: "CNN Training", icon: Cpu },
-								{ title: "Recognition", icon: Scan },
-								{ title: "Results", icon: BarChart3 }
-							].map((step, i) => (
-								<div key={step.title} className="relative flex flex-col items-center group">
-									<div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/20 bg-white/10 text-white shadow-lg backdrop-blur-md transition-transform group-hover:scale-110">
-										<step.icon className="h-7 w-7" />
-									</div>
-									<div className="text-center text-xs font-medium tracking-wide text-white uppercase">{step.title}</div>
-
-									{/* Connectors */}
-									{i < 5 && (
-										<div className="absolute left-1/2 top-8 -z-10 ml-8 h-[2px] w-[calc(100%+2rem)] bg-gradient-to-r from-white/20 to-white/5" />
-									)}
+						
+						<div className="grid grid-cols-2 gap-x-12 gap-y-16">
+							{STATS.map((item) => (
+								<div key={item.label} className="group flex flex-col border-l-4 border-slate-200 dark:border-white/10 pl-6 transition-colors duration-500 hover:border-verdigris-400">
+									<p className="text-5xl sm:text-6xl font-black text-slate-900 dark:text-white mb-4 tracking-tighter transition-transform duration-500 group-hover:-translate-y-2">
+										{item.value}
+									</p>
+									<p className="text-sm font-bold text-slate-500 tracking-wider uppercase">
+										{item.label}
+									</p>
 								</div>
 							))}
 						</div>
 					</div>
 
-					{/* Abstract Background Design */}
-					<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[300px] bg-verdigris-500/10 blur-[100px] rounded-full pointer-events-none" />
-				</section>
-
-				{/* 6. TECH STACK & STATUS ROW */}
-				<section className="grid gap-6 md:grid-cols-2">
-					{/* Tech Stack */}
-					<div className="rounded-[20px] border border-verdigris-900/10 bg-white/70 backdrop-blur-md p-6 shadow-sm dark:border-white/10 dark:bg-verdigris-950/60 sm:p-8">
-						<h2 className="flex items-center gap-3 text-xl font-bold text-slate-950 dark:text-white mb-6">
-							<Code2 className="h-6 w-6 text-indigo-500" />
-							Tech Stack
-						</h2>
-						<div className="grid gap-4">
-							{STACK.map((item, i) => {
-								const TechIcon = [LayoutTemplate, Server, Cpu, Globe][i % 4];
-								return (
-									<div key={item.title} className="flex items-center gap-4 rounded-xl border border-verdigris-900/10 bg-verdigris-50/70 backdrop-blur-sm p-4 dark:border-white/10 dark:bg-white/[0.04]">
-										<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white shadow-sm dark:bg-[#050505] dark:border dark:border-white/10 text-slate-600 dark:text-slate-400">
-											<TechIcon className="h-5 w-5" />
+					{/* Tech Stack (Glassmorphic Pills) */}
+					<div className="relative">
+						<div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/10 to-verdigris-500/10 dark:from-indigo-900/20 dark:to-verdigris-900/20 rounded-[3rem] blur-3xl -z-10" />
+						
+						<div className="p-10 sm:p-16 rounded-[3rem] bg-white/60 dark:bg-white/[0.03] backdrop-blur-2xl border border-white dark:border-white/10 shadow-2xl shadow-slate-200/50 dark:shadow-none">
+							<h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-12">Core Technology</h2>
+							
+							<div className="flex flex-col gap-6">
+								{STACK.map((item, i) => {
+									const TechIcon = [LayoutTemplate, Server, Cpu, Globe][i % 4];
+									return (
+										<div key={item.title} className="group flex flex-col sm:flex-row sm:items-center gap-6 p-6 rounded-3xl bg-white dark:bg-black/40 border border-slate-100 dark:border-white/5 transition-all duration-300 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-none hover:border-slate-300 dark:hover:border-white/20">
+											<div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-slate-50 dark:bg-white/5 text-slate-400 transition-colors group-hover:bg-verdigris-50 group-hover:text-verdigris-600 dark:group-hover:bg-verdigris-900/30 dark:group-hover:text-verdigris-400">
+												<TechIcon className="h-7 w-7" />
+											</div>
+											<div>
+												<p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">{item.title}</p>
+												<p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">{item.value}</p>
+											</div>
 										</div>
-										<div>
-											<p className="text-xs font-semibold uppercase tracking-wider text-slate-500">{item.title}</p>
-											<p className="text-sm font-bold text-slate-950 dark:text-white">{item.value}</p>
-										</div>
-									</div>
-								);
-							})}
-						</div>
-					</div>
-
-					{/* Status & Future Work */}
-					<div className="flex flex-col gap-6">
-						<div className="rounded-[20px] border border-verdigris-900/10 bg-white/70 backdrop-blur-md p-6 shadow-sm dark:border-white/10 dark:bg-verdigris-950/60 sm:p-8 h-full">
-							<h2 className="flex items-center gap-3 text-xl font-bold text-slate-950 dark:text-white mb-6">
-								<Activity className="h-6 w-6 text-blue-500" />
-								Status Overview
-							</h2>
-							<div className="grid grid-cols-2 gap-4">
-								{STATUS.map((item) => (
-									<div key={item.title} className="rounded-xl border border-verdigris-900/5 p-4 dark:border-white/5">
-										<p className="text-xs font-medium text-slate-500">{item.title}</p>
-										<div className="mt-2 flex items-center gap-1.5">
-											<div className={`h-2 w-2 rounded-full ${item.value === "Active" ? "bg-verdigris-400 animate-pulse" : "bg-verdigris-500"}`} />
-											<p className="text-sm font-bold text-slate-950 dark:text-white">{item.value}</p>
-										</div>
-									</div>
-								))}
-							</div>
-
-							<div className="mt-8 pt-6 border-t border-verdigris-900/5 dark:border-white/5">
-								<h3 className="flex items-center gap-2 text-sm font-bold text-slate-950 dark:text-white mb-4">
-									<Zap className="h-4 w-4 text-amber-500" /> Future Scope
-								</h3>
-								<div className="flex flex-wrap gap-2 sm:gap-2.5">
-									{FUTURE_WORK.map((item) => (
-										<div key={item} className="flex-grow sm:flex-grow-0 flex items-center justify-center rounded-[8px] border border-verdigris-900/5 bg-verdigris-50 px-3 py-2 shadow-sm dark:border-white/5 dark:bg-white/[0.02]">
-											<span className="text-[11px] sm:text-xs font-medium text-slate-600 dark:text-slate-300">
-												{item}
-											</span>
-										</div>
-									))}
-								</div>
+									);
+								})}
 							</div>
 						</div>
 					</div>
-				</section>
 
-			</div>
+				</div>
+			</section>
+
+			{/* SLIDE 6: FUTURE SCOPE */}
+			<section className="snap-start min-h-[calc(100dvh-4.5rem)] w-full flex flex-col items-center justify-center px-6 py-32 text-center relative overflow-hidden bg-slate-900 text-white">
+				<div className="absolute inset-0 -z-10 opacity-20">
+					<div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[1000px] h-[500px] bg-gradient-to-b from-verdigris-500/50 to-transparent blur-3xl" />
+				</div>
+				
+				<div className="max-w-[1200px] mx-auto w-full relative z-10">
+					<div className="inline-flex items-center justify-center p-6 rounded-full bg-white/5 border border-white/10 mb-12 shadow-[0_0_100px_rgba(234,179,8,0.2)]">
+						<Zap className="h-12 w-12 text-yellow-400 animate-pulse" />
+					</div>
+					
+					<h2 className="text-5xl sm:text-7xl font-black tracking-tight mb-8">What's Next?</h2>
+					<p className="text-xl text-slate-400 max-w-2xl mx-auto mb-20 font-light">
+						We are continuously exploring boundaries. Here is the roadmap for the future iterations of the LiPy engine.
+					</p>
+					
+					<div className="flex flex-wrap justify-center gap-4 sm:gap-6">
+						{FUTURE_WORK.map((item) => (
+							<div key={item} className="group relative">
+								<div className="absolute inset-0 bg-gradient-to-r from-verdigris-500 to-blue-500 rounded-full opacity-0 blur-md transition-opacity duration-300 group-hover:opacity-100" />
+								<span className="relative flex items-center text-base sm:text-xl font-semibold px-8 py-4 rounded-full bg-slate-950 border border-white/10 transition-transform duration-300 group-hover:-translate-y-1">
+									{item}
+								</span>
+							</div>
+						))}
+					</div>
+				</div>
+			</section>
 		</main>
 	);
 }
