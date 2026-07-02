@@ -181,7 +181,7 @@ export const CameraContent = forwardRef<InputModeRef, CameraContentProps>(
 					<img
 						src={capturedFrameUrl}
 						alt="Captured frame"
-						className="h-full w-full object-contain p-3"
+						className="h-full w-full object-contain p-3 rounded-2xl"
 					/>
 				) : (
 					<video
@@ -189,7 +189,7 @@ export const CameraContent = forwardRef<InputModeRef, CameraContentProps>(
 						autoPlay
 						playsInline
 						muted
-						className="h-full w-full object-contain p-3"
+						className="h-full w-full object-contain p-3 rounded-2xl"
 					/>
 				)}
 			</div>

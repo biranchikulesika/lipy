@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { STATS, CHALLENGES, STACK, STATUS, FUTURE_WORK } from "@/constants/about";
 import {
@@ -23,23 +23,23 @@ import {
 
 export function AboutPanel() {
 	return (
-		<main className="mx-auto w-full max-w-[1400px] px-4 py-8 sm:px-6 lg:px-8 xl:py-12">
+		<main className="mx-auto w-full max-w-[1400px] h-[calc(100dvh-4.5rem)] overflow-y-auto px-4 py-8 sm:px-6 lg:px-8 xl:py-12">
 			<div className="space-y-12 md:space-y-20">
 
 				{/* 1. HERO SECTION */}
 				<section className="relative flex flex-col items-center text-center">
 					<div className="absolute inset-0 -z-10 flex items-center justify-center opacity-30 dark:opacity-20 pointer-events-none">
-						<div className="h-64 w-64 rounded-full bg-blue-500 blur-3xl filter" />
-						<div className="h-64 w-64 rounded-full bg-indigo-500 blur-3xl filter -ml-32" />
+						<div className="h-64 w-64 rounded-full bg-verdigris-500 blur-3xl filter" />
+						<div className="h-64 w-64 rounded-full bg-verdigris-500 blur-3xl filter -ml-32" />
 					</div>
 
-					<div className="inline-flex items-center gap-2 rounded-full border border-blue-600/20 bg-blue-50/50 px-3 py-1.5 text-xs font-semibold text-blue-700 dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-300 backdrop-blur-sm">
+					<div className="inline-flex items-center gap-2 rounded-full border border-verdigris-600/20 bg-verdigris-50/50 px-3 py-1.5 text-xs font-semibold text-blue-700 dark:border-verdigris-400/20 dark:bg-verdigris-500/10 dark:text-blue-300 backdrop-blur-sm">
 						<GraduationCap className="h-4 w-4" />
 						<span className="uppercase tracking-widest">Academic Project</span>
 					</div>
 
 					<h1 className="mt-6 font-display text-4xl font-extrabold tracking-tight text-slate-950 dark:text-white sm:text-5xl lg:text-7xl">
-						About <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">LiPy</span>
+						About <span className="text-transparent bg-clip-text bg-gradient-to-r from-verdigris-600 to-verdigris-600 dark:from-verdigris-400 dark:to-verdigris-400">LiPy</span>
 					</h1>
 
 					<p className="mt-6 max-w-2xl text-base leading-relaxed text-slate-600 dark:text-slate-400 sm:text-lg">
@@ -55,8 +55,8 @@ export function AboutPanel() {
 						{STATS.map((item, i) => {
 							const StatIcon = [Layers, Database, Cpu, Globe][i % 4];
 							return (
-								<div key={item.label} className="flex flex-col gap-3 rounded-[12px] border border-slate-900/10 bg-white/70 backdrop-blur-md p-4 shadow-sm dark:border-white/10 dark:bg-slate-950/60">
-									<div className="flex h-10 w-10 items-center justify-center rounded-[8px] bg-slate-100 text-slate-700 dark:bg-white/5 dark:text-slate-300">
+								<div key={item.label} className="flex flex-col gap-3 rounded-[12px] border border-verdigris-900/10 bg-white/70 backdrop-blur-md p-4 shadow-sm dark:border-white/10 dark:bg-verdigris-950/60">
+									<div className="flex h-10 w-10 items-center justify-center rounded-[8px] bg-verdigris-100 text-slate-700 dark:bg-white/5 dark:text-slate-300">
 										<StatIcon className="h-5 w-5" />
 									</div>
 									<div>
@@ -73,10 +73,10 @@ export function AboutPanel() {
 						{STATS.map((item, i) => {
 							const StatIcon = [Layers, Database, Cpu, Globe][i % 4];
 							return (
-								<div key={item.label} className="group relative overflow-hidden rounded-[16px] border border-slate-900/10 bg-white/70 backdrop-blur-md p-6 shadow-sm transition-all hover:shadow-md dark:border-white/10 dark:bg-slate-950/60">
-									<div className="absolute right-0 top-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-slate-50 opacity-50 transition-transform group-hover:scale-150 dark:bg-white/5" />
+								<div key={item.label} className="group relative overflow-hidden rounded-[16px] border border-verdigris-900/10 bg-white/70 backdrop-blur-md p-6 shadow-sm transition-all hover:shadow-md dark:border-white/10 dark:bg-verdigris-950/60">
+									<div className="absolute right-0 top-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-verdigris-50 opacity-50 transition-transform group-hover:scale-150 dark:bg-white/5" />
 									<div className="relative z-10 flex flex-col gap-4">
-										<div className="flex h-12 w-12 items-center justify-center rounded-[10px] bg-slate-100 text-slate-700 dark:bg-white/5 dark:text-slate-300">
+										<div className="flex h-12 w-12 items-center justify-center rounded-[10px] bg-verdigris-100 text-slate-700 dark:bg-white/5 dark:text-slate-300">
 											<StatIcon className="h-6 w-6" />
 										</div>
 										<div>
@@ -94,7 +94,7 @@ export function AboutPanel() {
 				<section>
 					<div className="grid gap-6 md:grid-cols-12 lg:grid-rows-2 lg:h-[500px]">
 						{/* Background Panel (Spans 8 cols on desktop) */}
-						<div className="relative overflow-hidden rounded-[20px] border border-slate-900/10 bg-white/70 backdrop-blur-md p-6 md:col-span-12 lg:col-span-7 lg:row-span-1 shadow-sm dark:border-white/10 dark:bg-slate-950/60 sm:p-8">
+						<div className="relative overflow-hidden rounded-[20px] border border-verdigris-900/10 bg-white/70 backdrop-blur-md p-6 md:col-span-12 lg:col-span-7 lg:row-span-1 shadow-sm dark:border-white/10 dark:bg-verdigris-950/60 sm:p-8">
 							<div className="absolute -right-10 -top-10 text-slate-100 dark:text-white/[0.03]">
 								<BookOpen className="h-48 w-48" strokeWidth={1} />
 							</div>
@@ -117,9 +117,9 @@ export function AboutPanel() {
 						</div>
 
 						{/* Academic Context (Spans 5 cols on desktop) */}
-						<div className="flex flex-col justify-center rounded-[20px] border border-slate-900/10 bg-gradient-to-br from-indigo-50 to-blue-50 p-6 md:col-span-12 lg:col-span-5 lg:row-span-2 shadow-sm dark:border-white/10 dark:from-indigo-950/20 dark:to-blue-950/20 sm:p-8">
+						<div className="flex flex-col justify-center rounded-[20px] border border-verdigris-900/10 bg-gradient-to-br from-verdigris-50 to-verdigris-50 p-6 md:col-span-12 lg:col-span-5 lg:row-span-2 shadow-sm dark:border-white/10 dark:from-verdigris-950/20 dark:to-verdigris-950/20 sm:p-8">
 							<div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6 sm:flex-col sm:items-start text-left">
-								<div className="flex shrink-0 h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-[12px] bg-white text-indigo-600 shadow-sm dark:bg-indigo-500/20 dark:text-indigo-300">
+								<div className="flex shrink-0 h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-[12px] bg-white text-indigo-600 shadow-sm dark:bg-verdigris-500/20 dark:text-indigo-300">
 									<Users2 className="h-6 w-6 sm:h-7 sm:w-7" />
 								</div>
 								<h2 className="text-xl sm:text-2xl font-bold text-slate-950 dark:text-white leading-tight">
@@ -129,7 +129,7 @@ export function AboutPanel() {
 							<p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300 sm:text-base">
 								Developed under the <strong>NIELIT Bhubaneswar Internship Programme</strong> with guidance from Bijaylaxmi Behera.
 							</p>
-							<div className="mt-5 sm:mt-6 h-px w-full bg-slate-900/10 dark:bg-white/10" />
+							<div className="mt-5 sm:mt-6 h-px w-full bg-verdigris-900/10 dark:bg-white/10" />
 							<p className="mt-5 sm:mt-6 text-sm leading-relaxed text-slate-700 dark:text-slate-300 sm:text-base">
 								Carried out by second-year students of the 5-Year Integrated MCA programme at
 								<strong> Utkal University, Bhubaneswar</strong>.
@@ -137,7 +137,7 @@ export function AboutPanel() {
 						</div>
 
 						{/* Goals Panel (Spans 7 cols on desktop) */}
-						<div className="rounded-[20px] border border-slate-900/10 bg-white/70 backdrop-blur-md p-6 md:col-span-12 lg:col-span-7 lg:row-span-1 shadow-sm dark:border-white/10 dark:bg-slate-950/60 sm:p-8">
+						<div className="rounded-[20px] border border-verdigris-900/10 bg-white/70 backdrop-blur-md p-6 md:col-span-12 lg:col-span-7 lg:row-span-1 shadow-sm dark:border-white/10 dark:bg-verdigris-950/60 sm:p-8">
 							<h2 className="text-xl font-bold text-slate-950 dark:text-white mb-5">Primary Goals</h2>
 							<div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-4">
 								{[
@@ -167,9 +167,9 @@ export function AboutPanel() {
 						{CHALLENGES.map((item, i) => {
 							const Icon = [PenTool, Database, Scan][i % 3];
 							return (
-								<div key={item.title} className="relative overflow-hidden rounded-[16px] border border-slate-900/10 bg-slate-50/70 p-5 sm:p-8 backdrop-blur-md dark:border-white/10 dark:bg-slate-900/40">
+								<div key={item.title} className="relative overflow-hidden rounded-[16px] border border-verdigris-900/10 bg-verdigris-50/70 p-5 sm:p-8 backdrop-blur-md dark:border-white/10 dark:bg-verdigris-900/40">
 									<div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-6 sm:flex-col sm:items-start text-left">
-										<div className="shrink-0 inline-flex rounded-[10px] bg-slate-200/50 p-2.5 sm:p-3 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300">
+										<div className="shrink-0 inline-flex rounded-[10px] bg-verdigris-200/50 p-2.5 sm:p-3 dark:bg-verdigris-800/50 text-slate-700 dark:text-slate-300">
 											<Icon className="h-5 w-5 sm:h-6 sm:w-6" />
 										</div>
 										<h3 className="text-base sm:text-lg font-bold text-slate-950 dark:text-white leading-tight">
@@ -186,7 +186,7 @@ export function AboutPanel() {
 				</section>
 
 				{/* 5. LiPy ECOSYSTEM VISUALIZATION */}
-				<section className="rounded-[24px] border border-slate-900/10 bg-slate-900 p-6 dark:border-white/10 dark:bg-slate-950 sm:p-10 relative overflow-hidden">
+				<section className="rounded-[24px] border border-verdigris-900/10 bg-verdigris-900 p-6 dark:border-white/10 dark:bg-verdigris-950 sm:p-10 relative overflow-hidden">
 					<div className="relative z-10 flex flex-col items-center">
 						<h2 className="text-2xl font-semibold text-white md:text-3xl">The LiPy Ecosystem</h2>
 						<p className="mt-4 max-w-2xl text-center text-sm leading-relaxed text-slate-400 sm:text-base">
@@ -238,13 +238,13 @@ export function AboutPanel() {
 					</div>
 
 					{/* Abstract Background Design */}
-					<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[300px] bg-indigo-500/10 blur-[100px] rounded-full pointer-events-none" />
+					<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[300px] bg-verdigris-500/10 blur-[100px] rounded-full pointer-events-none" />
 				</section>
 
 				{/* 6. TECH STACK & STATUS ROW */}
 				<section className="grid gap-6 md:grid-cols-2">
 					{/* Tech Stack */}
-					<div className="rounded-[20px] border border-slate-900/10 bg-white/70 backdrop-blur-md p-6 shadow-sm dark:border-white/10 dark:bg-slate-950/60 sm:p-8">
+					<div className="rounded-[20px] border border-verdigris-900/10 bg-white/70 backdrop-blur-md p-6 shadow-sm dark:border-white/10 dark:bg-verdigris-950/60 sm:p-8">
 						<h2 className="flex items-center gap-3 text-xl font-bold text-slate-950 dark:text-white mb-6">
 							<Code2 className="h-6 w-6 text-indigo-500" />
 							Tech Stack
@@ -253,7 +253,7 @@ export function AboutPanel() {
 							{STACK.map((item, i) => {
 								const TechIcon = [LayoutTemplate, Server, Cpu, Globe][i % 4];
 								return (
-									<div key={item.title} className="flex items-center gap-4 rounded-xl border border-slate-900/10 bg-slate-50/70 backdrop-blur-sm p-4 dark:border-white/10 dark:bg-white/[0.04]">
+									<div key={item.title} className="flex items-center gap-4 rounded-xl border border-verdigris-900/10 bg-verdigris-50/70 backdrop-blur-sm p-4 dark:border-white/10 dark:bg-white/[0.04]">
 										<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white shadow-sm dark:bg-[#050505] dark:border dark:border-white/10 text-slate-600 dark:text-slate-400">
 											<TechIcon className="h-5 w-5" />
 										</div>
@@ -269,30 +269,30 @@ export function AboutPanel() {
 
 					{/* Status & Future Work */}
 					<div className="flex flex-col gap-6">
-						<div className="rounded-[20px] border border-slate-900/10 bg-white/70 backdrop-blur-md p-6 shadow-sm dark:border-white/10 dark:bg-slate-950/60 sm:p-8 h-full">
+						<div className="rounded-[20px] border border-verdigris-900/10 bg-white/70 backdrop-blur-md p-6 shadow-sm dark:border-white/10 dark:bg-verdigris-950/60 sm:p-8 h-full">
 							<h2 className="flex items-center gap-3 text-xl font-bold text-slate-950 dark:text-white mb-6">
 								<Activity className="h-6 w-6 text-blue-500" />
 								Status Overview
 							</h2>
 							<div className="grid grid-cols-2 gap-4">
 								{STATUS.map((item) => (
-									<div key={item.title} className="rounded-xl border border-slate-900/5 p-4 dark:border-white/5">
+									<div key={item.title} className="rounded-xl border border-verdigris-900/5 p-4 dark:border-white/5">
 										<p className="text-xs font-medium text-slate-500">{item.title}</p>
 										<div className="mt-2 flex items-center gap-1.5">
-											<div className={`h-2 w-2 rounded-full ${item.value === "Active" ? "bg-amber-400 animate-pulse" : "bg-emerald-500"}`} />
+											<div className={`h-2 w-2 rounded-full ${item.value === "Active" ? "bg-verdigris-400 animate-pulse" : "bg-verdigris-500"}`} />
 											<p className="text-sm font-bold text-slate-950 dark:text-white">{item.value}</p>
 										</div>
 									</div>
 								))}
 							</div>
 
-							<div className="mt-8 pt-6 border-t border-slate-900/5 dark:border-white/5">
+							<div className="mt-8 pt-6 border-t border-verdigris-900/5 dark:border-white/5">
 								<h3 className="flex items-center gap-2 text-sm font-bold text-slate-950 dark:text-white mb-4">
 									<Zap className="h-4 w-4 text-amber-500" /> Future Scope
 								</h3>
 								<div className="flex flex-wrap gap-2 sm:gap-2.5">
 									{FUTURE_WORK.map((item) => (
-										<div key={item} className="flex-grow sm:flex-grow-0 flex items-center justify-center rounded-[8px] border border-slate-900/5 bg-slate-50 px-3 py-2 shadow-sm dark:border-white/5 dark:bg-white/[0.02]">
+										<div key={item} className="flex-grow sm:flex-grow-0 flex items-center justify-center rounded-[8px] border border-verdigris-900/5 bg-verdigris-50 px-3 py-2 shadow-sm dark:border-white/5 dark:bg-white/[0.02]">
 											<span className="text-[11px] sm:text-xs font-medium text-slate-600 dark:text-slate-300">
 												{item}
 											</span>

@@ -12,7 +12,7 @@ function TeamMemberAvatar({ name, photoFilename, validPhotos }: { name: string; 
 
 	if (!isValidPhoto || error) {
 		return (
-			<div className="mb-5 flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-slate-900/5 dark:bg-white/5">
+			<div className="mb-5 flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-verdigris-900/5 dark:bg-white/5">
 				<span className="text-xl font-bold tracking-tight text-slate-400 dark:text-slate-500">
 					{name.charAt(0)}
 				</span>
@@ -21,7 +21,7 @@ function TeamMemberAvatar({ name, photoFilename, validPhotos }: { name: string; 
 	}
 
 	return (
-		<div className="mb-5 relative flex h-16 w-16 shrink-0 overflow-hidden rounded-full border border-slate-900/10 bg-slate-100 dark:border-white/10 dark:bg-slate-800">
+		<div className="mb-5 relative flex h-16 w-16 shrink-0 overflow-hidden rounded-full border border-verdigris-900/10 bg-verdigris-100 dark:border-white/10 dark:bg-verdigris-800">
 			<Image
 				src={`/team/${photoFilename}`}
 				alt={name}
@@ -50,7 +50,7 @@ function TeamMemberCard({ member, validPhotos }: { member: TeamMember; validPhot
 				>
 					{/* Front */}
 					<div
-						className="absolute inset-0 flex flex-col items-center justify-start rounded-t-[10px] border border-b-0 border-slate-900/8 bg-white p-6 dark:border-white/10 dark:bg-slate-950 [backface-visibility:hidden] [-webkit-backface-visibility:hidden]"
+						className="absolute inset-0 flex flex-col items-center justify-start rounded-t-[10px] border border-b-0 border-verdigris-900/8 bg-white p-6 dark:border-white/10 dark:bg-verdigris-950 [backface-visibility:hidden] [-webkit-backface-visibility:hidden]"
 					>
 						<TeamMemberAvatar name={member.name} photoFilename={member.photoFilename} validPhotos={validPhotos} />
 						<div className="flex w-full flex-col items-center text-center">
@@ -68,12 +68,12 @@ function TeamMemberCard({ member, validPhotos }: { member: TeamMember; validPhot
 
 					{/* Back */}
 					<div
-						className="absolute inset-0 flex flex-col rounded-t-[10px] border border-b-0 border-slate-900/8 bg-slate-50 p-6 dark:border-white/10 dark:bg-slate-900 [backface-visibility:hidden] [-webkit-backface-visibility:hidden] [transform:rotateY(180deg)]"
+						className="absolute inset-0 flex flex-col rounded-t-[10px] border border-b-0 border-verdigris-900/8 bg-verdigris-50 p-6 dark:border-white/10 dark:bg-verdigris-900 [backface-visibility:hidden] [-webkit-backface-visibility:hidden] [transform:rotateY(180deg)]"
 					>
 						<p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 mb-5 text-center dark:text-slate-400">
 							Contributions
 						</p>
-						<div className="flex-1 overflow-y-auto pr-2 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
+						<div className="flex-1 overflow-y-auto pr-2 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-verdigris-200 dark:scrollbar-thumb-verdigris-800">
 							<ul className="flex flex-col gap-3.5">
 								{member.contributions?.map((con, idx) => (
 									<li key={idx} className="flex items-start text-[13px] text-slate-700 dark:text-slate-300">
@@ -88,8 +88,8 @@ function TeamMemberCard({ member, validPhotos }: { member: TeamMember; validPhot
 			</div>
 
 			{/* Static Bottom Section container (Social Links) */}
-			<div className="relative z-20 flex h-[68px] shrink-0 items-center justify-center gap-5 rounded-b-[10px] border border-t-0 border-slate-900/8 bg-white px-6 dark:border-white/10 dark:bg-slate-950">
-				<div className="absolute top-0 left-4 right-4 h-px bg-slate-900/5 dark:bg-white/5" />
+			<div className="relative z-20 flex h-[68px] shrink-0 items-center justify-center gap-5 rounded-b-[10px] border border-t-0 border-verdigris-900/8 bg-white px-6 dark:border-white/10 dark:bg-verdigris-950">
+				<div className="absolute top-0 left-4 right-4 h-px bg-verdigris-900/5 dark:bg-white/5" />
 
 				{member.social?.github && (
 					<a
@@ -155,7 +155,7 @@ function TeamMemberCard({ member, validPhotos }: { member: TeamMember; validPhot
 
 export function TeamPanel({ validPhotos = [], members = TEAM_MEMBERS }: { validPhotos?: string[], members?: TeamMember[] }) {
 	return (
-		<main className="mx-auto w-full max-w-[1500px] px-4 py-8 sm:px-6 lg:px-8 xl:py-12">
+		<main className="mx-auto w-full max-w-[1500px] h-[calc(100dvh-4.5rem)] overflow-y-auto px-4 py-8 sm:px-6 lg:px-8 xl:py-12">
 			<div className="space-y-12 xl:space-y-16">
 
 				<section className="flex flex-col items-center text-center">
@@ -179,10 +179,10 @@ export function TeamPanel({ validPhotos = [], members = TEAM_MEMBERS }: { validP
 					</div>
 				</section>
 
-				<section className="mt-8 pt-10 border-t border-slate-900/10 dark:border-white/10 w-full">
+				<section className="mt-8 pt-10 border-t border-verdigris-900/10 dark:border-white/10 w-full">
 					<div className="grid grid-cols-1 gap-12 sm:grid-cols-3 sm:gap-6">
 						<div className="flex flex-col items-center text-center">
-							<div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400 ring-1 ring-inset ring-indigo-600/20 dark:ring-indigo-400/20">
+							<div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-verdigris-50 text-indigo-600 dark:bg-verdigris-500/10 dark:text-indigo-400 ring-1 ring-inset ring-verdigris-600/20 dark:ring-verdigris-400/20">
 								<GraduationCap className="h-6 w-6" />
 							</div>
 							<h3 className="font-display text-base font-bold text-slate-950 dark:text-white">Utkal University</h3>
@@ -190,7 +190,7 @@ export function TeamPanel({ validPhotos = [], members = TEAM_MEMBERS }: { validP
 						</div>
 
 						<div className="flex flex-col items-center text-center">
-							<div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 ring-1 ring-inset ring-emerald-600/20 dark:ring-emerald-400/20">
+							<div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-verdigris-50 text-emerald-600 dark:bg-verdigris-500/10 dark:text-emerald-400 ring-1 ring-inset ring-verdigris-600/20 dark:ring-verdigris-400/20">
 								<Building2 className="h-6 w-6" />
 							</div>
 							<h3 className="font-display text-base font-bold text-slate-950 dark:text-white">NIELIT Bhubaneswar</h3>
@@ -198,7 +198,7 @@ export function TeamPanel({ validPhotos = [], members = TEAM_MEMBERS }: { validP
 						</div>
 
 						<div className="flex flex-col items-center text-center">
-							<div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400 ring-1 ring-inset ring-amber-600/20 dark:ring-amber-400/20">
+							<div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-verdigris-50 text-amber-600 dark:bg-verdigris-500/10 dark:text-amber-400 ring-1 ring-inset ring-verdigris-600/20 dark:ring-verdigris-400/20">
 								<UserCheck className="h-6 w-6" />
 							</div>
 							<h3 className="font-display text-base font-bold text-slate-950 dark:text-white">Academic Supervision</h3>

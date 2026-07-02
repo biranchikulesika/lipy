@@ -83,7 +83,7 @@ export const UploadContent = forwardRef<InputModeRef, UploadContentProps>(
 				<div
 					className={`flex h-full w-full cursor-pointer items-center justify-center overflow-hidden transition ${
 						isDragActive
-							? "bg-slate-900/10 dark:bg-white/10"
+							? "bg-verdigris-900/10 dark:bg-white/10"
 							: ""
 					}`}
 					onClick={() => inputRef.current?.click()}
@@ -101,7 +101,7 @@ export const UploadContent = forwardRef<InputModeRef, UploadContentProps>(
 						<img
 							src={previewUrl}
 							alt="Uploaded handwritten character preview"
-							className="h-full w-full object-contain p-3"
+							className="h-full w-full object-contain p-3 rounded-2xl"
 						/>
 					) : (
 						<div className="px-6 text-center">

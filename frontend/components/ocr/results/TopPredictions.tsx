@@ -13,7 +13,7 @@ export function TopPredictions({ items }: TopPredictionsProps) {
       </div>
 
       {items.length === 0 ? (
-        <div className="mt-5 rounded-2xl border border-dashed border-slate-900/10 bg-slate-50/70 p-5 text-sm leading-6 text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
+        <div className="mt-5 rounded-2xl border border-dashed border-verdigris-900/10 bg-verdigris-50/70 p-5 text-sm leading-6 text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
           The three highest softmax scores will appear here after prediction.
         </div>
       ) : (
@@ -22,10 +22,10 @@ export function TopPredictions({ items }: TopPredictionsProps) {
             const confidence = Math.round(item.confidence * 1000) / 10;
 
             return (
-              <div key={item.label + "-" + index} className="rounded-2xl border border-slate-900/10 bg-white/80 p-4 dark:border-white/10 dark:bg-white/5">
+              <div key={item.label + "-" + index} className="rounded-2xl border border-verdigris-900/10 bg-white/80 p-4 dark:border-white/10 dark:bg-white/5">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white dark:bg-slate-200 dark:text-slate-950">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-verdigris-900 text-sm font-semibold text-white dark:bg-verdigris-200 dark:text-slate-950">
                       {index + 1}
                     </span>
                     <div>
@@ -36,8 +36,8 @@ export function TopPredictions({ items }: TopPredictionsProps) {
                   <p className="font-mono text-sm font-semibold text-slate-700 dark:text-slate-200">{confidence.toFixed(1)}%</p>
                 </div>
 
-                <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-white/10">
-                  <div className="h-full rounded-full bg-slate-900 dark:bg-slate-200" style={{ width: `${Math.max(3, confidence)}%` }} />
+                <div className="mt-4 h-2 overflow-hidden rounded-full bg-verdigris-200 dark:bg-white/10">
+                  <div className="h-full rounded-full bg-verdigris-900 dark:bg-verdigris-200" style={{ width: `${Math.max(3, confidence)}%` }} />
                 </div>
               </div>
             );

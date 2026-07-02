@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import React, { useState, useMemo, useRef } from 'react';
 import { odiaCharacters, OdiaCharacter } from '@/lib/lipyd/odiaCharacters';
 
@@ -42,7 +42,7 @@ export default function CharacterSearch({ onSelect, selected, onStart, startLabe
           ref={inputRef}
           value={displayValue}
           onChange={(e) => setQ(e.target.value)}
-          className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none transition focus:border-slate-400 dark:focus:border-slate-600 focus:ring-2 focus:ring-slate-900/5 dark:focus:ring-white/5"
+          className="w-full rounded-xl border border-verdigris-300 dark:border-verdigris-700 bg-white dark:bg-verdigris-950 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none transition focus:border-verdigris-400 dark:focus:border-verdigris-600 focus:ring-2 focus:ring-verdigris-900/5 dark:focus:ring-white/5"
           placeholder="Type CONS_K or paste a character"
           aria-label="Search character"
         />
@@ -72,7 +72,7 @@ export default function CharacterSearch({ onSelect, selected, onStart, startLabe
                 onSelect(s);
                 setQ('');
               }}
-              className="rounded-xl border border-slate-900/10 dark:border-white/10 bg-slate-50 dark:bg-slate-900/50 p-3 text-center transition hover:bg-slate-100 dark:hover:bg-slate-800"
+              className="rounded-xl border border-verdigris-900/10 dark:border-white/10 bg-verdigris-50 dark:bg-verdigris-900/50 p-3 text-center transition hover:bg-verdigris-100 dark:hover:bg-verdigris-800"
               title={`Select ${s.id}`}
             >
               <div className="text-3xl text-slate-900 dark:text-white">{s.char}</div>
@@ -83,7 +83,7 @@ export default function CharacterSearch({ onSelect, selected, onStart, startLabe
       )}
       {onStart && (
         <div className="mt-4">
-          <button className="w-full rounded-xl bg-slate-900 dark:bg-slate-100 px-4 py-3.5 text-sm font-semibold text-white dark:text-slate-900 transition hover:bg-slate-800 dark:hover:bg-slate-200 disabled:opacity-50" onClick={() => onStart()} disabled={!selected}>
+          <button className="w-full rounded-xl bg-verdigris-900 dark:bg-verdigris-100 px-4 py-3.5 text-sm font-semibold text-white dark:text-slate-900 transition hover:bg-verdigris-800 dark:hover:bg-verdigris-200 disabled:opacity-50" onClick={() => onStart()} disabled={!selected}>
             {startLabel}
           </button>
         </div>

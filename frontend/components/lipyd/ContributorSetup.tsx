@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import React, { useState, useEffect } from 'react';
 import CharacterSearch from './CharacterSearch';
 import { generateSessionId } from '@/lib/lipyd/filenameService';
@@ -178,14 +178,14 @@ export default function ContributorSetup({ onStart }: { onStart: (cfg: any) => v
   }
 
   return (
-    <div className="space-y-6 text-center max-w-md mx-auto w-full panel rounded-xl p-6 sm:p-8 border border-slate-900/8 dark:border-white/10 bg-white/70 dark:bg-white/5">
+    <div className="space-y-6 text-center max-w-md mx-auto w-full panel rounded-xl p-6 sm:p-8 border border-verdigris-900/8 dark:border-white/10 bg-white/70 dark:bg-white/5">
       <div className="space-y-1">
         <h2 className="text-3xl font-semibold tracking-tight text-slate-950 dark:text-white">LiPyD</h2>
         <p className="text-base text-slate-500 dark:text-slate-400">Help build the Odia handwriting dataset.</p>
       </div>
 
       {editing ? (
-        <div className="rounded-2xl border border-slate-900/10 dark:border-white/10 bg-slate-50 dark:bg-slate-900/50 p-6 text-left shadow-sm">
+        <div className="rounded-2xl border border-verdigris-900/10 dark:border-white/10 bg-verdigris-50 dark:bg-verdigris-900/50 p-6 text-left shadow-sm">
           <div className="space-y-1 mb-4">
             <label className="block text-base font-medium text-slate-900 dark:text-slate-200">Your First Name</label>
             <p className="text-sm text-slate-500 dark:text-slate-400">Used only to organize contribution sessions.</p>
@@ -193,12 +193,12 @@ export default function ContributorSetup({ onStart }: { onStart: (cfg: any) => v
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-3 text-base text-slate-900 dark:text-white outline-none transition focus:border-slate-400 dark:focus:border-slate-600 focus:ring-2 focus:ring-slate-900/5 dark:focus:ring-white/5"
+            className="w-full rounded-xl border border-verdigris-300 dark:border-verdigris-700 bg-white dark:bg-verdigris-950 px-4 py-3 text-base text-slate-900 dark:text-white outline-none transition focus:border-verdigris-400 dark:focus:border-verdigris-600 focus:ring-2 focus:ring-verdigris-900/5 dark:focus:ring-white/5"
             placeholder="Enter your name"
           />
         </div>
       ) : (
-        <div className="rounded-2xl border border-slate-900/10 dark:border-white/10 bg-slate-50 dark:bg-slate-900/50 px-5 py-4 text-left shadow-sm">
+        <div className="rounded-2xl border border-verdigris-900/10 dark:border-white/10 bg-verdigris-50 dark:bg-verdigris-900/50 px-5 py-4 text-left shadow-sm">
           <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
             <div className="min-w-0">
               <div className="text-sm font-medium text-slate-500 dark:text-slate-400">Welcome back,</div>
@@ -212,7 +212,7 @@ export default function ContributorSetup({ onStart }: { onStart: (cfg: any) => v
                       if (e.key === 'Enter') saveInlineName(e.currentTarget.value);
                       if (e.key === 'Escape') setEditingNameInline(false);
                     }}
-                    className="min-w-0 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-2 py-1 text-xl font-semibold text-slate-900 dark:text-white outline-none"
+                    className="min-w-0 rounded-lg border border-verdigris-300 dark:border-verdigris-700 bg-white dark:bg-verdigris-950 px-2 py-1 text-xl font-semibold text-slate-900 dark:text-white outline-none"
                   />
                 ) : (
                   <div className="text-2xl font-semibold text-slate-900 dark:text-white truncate">{name}</div>
@@ -221,7 +221,7 @@ export default function ContributorSetup({ onStart }: { onStart: (cfg: any) => v
                   type="button"
                   aria-label="Edit name"
                   onClick={() => setEditingNameInline(true)}
-                  className="shrink-0 rounded-md p-1.5 text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200 transition"
+                  className="shrink-0 rounded-md p-1.5 text-slate-400 hover:bg-verdigris-200 dark:hover:bg-verdigris-800 hover:text-slate-700 dark:hover:text-slate-200 transition"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M12 20h9" strokeLinecap="round" strokeLinejoin="round" />
@@ -233,7 +233,7 @@ export default function ContributorSetup({ onStart }: { onStart: (cfg: any) => v
 
             <div className="text-right">
               <div className="text-base font-semibold text-slate-900 dark:text-white">{deviceSampleCount} <span className="font-normal text-sm text-slate-500 dark:text-slate-400">contributions</span></div>
-              <div className="mt-1 inline-flex rounded-full border border-slate-900/10 dark:border-white/10 bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 text-xs font-medium text-slate-600 dark:text-slate-300">
+              <div className="mt-1 inline-flex rounded-full border border-verdigris-900/10 dark:border-white/10 bg-verdigris-100 dark:bg-verdigris-800 px-2.5 py-0.5 text-xs font-medium text-slate-600 dark:text-slate-300">
                 Level {currentLevel}
               </div>
             </div>
@@ -247,7 +247,7 @@ export default function ContributorSetup({ onStart }: { onStart: (cfg: any) => v
           <button
             type="button"
             onClick={() => setMode('single')}
-            className={`rounded-2xl border px-4 py-3.5 text-center transition ${mode === 'single' ? 'border-slate-400 dark:border-slate-500 bg-slate-100 dark:bg-slate-800 shadow-sm ring-1 ring-slate-900/5 dark:ring-white/5' : 'border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+            className={`rounded-2xl border px-4 py-3.5 text-center transition ${mode === 'single' ? 'border-verdigris-400 dark:border-verdigris-500 bg-verdigris-100 dark:bg-verdigris-800 shadow-sm ring-1 ring-verdigris-900/5 dark:ring-white/5' : 'border-verdigris-200 dark:border-white/10 bg-verdigris-50 dark:bg-verdigris-900/50 hover:bg-verdigris-100 dark:hover:bg-verdigris-800'}`}
           >
             <div className={`text-base ${mode === 'single' ? 'font-semibold text-slate-900 dark:text-white' : 'font-medium text-slate-700 dark:text-slate-300'}`}>Single Character</div>
           </button>

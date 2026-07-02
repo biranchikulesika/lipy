@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { motion } from "motion/react";
 
-import { PenLine, FileImage, Camera } from "lucide-react";
+import { PenLine, FileImage, Camera, MoreVertical } from "lucide-react";
 
 import { PredictionCard } from "@/components/ocr/results/PredictionCard";
 import { predictOdiaCharacter } from "@/lib/api";
@@ -35,6 +36,18 @@ export function OcrWorkspace() {
 	const [isPredicting, setIsPredicting] = useState(false);
 	const [helperVisible, setHelperVisible] = useState(true);
 	const [canPredict, setCanPredict] = useState(false);
+	const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+	const menuRef = useRef<HTMLDivElement>(null);
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+				setIsMenuOpen(false);
+			}
+		};
+		document.addEventListener("mousedown", handleClickOutside);
+		return () => document.removeEventListener("mousedown", handleClickOutside);
+	}, []);
 	
 	const inputModeRef = useRef<InputModeRef>(null);
 	const inputSectionRef = useRef<HTMLDivElement | null>(null);
@@ -156,88 +169,43 @@ export function OcrWorkspace() {
 	};
 
 	return (
-		<main className="relative mx-auto flex h-[calc(100svh-4.5rem)] max-w-[1500px] flex-col gap-3 box-border overflow-hidden px-3 pb-3 pt-3 sm:px-4 lg:gap-6 lg:px-8 lg:py-8 lg:p-8">
-			<div className="flex items-center justify-center lg:hidden mt-1 mb-2">
-				<div className="inline-flex rounded-full bg-slate-900/5 p-1 dark:bg-white/5 border border-slate-900/5 dark:border-white/5 shadow-inner">
-					<button
-						type="button"
-						aria-label="Show input section"
-						onClick={() => scrollToPage(0)}
-						className={`rounded-full px-5 py-1.5 text-xs font-bold transition-all ${
-							activePage === 0 
-								? "bg-white text-slate-900 shadow-sm dark:bg-slate-800 dark:text-white ring-1 ring-slate-900/5 dark:ring-white/10" 
-								: "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
-						}`}
-					>
-						Input
-					</button>
-					<button
-						type="button"
-						aria-label="Show results section"
-						onClick={() => scrollToPage(1)}
-						className={`rounded-full px-5 py-1.5 text-xs font-bold transition-all ${
-							activePage === 1 
-								? "bg-white text-slate-900 shadow-sm dark:bg-slate-800 dark:text-white ring-1 ring-slate-900/5 dark:ring-white/10" 
-								: "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
-						}`}
-					>
-						Results
-					</button>
+		<main className="relative mx-auto flex h-[calc(100dvh-4.5rem)] max-w-[1500px] flex-col gap-3 box-border overflow-hidden px-3 pb-3 pt-3 sm:px-4 lg:gap-4 lg:px-8 lg:py-6 lg:p-8 lg:justify-center">
+			{/* Desktop Mode Switcher */}
+			<div className="hidden lg:flex w-full justify-center shrink-0 mb-2">
+				<div className="inline-flex rounded-full bg-verdigris-900/5 p-1 dark:bg-white/5 border border-verdigris-900/5 dark:border-white/5 shadow-inner">
+					{INPUT_MODES.map((mode) => (
+						<button
+							key={mode.key}
+							type="button"
+							onClick={() => setActiveMode(mode.key)}
+							className={`relative flex items-center gap-2 rounded-full px-6 py-2 text-sm font-bold transition-colors duration-200 ${
+								activeMode === mode.key
+									? "text-slate-900 dark:text-white"
+									: "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+							}`}
+						>
+							{activeMode === mode.key && (
+								<motion.div
+									layoutId="desktop-mode-bg"
+									className="absolute inset-0 rounded-full bg-white shadow-sm ring-1 ring-verdigris-900/5 dark:bg-verdigris-800 dark:ring-white/10"
+									transition={{ type: "tween", ease: "easeInOut", duration: 0.2 }}
+								/>
+							)}
+							<span className="relative z-10 flex items-center gap-2">
+								{mode.icon}
+								{mode.label}
+							</span>
+						</button>
+					))}
 				</div>
 			</div>
 
-			<section ref={pagerRef} className="flex h-full min-h-0 snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain scroll-smooth scrollbar-none lg:grid lg:h-full lg:grid-cols-[minmax(0,1.08fr)_minmax(330px,0.92fr)] lg:gap-8 lg:overflow-visible">
+			<section ref={pagerRef} className="flex h-full min-h-0 snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain scroll-smooth scrollbar-none lg:grid lg:h-auto lg:w-full lg:max-w-5xl lg:mx-auto lg:grid-cols-2 lg:gap-8 lg:overflow-visible lg:items-stretch">
 				<div
 					ref={inputSectionRef}
-					className="panel relative flex h-full min-h-0 w-full shrink-0 snap-start flex-col rounded-xl p-3 pt-14 sm:p-4 sm:pt-16 lg:h-full lg:min-h-0 lg:w-auto lg:shrink lg:p-6 lg:pt-20"
+					className="lg:panel relative flex h-full min-h-0 w-full shrink-0 snap-start flex-col rounded-xl p-3 sm:p-4 lg:h-auto lg:min-h-0 lg:w-auto lg:shrink lg:p-6"
 				>
-					<div className="absolute top-0 left-0 right-0 flex h-11 sm:h-12 border-slate-900/10 dark:border-white/10 lg:h-14">
-						<div className={`flex-1 flex items-center px-4 sm:px-5 transition-colors border-slate-900/10 dark:border-white/10 rounded-tl-xl bg-slate-900/[0.04] dark:bg-white/[0.04] border-b ${activeMode === 'draw' ? 'border-r-transparent rounded-br-lg' : 'border-r'}`}>
-							<p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400 leading-none">Character Input</p>
-						</div>
-
-						<div className="flex">
-							{INPUT_MODES.map((mode, idx) => {
-								const isActive = activeMode === mode.key;
-								
-								let cornerClasses = "";
-								if (activeMode === "draw") {
-									if (idx === 1) cornerClasses = "rounded-bl-lg ";
-								} else if (activeMode === "upload") {
-									if (idx === 0) cornerClasses = "rounded-br-lg ";
-									if (idx === 2) cornerClasses = "rounded-bl-lg ";
-								} else if (activeMode === "camera") {
-									if (idx === 1) cornerClasses = "rounded-br-lg ";
-								}
-
-								if (idx === 2) {
-									cornerClasses += "rounded-tr-xl ";
-								}
-
-								const nextMode = INPUT_MODES[idx + 1]?.key;
-								const hideRightBorder = activeMode === nextMode || idx === 2;
-
-								return (
-									<button
-										key={mode.key}
-										type="button"
-										onClick={() => setActiveMode(mode.key)}
-										className={`relative flex items-center justify-center w-11 sm:w-12 transition-colors border-slate-900/10 dark:border-white/10 ${cornerClasses} ${
-											isActive
-												? "bg-transparent text-slate-950 dark:text-white z-10 border-transparent"
-												: `bg-slate-900/[0.04] dark:bg-white/[0.04] text-slate-500 hover:bg-slate-900/[0.06] hover:text-slate-700 dark:text-slate-400 dark:hover:bg-white/[0.06] dark:hover:text-slate-200 z-0 border-b ${hideRightBorder ? 'border-r-transparent' : 'border-r'}`
-										}`}
-										aria-pressed={isActive}
-										title={mode.label}
-									>
-										{mode.icon}
-									</button>
-								);
-							})}
-						</div>
-					</div>
-
-					<div className="mt-0 flex min-h-0 flex-1 items-center justify-center">
+					<div className="mt-0 flex min-h-0 flex-1 flex-col items-center justify-center">
 						<InputWorkspace
 							helperText={MODE_HELPERS[activeMode]}
 							helperVisible={helperVisible}
@@ -276,18 +244,90 @@ export function OcrWorkspace() {
 
 				<div
 					ref={resultSectionRef}
-					className="panel relative flex h-full min-h-0 w-full shrink-0 snap-start flex-col rounded-xl p-3 pt-14 sm:p-4 sm:pt-16 lg:h-full lg:min-h-0 lg:w-auto lg:shrink lg:p-6 lg:pt-20"
+					className="lg:panel relative flex h-full min-h-0 w-full shrink-0 snap-start flex-col rounded-xl p-3 sm:p-4 lg:h-auto lg:min-h-0 lg:w-auto lg:shrink lg:p-6"
 				>
-					<div className="absolute top-0 left-0 right-0 flex h-11 sm:h-12 border-slate-900/10 dark:border-white/10 lg:h-14">
-						<div className="flex-1 flex items-center px-4 sm:px-5 transition-colors border-slate-900/10 dark:border-white/10 rounded-t-xl bg-slate-900/[0.04] dark:bg-white/[0.04] border-b">
-							<p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400 leading-none">Recognition Results</p>
-						</div>
-					</div>
-					<div className="mt-0 flex min-h-0 h-full w-full">
+					<div className="mt-0 flex min-h-0 h-full w-full flex-col justify-center">
 					    <PredictionCard prediction={prediction} loading={isPredicting} error={predictionError} />
 					</div>
 				</div>
 			</section>
+
+			<div className="flex items-center justify-center lg:hidden mt-0 mb-1">
+				<div className="inline-flex rounded-full bg-verdigris-900/5 p-1 dark:bg-white/5 border border-verdigris-900/5 dark:border-white/5 shadow-inner">
+					<button
+						type="button"
+						aria-label="Show input section"
+						onClick={() => scrollToPage(0)}
+						className={`relative rounded-full px-5 py-1.5 text-xs font-bold transition-colors duration-200 ${
+							activePage === 0 
+								? "text-slate-900 dark:text-white" 
+								: "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+						}`}
+					>
+						{activePage === 0 && (
+							<motion.div
+								layoutId="active-pill-bg"
+								className="absolute inset-0 rounded-full bg-white shadow-sm ring-1 ring-verdigris-900/5 dark:bg-verdigris-800 dark:ring-white/10"
+								transition={{ type: "tween", ease: "easeInOut", duration: 0.2 }}
+							/>
+						)}
+						<span className="relative z-10">Input</span>
+					</button>
+					<button
+						type="button"
+						aria-label="Show results section"
+						onClick={() => scrollToPage(1)}
+						className={`relative rounded-full px-5 py-1.5 text-xs font-bold transition-colors duration-200 ${
+							activePage === 1 
+								? "text-slate-900 dark:text-white" 
+								: "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+						}`}
+					>
+						{activePage === 1 && (
+							<motion.div
+								layoutId="active-pill-bg"
+								className="absolute inset-0 rounded-full bg-white shadow-sm ring-1 ring-verdigris-900/5 dark:bg-verdigris-800 dark:ring-white/10"
+								transition={{ type: "tween", ease: "easeInOut", duration: 0.2 }}
+							/>
+						)}
+						<span className="relative z-10">Results</span>
+					</button>
+				</div>
+			</div>
+
+			{/* Bottom Right Floating Menu */}
+			<div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 lg:hidden z-50 flex flex-col items-end" ref={menuRef}>
+				{isMenuOpen && (
+					<div className="mb-2 w-40 overflow-hidden rounded-2xl border border-verdigris-900/10 bg-white/90 p-1 shadow-lg backdrop-blur-md dark:border-white/10 dark:bg-verdigris-950/90 animate-in fade-in slide-in-from-bottom-2">
+						{INPUT_MODES.map((mode) => (
+							<button
+								key={mode.key}
+								type="button"
+								onClick={() => {
+									setActiveMode(mode.key);
+									setIsMenuOpen(false);
+								}}
+								className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+									activeMode === mode.key
+										? "bg-verdigris-100 text-verdigris-900 dark:bg-verdigris-800 dark:text-white"
+										: "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-verdigris-900/50 dark:hover:text-white"
+								}`}
+							>
+								{mode.icon}
+								<span>{mode.label}</span>
+							</button>
+						))}
+					</div>
+				)}
+				<button
+					type="button"
+					onClick={() => setIsMenuOpen(!isMenuOpen)}
+					aria-label="Input Options"
+					className="flex items-center justify-center p-2 text-slate-500 transition-colors hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+				>
+					<MoreVertical className="h-5 w-5 sm:h-6 sm:w-6" />
+				</button>
+			</div>
 		</main>
 	);
 }

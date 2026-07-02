@@ -1,6 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { RotateCcw, Wand2, AlertCircle } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 
 interface InputWorkspaceProps {
 	children: ReactNode;
@@ -24,8 +26,8 @@ export function InputWorkspace({
 	canPredict,
 }: InputWorkspaceProps) {
 	return (
-		<div className="flex h-full min-h-0 w-full flex-col items-center justify-center pt-2 sm:pt-4 pb-2">
-			<div className="relative flex aspect-square w-full max-w-[344px] items-center justify-center overflow-hidden rounded-xl border border-slate-900/15 bg-white/90 transition dark:border-white/15 dark:bg-black/20">
+		<div className="flex h-full min-h-0 w-full flex-col items-center justify-start pt-2 sm:pt-4 pb-2">
+			<div className="relative flex aspect-square w-full max-w-[344px] items-center justify-center overflow-hidden rounded-xl border border-verdigris-900/15 bg-white/90 transition dark:border-white/15 dark:bg-black/20">
 				{children}
 			</div>
 
@@ -39,36 +41,48 @@ export function InputWorkspace({
 				</p>
 			</div>
 
-			<div className="relative mx-auto w-full max-w-[344px]">
-				{error ? (
-					<div
-						role="status"
-						aria-live="polite"
-						className="pointer-events-none absolute inset-x-0 top-[-0.25rem] z-10 -translate-y-full max-h-auto overflow-hidden rounded-xl border border-amber-500/20 bg-amber-500/10 px-3 py-2.5 text-sm leading-snug text-amber-800 shadow-sm dark:text-amber-200"
-					>
-						<span className="font-semibold block mb-0.5">Please try again</span>
-						{error}
-					</div>
-				) : null}
+			<div className="relative mx-auto w-full max-w-[344px] h-0">
+				<AnimatePresence>
+					{error && (
+						<motion.div
+							initial={{ opacity: 0, y: 10, scale: 0.95 }}
+							animate={{ opacity: 1, y: 0, scale: 1 }}
+							exit={{ opacity: 0, y: 10, scale: 0.95 }}
+							role="status"
+							aria-live="polite"
+							className="pointer-events-none absolute inset-x-0 bottom-2 z-20 flex flex-col items-center justify-center overflow-hidden rounded-2xl border border-rose-500/20 bg-rose-50/95 px-4 py-3 text-center shadow-lg backdrop-blur-md dark:border-rose-400/20 dark:bg-rose-950/95"
+						>
+							<div className="flex items-center justify-center gap-2 mb-1 text-rose-600 dark:text-rose-400">
+								<AlertCircle className="h-4 w-4" />
+								<span className="font-bold text-sm">Action Failed</span>
+							</div>
+							<span className="text-xs font-medium text-rose-600/80 dark:text-rose-400/80">{error}</span>
+						</motion.div>
+					)}
+				</AnimatePresence>
 			</div>
 
-			<div className="mt-3 flex w-full max-w-[344px] items-center gap-2">
+			<div className="mt-4 flex w-full max-w-[344px] items-center justify-center gap-4 sm:gap-6">
 				<button
 					type="button"
-					className="secondary-button flex-1 px-3 py-2 text-xs sm:text-sm"
+					className="group flex w-24 sm:w-28 h-12 sm:h-14 items-center justify-center rounded-2xl border border-verdigris-900/10 dark:border-white/10 bg-white/80 dark:bg-verdigris-950/80 shadow-sm backdrop-blur-sm transition-all hover:bg-white dark:hover:bg-verdigris-900 hover:shadow disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.97]"
 					onClick={onClear}
 					disabled={isPredicting}
+					aria-label="Clear Input"
+					title="Clear Input"
 				>
-					Clear
+					<RotateCcw className="h-6 w-6 text-slate-500 transition-transform group-hover:-rotate-90 dark:text-slate-400" />
 				</button>
 
 				<button
 					type="button"
-					className="primary-button flex-1 px-3 py-2 text-xs sm:px-4 sm:text-sm disabled:cursor-not-allowed disabled:opacity-50"
+					className="group flex w-24 sm:w-28 h-12 sm:h-14 items-center justify-center rounded-2xl bg-gradient-to-br from-verdigris-800 to-verdigris-900 dark:from-verdigris-200 dark:to-verdigris-300 shadow-md transition-all hover:from-verdigris-700 hover:to-verdigris-800 dark:hover:from-white dark:hover:to-verdigris-200 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.97] ring-1 ring-inset ring-verdigris-900/10 dark:ring-white/10"
 					onClick={onPredict}
 					disabled={isPredicting || !canPredict}
+					aria-label="Predict Character"
+					title="Predict Character"
 				>
-					Predict
+					<Wand2 className={`h-6 w-6 text-white dark:text-slate-950 transition-transform ${isPredicting ? 'animate-pulse' : 'group-hover:scale-125'}`} />
 				</button>
 			</div>
 		</div>

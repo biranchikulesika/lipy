@@ -8,10 +8,13 @@ import { getOdiaCharacter, ODIA_CHARACTER_BY_LABEL } from "@/lib/odiaCharacters"
 
 function RandomSubtleCharacter() {
   const characters = Object.values(ODIA_CHARACTER_BY_LABEL);
-  const [index, setIndex] = useState(() => Math.floor(Math.random() * characters.length));
+  const [index, setIndex] = useState(0); // Stable initial state for SSR
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // We already have a fast initial value, now set the interval
+    setMounted(true);
+    setIndex(Math.floor(Math.random() * characters.length));
+    
     const interval = setInterval(() => {
       setIndex(Math.floor(Math.random() * characters.length));
     }, 5000); // 5 seconds
@@ -22,14 +25,14 @@ function RandomSubtleCharacter() {
     <div className="relative flex h-full w-full items-center justify-center overflow-hidden">
       <AnimatePresence mode="wait">
         <motion.div
-          key={index}
+          key={mounted ? index : "ssr"}
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.15 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 3, ease: "easeInOut" }}
           className="absolute flex items-center justify-center text-4xl font-medium text-slate-500 dark:text-slate-400 sm:text-5xl"
         >
-          {characters[index]}
+          {mounted ? characters[index] : characters[0]}
         </motion.div>
       </AnimatePresence>
     </div>
@@ -47,10 +50,10 @@ function formatConfidence(value: number) {
 }
 
 function getConfidenceColors(confidence: number | undefined | null) {
-  if (confidence == null) return { bar: "bg-slate-900 dark:bg-slate-200", text: "text-slate-950 dark:text-white" };
-  if (confidence >= 0.85) return { bar: "bg-emerald-500 dark:bg-emerald-400", text: "text-emerald-600 dark:text-emerald-400" };
-  if (confidence >= 0.50) return { bar: "bg-amber-500 dark:bg-amber-400", text: "text-amber-600 dark:text-amber-400" };
-  return { bar: "bg-rose-500 dark:bg-rose-400", text: "text-rose-600 dark:text-rose-400" };
+  if (confidence == null) return { bar: "bg-verdigris-900 dark:bg-verdigris-200", text: "text-slate-950 dark:text-white" };
+  if (confidence >= 0.85) return { bar: "bg-verdigris-500 dark:bg-verdigris-400", text: "text-emerald-600 dark:text-emerald-400" };
+  if (confidence >= 0.50) return { bar: "bg-verdigris-500 dark:bg-verdigris-400", text: "text-amber-600 dark:text-amber-400" };
+  return { bar: "bg-verdigris-500 dark:bg-verdigris-400", text: "text-rose-600 dark:text-rose-400" };
 }
 
 export function PredictionCard({
@@ -74,141 +77,84 @@ export function PredictionCard({
   }, [error]);
 
   return (
-    <section className="relative flex min-h-0 flex-1 flex-col gap-3">
-      {/* Combined Mobile View */}
-      <div className="block sm:hidden rounded-xl border border-slate-900/8 bg-white/70 p-4 dark:border-white/10 dark:bg-white/5">
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">Detected Character</p>
-          {loading ? <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Running</p> : null}
-        </div>
+    <section className="relative flex min-h-0 flex-1 flex-col justify-start gap-3 pt-2 sm:pt-4 pb-2">
+      {/* Unified Primary Prediction Card */}
+      <div className="relative flex flex-col justify-center min-h-[220px] sm:min-h-[260px] rounded-xl border border-verdigris-900/8 bg-white/70 p-4 sm:p-5 dark:border-white/10 dark:bg-white/5">
+        {loading ? (
+          <div className="absolute top-4 right-4 sm:top-5 sm:right-5">
+            <p className="animate-pulse text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Predicting...</p>
+          </div>
+        ) : null}
 
         {displayError ? (
-          <div className="mt-3 flex items-center gap-4 rounded-lg border border-amber-500/10 bg-amber-500/5 p-3 dark:border-amber-400/20 dark:bg-amber-400/5">
-            <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-amber-100/50 dark:bg-amber-400/10 text-amber-600 overflow-hidden">
-              <AlertCircle className="h-6 w-6" />
+          <div className="flex flex-col items-center justify-center gap-3 sm:gap-4 w-full">
+            <div className="relative flex h-24 w-24 shrink-0 items-center justify-center rounded-3xl bg-verdigris-100/50 dark:bg-verdigris-400/10 text-amber-600 sm:h-28 sm:w-28">
+              <AlertCircle className="h-10 w-10 sm:h-12 sm:w-12" />
             </div>
-            <div className="flex-1 text-xs text-amber-700 dark:text-amber-300 line-clamp-2">
-              <span className="font-semibold block mb-0.5">Unable to Predict</span>
+            <div className="flex-1 text-sm text-amber-700 dark:text-amber-300 line-clamp-3 text-center max-w-[260px]">
+              <span className="font-bold block mb-1 text-base">Unable to Predict</span>
               {displayError}
             </div>
           </div>
         ) : hasPrediction ? (
-          <div className="mt-3 flex items-center gap-4 rounded-lg border border-slate-900/8 bg-slate-50/70 p-3 dark:border-white/10 dark:bg-white/5">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-3xl font-semibold text-white dark:bg-slate-200 dark:text-slate-950">
+          <div className="flex flex-col items-center justify-center gap-4 sm:gap-5 w-full">
+            <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-3xl bg-gradient-to-br from-verdigris-800 to-verdigris-900 text-6xl font-semibold text-white shadow-inner dark:from-verdigris-200 dark:to-verdigris-300 dark:text-slate-950 sm:h-32 sm:w-32 sm:text-7xl">
               {getOdiaCharacter(prediction!.prediction)}
             </div>
-            <div className="flex-1 min-w-0 flex flex-col justify-center">
-              <p className="font-mono text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Confidence</p>
-              <div className="mt-0.5 flex items-end gap-2">
-                <p className={`font-mono text-2xl font-semibold leading-none ${getConfidenceColors(prediction?.confidence).text}`}>
+            <div className="flex w-full flex-col items-center justify-center text-center">
+              <p className="lg:truncate font-mono text-xs sm:text-sm font-semibold uppercase tracking-[0.15em] sm:tracking-[0.22em] text-slate-600 dark:text-slate-300 mb-1">
+                {prediction!.prediction}
+              </p>
+              <div className="flex items-center justify-center gap-2 mb-3">
+                <p className={`font-mono text-3xl sm:text-4xl font-bold leading-none tracking-tight ${getConfidenceColors(prediction?.confidence).text}`}>
                   {formatConfidence(prediction!.confidence)}
                 </p>
               </div>
-              <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-slate-200/80 dark:bg-white/10">
+              <div className="h-2 w-full max-w-[200px] overflow-hidden rounded-full bg-verdigris-200/80 dark:bg-white/10">
                 <div
-                  className={`h-full rounded-full ${getConfidenceColors(prediction?.confidence).bar}`}
+                  className={`h-full rounded-full transition-all duration-500 ease-out ${getConfidenceColors(prediction?.confidence).bar}`}
                   style={{ width: `${Math.max(3, prediction!.confidence * 100)}%` }}
                 />
               </div>
+              <p className="mt-4 text-[10px] text-slate-400/80 dark:text-slate-500 max-w-[220px]">
+                Our ML is trained on small dataset. It can make mistakes.
+              </p>
             </div>
           </div>
         ) : (
-          <div className="mt-3 flex items-center gap-4 rounded-lg border border-dashed border-slate-900/8 bg-slate-50/70 p-3 text-sm leading-6 text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
-             <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-slate-200/50 dark:bg-white/5 text-slate-400 dark:text-slate-500 overflow-hidden">
+          <div className="flex flex-col items-center justify-center gap-3 sm:gap-4 text-sm leading-6 text-slate-600 dark:text-slate-300 w-full">
+             <div className="relative flex h-28 w-28 shrink-0 items-center justify-center rounded-3xl border border-dashed border-verdigris-900/10 dark:border-white/10 bg-verdigris-50/50 dark:bg-white/5 overflow-hidden sm:h-32 sm:w-32">
                <RandomSubtleCharacter />
              </div>
-             <div className="flex-1 text-xs">
-               Draw, upload, or capture.
+             <div className="flex-1 text-xs sm:text-sm text-center max-w-[240px]">
+               Draw, upload, or capture a character to see the detected result.
              </div>
           </div>
         )}
       </div>
 
-      {/* Desktop View: Separate Blocks */}
-      <div className="hidden sm:block rounded-xl border border-slate-900/8 bg-white/70 p-4 dark:border-white/10 dark:bg-white/5">
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">Detected Character</p>
-          {loading ? <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Running</p> : null}
-        </div>
-
-        {displayError ? (
-          <div className="mt-3 flex items-center gap-4 rounded-lg border border-amber-500/10 bg-amber-500/5 p-4 dark:border-amber-400/20 dark:bg-amber-400/5">
-            <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-amber-100/50 dark:bg-amber-400/10 text-amber-600 overflow-hidden sm:h-20 sm:w-20">
-              <AlertCircle className="h-6 w-6 sm:h-8 sm:w-8" />
-            </div>
-            <div className="flex-1 text-sm text-amber-700 dark:text-amber-300 line-clamp-2">
-              <span className="font-semibold block mb-1">Unable to Predict</span>
-              {displayError}
-            </div>
-          </div>
-        ) : hasPrediction ? (
-          <div className="mt-3 flex items-start gap-3 rounded-lg border border-slate-900/8 bg-slate-50/70 p-3 dark:border-white/10 dark:bg-white/5">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-3xl font-semibold text-white dark:bg-slate-200 dark:text-slate-950 sm:h-20 sm:w-20 sm:text-4xl">
-              {getOdiaCharacter(prediction!.prediction)}
-            </div>
-            <div className="min-w-0">
-              <p className="lg:truncate font-mono text-sm font-semibold uppercase tracking-[0.22em] text-slate-600 dark:text-slate-300">{prediction!.prediction}</p>
-              <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">This is the most likely character based on your input.</p>
-            </div>
-          </div>
-        ) : (
-          <div className="mt-3 flex items-start gap-4 rounded-lg border border-dashed border-slate-900/8 bg-slate-50/70 p-4 text-sm leading-6 text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 sm:items-center">
-             <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-slate-200/50 dark:bg-white/5 text-slate-400 dark:text-slate-500 overflow-hidden sm:h-20 sm:w-20">
-               <RandomSubtleCharacter />
-             </div>
-             <div className="flex-1">
-               No prediction yet. Draw, upload, or capture a character to see the detected result.
-             </div>
-          </div>
-        )}
-      </div>
-
-      <div className="hidden sm:block rounded-xl border border-slate-900/8 bg-white/70 p-4 dark:border-white/10 dark:bg-white/5">
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">Confidence</p>
-          {loading ? <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Running</p> : null}
-        </div>
-
-        <div className="mt-3 flex items-end gap-3">
-          <p className={`font-mono text-3xl font-semibold leading-none ${hasPrediction ? getConfidenceColors(prediction!.confidence).text : "text-slate-950 dark:text-white"}`}>
-            {hasPrediction ? formatConfidence(prediction!.confidence) : "0.0%"}
-          </p>
-          <p className="pb-1 text-sm text-slate-600 dark:text-slate-300">
-            {hasPrediction ? "How sure the model is" : "Awaiting your input"}
-          </p>
-        </div>
-
-        <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200/80 dark:bg-white/10">
-          <div
-            className={`h-full rounded-full transition-all duration-500 ease-out ${hasPrediction ? getConfidenceColors(prediction!.confidence).bar : "bg-slate-900 dark:bg-slate-200"}`}
-            style={{ width: hasPrediction ? `${Math.max(3, prediction!.confidence * 100)}%` : "12%" }}
-          />
-        </div>
-      </div>
-
-      <div className="rounded-xl border border-slate-900/8 bg-white/70 p-4 dark:border-white/10 dark:bg-white/5">
-        <div className="flex items-center justify-between gap-3">
+      <div className="rounded-xl border border-verdigris-900/8 bg-white/70 p-4 sm:p-5 dark:border-white/10 dark:bg-white/5">
+        <div className="flex items-center justify-between gap-3 mb-2">
           <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">Top Predictions</p>
-          {loading ? <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Running</p> : null}
         </div>
 
-        <div className="mt-3 space-y-2">
+        <div className="flex flex-col">
           {(hasPrediction ? topPredictions : [
-            { label: "Most likely character", confidence: 0 },
-            { label: "Alternative character", confidence: 0 },
-            { label: "Another alternative", confidence: 0 },
+            { label: "Primary prediction", confidence: 0 },
+            { label: "Close alternative", confidence: 0 },
+            { label: "Possible match", confidence: 0 },
           ]).map((item, index) => {
             const confidence = Math.round(item.confidence * 1000) / 10;
             
             return (
-            <div key={item.label + "-" + index} className="grid grid-cols-[auto_auto_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-slate-900/8 bg-slate-50/80 px-3 py-2.5 dark:border-white/10 dark:bg-white/5">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-900 text-[11px] font-semibold text-white dark:bg-slate-200 dark:text-slate-950">{index + 1}</span>
+              <div key={item.label + "-" + index} className="grid grid-cols-[auto_auto_minmax(0,1fr)_auto] items-center gap-3 px-1 py-3 border-b border-verdigris-900/5 dark:border-white/5 last:border-0">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-verdigris-900/10 text-[11px] font-bold text-verdigris-900 dark:bg-verdigris-200/10 dark:text-verdigris-200">{index + 1}</span>
                 {hasPrediction ? (
                   <span className="flex w-6 justify-center font-display text-2xl leading-none text-slate-950 dark:text-white">
                     {getOdiaCharacter(item.label)}
                   </span>
                 ) : (
-                  <div className="flex h-6 w-6 items-center justify-center rounded-[4px] border border-dashed border-slate-300 bg-slate-100/50 dark:border-white/10 dark:bg-white/5">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-[4px] border border-dashed border-verdigris-300 bg-verdigris-100/50 dark:border-white/10 dark:bg-white/5">
                     <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500">?</span>
                   </div>
                 )}
@@ -217,7 +163,7 @@ export function PredictionCard({
                     {item.label}
                   </p>
                 </div>
-                <p className={`font-mono text-sm font-semibold ${hasPrediction ? getConfidenceColors(item.confidence).text : "text-slate-700 dark:text-slate-200"}`}>
+                <p className={`font-mono text-sm font-bold ${hasPrediction ? getConfidenceColors(item.confidence).text : "text-slate-400 dark:text-slate-500"}`}>
                   {hasPrediction ? `${confidence.toFixed(1)}%` : "—"}
                 </p>
               </div>

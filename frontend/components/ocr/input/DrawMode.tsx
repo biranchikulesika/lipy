@@ -151,7 +151,7 @@ export const DrawContent = forwardRef<InputModeRef, DrawContentProps>(
 		return (
 			<canvas
 				ref={canvasRef}
-				className="h-full w-full touch-none p-3"
+				className="h-full w-full touch-none p-3 rounded-2xl"
 				onPointerDown={beginStroke}
 				onPointerMove={continueStroke}
 				onPointerUp={endStroke}

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import React, { useRef, useEffect, useState } from 'react';
 import useCanvasDrawing from '@/hooks/lipyd/useCanvasDrawing';
 import { odiaCharacters, OdiaCharacter } from '@/lib/lipyd/odiaCharacters';
@@ -257,22 +257,22 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
     <div className="flex flex-col items-center justify-center pt-0 lg:pt-4 w-full max-w-[340px] sm:max-w-[400px] lg:max-w-[480px] mx-auto flex-1 min-h-0">
       <div className="w-full flex-1 flex flex-col">
         <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 tracking-[0.2em] mb-2 pl-2">YOUR DRAWING</div>
-        <div className="relative w-full aspect-square rounded-3xl border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden shadow-sm flex items-center justify-center group touch-none mb-3 lg:mb-6">
+        <div className="relative w-full aspect-square rounded-3xl border-2 border-verdigris-200 dark:border-verdigris-800 bg-white dark:bg-verdigris-950 overflow-hidden shadow-sm flex items-center justify-center group touch-none mb-3 lg:mb-6">
           <canvas ref={canvasRef} className="block h-full w-full touch-none" />
 
           {/* Target Character Overlay */}
-          <div className={`absolute top-3 left-3 lg:top-4 lg:left-4 z-10 flex flex-col items-center justify-center rounded-2xl bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200/50 dark:border-slate-700/50 shadow-sm p-2 w-20 h-20 lg:w-28 lg:h-28 pointer-events-none backdrop-blur-md transition-opacity duration-150 ${animating ? 'opacity-0' : 'opacity-100'}`}>
+          <div className={`absolute top-3 left-3 lg:top-4 lg:left-4 z-10 flex flex-col items-center justify-center rounded-2xl bg-verdigris-100/80 dark:bg-verdigris-800/80 border border-verdigris-200/50 dark:border-verdigris-700/50 shadow-sm p-2 w-20 h-20 lg:w-28 lg:h-28 pointer-events-none backdrop-blur-md transition-opacity duration-150 ${animating ? 'opacity-0' : 'opacity-100'}`}>
             <span className="text-5xl lg:text-[5rem] leading-none text-slate-900 dark:text-white font-medium select-none pb-1">
               {currentChar ? currentChar.char : '…'}
             </span>
-            <div className="absolute -bottom-2.5 lg:-bottom-3 left-1/2 -translate-x-1/2 bg-slate-800/90 dark:bg-slate-200/90 text-white dark:text-slate-900 text-[8px] lg:text-[10px] font-bold px-2 py-0.5 rounded-full tracking-widest uppercase shadow-sm whitespace-nowrap">
+            <div className="absolute -bottom-2.5 lg:-bottom-3 left-1/2 -translate-x-1/2 bg-verdigris-800/90 dark:bg-verdigris-200/90 text-white dark:text-slate-900 text-[8px] lg:text-[10px] font-bold px-2 py-0.5 rounded-full tracking-widest uppercase shadow-sm whitespace-nowrap">
               {currentChar?.id || 'LOAD'}
             </div>
           </div>
 
           {strokePreviewWidth != null && (
             <div
-              className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-slate-900 dark:bg-white shadow-md opacity-30 transition-all duration-75"
+              className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-verdigris-900 dark:bg-white shadow-md opacity-30 transition-all duration-75"
               style={{ width: Math.max(10, strokePreviewWidth * 1.2), height: Math.max(10, strokePreviewWidth * 1.2) }}
             />
           )}
@@ -286,7 +286,7 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
           <div className="absolute top-2 right-2 lg:top-4 lg:right-4 z-10 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-200" ref={strokeWrapperRef}>
             <button
              onClick={() => setShowStrokePanel(p => !p)}
-              className="flex items-center justify-center h-8 w-8 lg:h-11 lg:w-11 rounded-full bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white backdrop-blur-sm transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10"
+              className="flex items-center justify-center h-8 w-8 lg:h-11 lg:w-11 rounded-full bg-white/90 dark:bg-verdigris-900/90 border border-verdigris-200 dark:border-verdigris-700 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white backdrop-blur-sm transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-verdigris-900/10"
               aria-label="Stroke width"
               title="Stroke width"
             >
@@ -297,7 +297,7 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
               </svg>
             </button>
             {showStrokePanel && (
-              <div className="absolute right-0 mt-2 lg:mt-3 w-[180px] lg:w-[220px] rounded-xl lg:rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 lg:p-5 shadow-2xl">
+              <div className="absolute right-0 mt-2 lg:mt-3 w-[180px] lg:w-[220px] rounded-xl lg:rounded-2xl border border-verdigris-200 dark:border-verdigris-700 bg-white dark:bg-verdigris-900 p-3 lg:p-5 shadow-2xl">
                 <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2 lg:mb-4">Set Stroke Width</div>
                 <div className="flex items-center gap-3 lg:gap-4">
                   <input
@@ -321,34 +321,34 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
 
         <div className="grid grid-cols-[1fr_1fr_1.5fr] gap-2 lg:gap-3">
           {sessionConfig && sessionConfig.mode === 'single-character' ? (
-            <button className="rounded-2xl border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 py-3 lg:py-4 text-xs lg:text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition active:scale-95 flex items-center justify-center gap-2" onClick={handleSwitchToMixedRandom}>
+            <button className="rounded-2xl border-2 border-verdigris-200 dark:border-verdigris-800 bg-white dark:bg-verdigris-900/50 py-3 lg:py-4 text-xs lg:text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-verdigris-50 dark:hover:bg-verdigris-800 transition active:scale-95 flex items-center justify-center gap-2" onClick={handleSwitchToMixedRandom}>
               Random
             </button>
           ) : (
-            <button className="rounded-2xl border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 py-3 lg:py-4 text-xs lg:text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition active:scale-95 flex items-center justify-center gap-2" onClick={clearCanvas}>
+            <button className="rounded-2xl border-2 border-verdigris-200 dark:border-verdigris-800 bg-white dark:bg-verdigris-900/50 py-3 lg:py-4 text-xs lg:text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-verdigris-50 dark:hover:bg-verdigris-800 transition active:scale-95 flex items-center justify-center gap-2" onClick={clearCanvas}>
               Clear
             </button>
           )}
 
           {sessionConfig && sessionConfig.mode === 'single-character' ? (
-            <button className="rounded-2xl border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 py-3 lg:py-4 text-xs lg:text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition active:scale-95 flex items-center justify-center gap-2" onClick={clearCanvas}>
+            <button className="rounded-2xl border-2 border-verdigris-200 dark:border-verdigris-800 bg-white dark:bg-verdigris-900/50 py-3 lg:py-4 text-xs lg:text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-verdigris-50 dark:hover:bg-verdigris-800 transition active:scale-95 flex items-center justify-center gap-2" onClick={clearCanvas}>
               Clear
             </button>
           ) : (
-            <button id="skip-btn" className="rounded-2xl border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 py-3 lg:py-4 text-xs lg:text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition active:scale-95 flex items-center justify-center gap-2" onClick={handleSkip} disabled={!currentChar || animating}>
+            <button id="skip-btn" className="rounded-2xl border-2 border-verdigris-200 dark:border-verdigris-800 bg-white dark:bg-verdigris-900/50 py-3 lg:py-4 text-xs lg:text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-verdigris-50 dark:hover:bg-verdigris-800 transition active:scale-95 flex items-center justify-center gap-2" onClick={handleSkip} disabled={!currentChar || animating}>
               Skip
             </button>
           )}
 
-          <button id="save-next-btn" className="rounded-2xl bg-slate-900 dark:bg-white border-2 border-slate-900 dark:border-white py-3 lg:py-4 text-xs lg:text-sm font-bold text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 transition active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50" onClick={handleSave} disabled={!currentChar || animating}>
+          <button id="save-next-btn" className="rounded-2xl bg-verdigris-900 dark:bg-white border-2 border-verdigris-900 dark:border-white py-3 lg:py-4 text-xs lg:text-sm font-bold text-white dark:text-slate-900 hover:bg-verdigris-800 dark:hover:bg-verdigris-100 transition active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50" onClick={handleSave} disabled={!currentChar || animating}>
             {sessionConfig && sessionConfig.mode === 'single-character' ? 'Save' : 'Save & Next'}
           </button>
         </div>
 
         {/* Compact stats */}
         <div className="flex flex-col items-center justify-center pt-3 lg:pt-4 gap-2">
-          <div className="flex items-center gap-1 w-full max-w-[160px] h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-             <div className="h-full bg-slate-900 dark:bg-white rounded-full bg-opacity-20" style={{ width: `${Math.min(100, completed % 100)}%` }} />
+          <div className="flex items-center gap-1 w-full max-w-[160px] h-1 bg-verdigris-100 dark:bg-verdigris-800 rounded-full overflow-hidden">
+             <div className="h-full bg-verdigris-900 dark:bg-white rounded-full bg-opacity-20" style={{ width: `${Math.min(100, completed % 100)}%` }} />
           </div>
           <div className="flex items-center justify-center gap-2 text-[11px] font-bold tracking-widest uppercase text-slate-500 dark:text-slate-400">
             <span>Done: <span className="text-slate-900 dark:text-white">{completed}</span></span>
@@ -371,7 +371,7 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
 
         {invalidMsg && (
           <div className="fixed inset-x-0 bottom-8 z-50 flex justify-center pointer-events-none animate-in fade-in slide-in-from-bottom-4">
-            <div className="rounded-2xl bg-slate-900 dark:bg-white px-6 py-3 text-sm font-bold text-white dark:text-slate-900 shadow-xl">
+            <div className="rounded-2xl bg-verdigris-900 dark:bg-white px-6 py-3 text-sm font-bold text-white dark:text-slate-900 shadow-xl">
               {invalidMsg}
             </div>
           </div>
