@@ -80,11 +80,7 @@ export function PredictionCard({
     <section className="relative flex min-h-0 flex-1 flex-col justify-start gap-3 pt-2 sm:pt-4 pb-2">
       {/* Unified Primary Prediction Card */}
       <div className="relative flex flex-col justify-center min-h-[220px] sm:min-h-[260px] rounded-xl border border-verdigris-900/8 bg-white/70 p-4 sm:p-5 dark:border-white/10 dark:bg-white/5">
-        {loading ? (
-          <div className="absolute top-4 right-4 sm:top-5 sm:right-5">
-            <p className="animate-pulse text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Predicting...</p>
-          </div>
-        ) : null}
+
 
         {displayError ? (
           <div className="flex flex-col items-center justify-center gap-3 sm:gap-4 w-full">
@@ -102,21 +98,8 @@ export function PredictionCard({
               {getOdiaCharacter(prediction!.prediction)}
             </div>
             <div className="flex w-full flex-col items-center justify-center text-center">
-              <p className="lg:truncate font-mono text-xs sm:text-sm font-semibold uppercase tracking-[0.15em] sm:tracking-[0.22em] text-slate-600 dark:text-slate-300 mb-1">
-                {prediction!.prediction}
-              </p>
-              <div className="flex items-center justify-center gap-2 mb-3">
-                <p className={`font-mono text-3xl sm:text-4xl font-bold leading-none tracking-tight ${getConfidenceColors(prediction?.confidence).text}`}>
-                  {formatConfidence(prediction!.confidence)}
-                </p>
-              </div>
-              <div className="h-2 w-full max-w-[200px] overflow-hidden rounded-full bg-verdigris-200/80 dark:bg-white/10">
-                <div
-                  className={`h-full rounded-full transition-all duration-500 ease-out ${getConfidenceColors(prediction?.confidence).bar}`}
-                  style={{ width: `${Math.max(3, prediction!.confidence * 100)}%` }}
-                />
-              </div>
-              <p className="mt-4 text-[10px] text-slate-400/80 dark:text-slate-500 max-w-[220px]">
+              {/* Removed mapping label and percentage confidence score from main card */}
+              <p className="mt-2 text-[10px] text-slate-400/80 dark:text-slate-500 max-w-[220px]">
                 Our ML is trained on small dataset. It can make mistakes.
               </p>
             </div>
@@ -147,21 +130,18 @@ export function PredictionCard({
             const confidence = Math.round(item.confidence * 1000) / 10;
             
             return (
-              <div key={item.label + "-" + index} className="grid grid-cols-[auto_auto_minmax(0,1fr)_auto] items-center gap-3 px-1 py-3 border-b border-verdigris-900/5 dark:border-white/5 last:border-0">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-verdigris-900/10 text-[11px] font-bold text-verdigris-900 dark:bg-verdigris-200/10 dark:text-verdigris-200">{index + 1}</span>
-                {hasPrediction ? (
-                  <span className="flex w-6 justify-center font-display text-2xl leading-none text-slate-950 dark:text-white">
-                    {getOdiaCharacter(item.label)}
-                  </span>
-                ) : (
-                  <div className="flex h-6 w-6 items-center justify-center rounded-[4px] border border-dashed border-verdigris-300 bg-verdigris-100/50 dark:border-white/10 dark:bg-white/5">
-                    <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500">?</span>
-                  </div>
-                )}
-                <div className="min-w-0">
-                  <p className="lg:truncate font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-600 dark:text-slate-300">
-                    {item.label}
-                  </p>
+              <div key={item.label + "-" + index} className="flex items-center justify-between gap-3 px-1 py-3 border-b border-verdigris-900/5 dark:border-white/5 last:border-0">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-verdigris-900/10 text-[11px] font-bold text-verdigris-900 dark:bg-verdigris-200/10 dark:text-verdigris-200">{index + 1}</span>
+                  {hasPrediction ? (
+                    <span className="flex w-6 justify-center font-display text-2xl leading-none text-slate-950 dark:text-white">
+                      {getOdiaCharacter(item.label)}
+                    </span>
+                  ) : (
+                    <div className="flex h-6 w-6 items-center justify-center rounded-[4px] border border-dashed border-verdigris-300 bg-verdigris-100/50 dark:border-white/10 dark:bg-white/5">
+                      <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500">?</span>
+                    </div>
+                  )}
                 </div>
                 <p className={`font-mono text-sm font-bold ${hasPrediction ? getConfidenceColors(item.confidence).text : "text-slate-400 dark:text-slate-500"}`}>
                   {hasPrediction ? `${confidence.toFixed(1)}%` : "—"}

@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { RotateCcw, Wand2, AlertCircle } from "lucide-react";
+import { RotateCcw, Wand2, AlertCircle, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 interface InputWorkspaceProps {
@@ -79,10 +79,14 @@ export function InputWorkspace({
 					className="group flex w-24 sm:w-28 h-12 sm:h-14 items-center justify-center rounded-2xl bg-gradient-to-br from-verdigris-800 to-verdigris-900 dark:from-verdigris-200 dark:to-verdigris-300 shadow-md transition-all hover:from-verdigris-700 hover:to-verdigris-800 dark:hover:from-white dark:hover:to-verdigris-200 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.97] ring-1 ring-inset ring-verdigris-900/10 dark:ring-white/10"
 					onClick={onPredict}
 					disabled={isPredicting || !canPredict}
-					aria-label="Predict Character"
-					title="Predict Character"
+					aria-label={isPredicting ? "Predicting..." : "Predict Character"}
+					title={isPredicting ? "Predicting..." : "Predict Character"}
 				>
-					<Wand2 className={`h-6 w-6 text-white dark:text-slate-950 transition-transform ${isPredicting ? 'animate-pulse' : 'group-hover:scale-125'}`} />
+					{isPredicting ? (
+						<Loader2 className="h-6 w-6 text-white dark:text-slate-950 animate-spin" />
+					) : (
+						<Wand2 className="h-6 w-6 text-white dark:text-slate-950 transition-transform group-hover:scale-125" />
+					)}
 				</button>
 			</div>
 		</div>

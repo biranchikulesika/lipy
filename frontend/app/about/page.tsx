@@ -1,7 +1,5 @@
 import { Metadata } from "next";
-import { AboutPanel } from "@/components/about/AboutPanel";
-import { MobileStoryCarousel } from "@/components/about/MobileStoryCarousel";
-import { ClientOnly } from "@/components/ClientOnly";
+import { AboutClientContainer } from "@/components/about/AboutClientContainer";
 
 export const metadata: Metadata = {
     title: "About LiPy",
@@ -9,14 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function AboutPage() {
-    return (
-        <ClientOnly>
-            <div className="hidden md:block">
-                <AboutPanel />
-            </div>
-            <div className="block md:hidden">
-                <MobileStoryCarousel />
-            </div>
-        </ClientOnly>
-    );
+    return <AboutClientContainer />;
 }
