@@ -36,14 +36,13 @@ export default function CharacterSearch({ onSelect, selected, onStart, startLabe
 
   return (
     <div className="space-y-3">
-      <div className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Search Character</div>
       <div className="relative">
         <input
           ref={inputRef}
           value={displayValue}
           onChange={(e) => setQ(e.target.value)}
           className="w-full rounded-xl border border-verdigris-300 dark:border-verdigris-700 bg-white dark:bg-verdigris-950 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none transition focus:border-verdigris-400 dark:focus:border-verdigris-600 focus:ring-2 focus:ring-verdigris-900/5 dark:focus:ring-white/5"
-          placeholder="Type CONS_K or paste a character"
+          placeholder="Search character (e.g. CONS_K, VOW_A)..."
           aria-label="Search character"
         />
         {(q !== '' || selected) && (
@@ -72,11 +71,11 @@ export default function CharacterSearch({ onSelect, selected, onStart, startLabe
                 onSelect(s);
                 setQ('');
               }}
-              className="rounded-xl border border-verdigris-900/10 dark:border-white/10 bg-verdigris-50 dark:bg-verdigris-900/50 p-3 text-center transition hover:bg-verdigris-100 dark:hover:bg-verdigris-800"
+              className="rounded-xl border border-verdigris-900/5 dark:border-white/5 bg-verdigris-500/5 dark:bg-white/5 p-2.5 text-center transition hover:bg-verdigris-500/15 dark:hover:bg-white/10"
               title={`Select ${s.id}`}
             >
-              <div className="text-3xl text-slate-900 dark:text-white">{s.char}</div>
-              <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">{s.id}</div>
+              <div className="text-2xl font-bold text-slate-900 dark:text-white">{s.char}</div>
+              <div className="mt-0.5 text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500">{s.id}</div>
             </button>
           ))}
         </div>

@@ -7,6 +7,7 @@ import { generateFilename } from '@/lib/lipyd/filenameService';
 import { createClientSampleId, queueSampleUpload } from '@/lib/lipyd/datasetSyncService';
 import schedulerService from '@/lib/lipyd/randomCharacterService';
 import useDatasetSync from '@/hooks/lipyd/useDatasetSync';
+import { Trash2, SkipForward, Shuffle, Check } from 'lucide-react';
 
 export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { sessionConfig: any, onSessionConfigChange?: (cfg: any) => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -256,16 +257,15 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
   return (
     <div className="flex flex-col items-center justify-center pt-0 lg:pt-4 w-full max-w-[340px] sm:max-w-[400px] lg:max-w-[480px] mx-auto flex-1 min-h-0">
       <div className="w-full flex-1 flex flex-col">
-        <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 tracking-[0.2em] mb-2 pl-2">YOUR DRAWING</div>
         <div className="relative w-full aspect-square rounded-3xl border-2 border-verdigris-200 dark:border-verdigris-800 bg-white dark:bg-verdigris-950 overflow-hidden shadow-sm flex items-center justify-center group touch-none mb-3 lg:mb-6">
           <canvas ref={canvasRef} className="block h-full w-full touch-none" />
 
           {/* Target Character Overlay */}
-          <div className={`absolute top-3 left-3 lg:top-4 lg:left-4 z-10 flex flex-col items-center justify-center rounded-2xl bg-verdigris-100/80 dark:bg-verdigris-800/80 border border-verdigris-200/50 dark:border-verdigris-700/50 shadow-sm p-2 w-20 h-20 lg:w-28 lg:h-28 pointer-events-none backdrop-blur-md transition-opacity duration-150 ${animating ? 'opacity-0' : 'opacity-100'}`}>
-            <span className="text-5xl lg:text-[5rem] leading-none text-slate-900 dark:text-white font-medium select-none pb-1">
+          <div className={`absolute top-3 left-3 lg:top-4 lg:left-4 z-10 flex flex-col items-center justify-center rounded-xl bg-verdigris-100/85 dark:bg-verdigris-800/85 border border-verdigris-200/55 dark:border-verdigris-700/55 shadow-sm p-1.5 w-14 h-14 lg:w-20 lg:h-20 pointer-events-none backdrop-blur-md transition-opacity duration-150 ${animating ? 'opacity-0' : 'opacity-100'}`}>
+            <span className="text-3xl lg:text-5xl leading-none text-slate-900 dark:text-white font-bold select-none">
               {currentChar ? currentChar.char : '…'}
             </span>
-            <div className="absolute -bottom-2.5 lg:-bottom-3 left-1/2 -translate-x-1/2 bg-verdigris-800/90 dark:bg-verdigris-200/90 text-white dark:text-slate-900 text-[8px] lg:text-[10px] font-bold px-2 py-0.5 rounded-full tracking-widest uppercase shadow-sm whitespace-nowrap">
+            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-verdigris-800/90 dark:bg-verdigris-200/90 text-white dark:text-slate-900 text-[7px] lg:text-[9px] font-extrabold px-1.5 py-0.5 rounded-full tracking-widest uppercase shadow-sm whitespace-nowrap">
               {currentChar?.id || 'LOAD'}
             </div>
           </div>
@@ -310,7 +310,7 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
                     onInput={(e) => handleStrokeChange((e.target as HTMLInputElement).value)}
                     onPointerUp={clearStrokePreview}
                     onBlur={clearStrokePreview}
-                    className="w-full accent-slate-900 dark:accent-white"
+                    className="w-full accent-verdigris-600 dark:accent-verdigris-400"
                   />
                   <span className="text-xs font-bold w-6 text-right text-slate-900 dark:text-white">{strokeWidth}</span>
                 </div>
@@ -321,34 +321,39 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
 
         <div className="grid grid-cols-[1fr_1fr_1.5fr] gap-2 lg:gap-3">
           {sessionConfig && sessionConfig.mode === 'single-character' ? (
-            <button className="rounded-2xl border-2 border-verdigris-200 dark:border-verdigris-800 bg-white dark:bg-verdigris-900/50 py-3 lg:py-4 text-xs lg:text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-verdigris-50 dark:hover:bg-verdigris-800 transition active:scale-95 flex items-center justify-center gap-2" onClick={handleSwitchToMixedRandom}>
-              Random
+            <button className="rounded-xl border border-verdigris-900/10 dark:border-verdigris-700/20 bg-white/80 dark:bg-verdigris-950/40 py-3 lg:py-3.5 text-xs lg:text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-verdigris-50 dark:hover:bg-verdigris-900/50 hover:text-slate-900 dark:hover:text-white transition active:scale-95 flex items-center justify-center gap-1.5" onClick={handleSwitchToMixedRandom}>
+              <Shuffle className="h-3.5 w-3.5 shrink-0" />
+              <span>Random</span>
             </button>
           ) : (
-            <button className="rounded-2xl border-2 border-verdigris-200 dark:border-verdigris-800 bg-white dark:bg-verdigris-900/50 py-3 lg:py-4 text-xs lg:text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-verdigris-50 dark:hover:bg-verdigris-800 transition active:scale-95 flex items-center justify-center gap-2" onClick={clearCanvas}>
-              Clear
+            <button className="rounded-xl border border-verdigris-900/10 dark:border-verdigris-700/20 bg-white/80 dark:bg-verdigris-950/40 py-3 lg:py-3.5 text-xs lg:text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-verdigris-50 dark:hover:bg-verdigris-900/50 hover:text-slate-900 dark:hover:text-white transition active:scale-95 flex items-center justify-center gap-1.5" onClick={clearCanvas}>
+              <Trash2 className="h-3.5 w-3.5 shrink-0" />
+              <span>Clear</span>
             </button>
           )}
 
           {sessionConfig && sessionConfig.mode === 'single-character' ? (
-            <button className="rounded-2xl border-2 border-verdigris-200 dark:border-verdigris-800 bg-white dark:bg-verdigris-900/50 py-3 lg:py-4 text-xs lg:text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-verdigris-50 dark:hover:bg-verdigris-800 transition active:scale-95 flex items-center justify-center gap-2" onClick={clearCanvas}>
-              Clear
+            <button className="rounded-xl border border-verdigris-900/10 dark:border-verdigris-700/20 bg-white/80 dark:bg-verdigris-950/40 py-3 lg:py-3.5 text-xs lg:text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-verdigris-50 dark:hover:bg-verdigris-900/50 hover:text-slate-900 dark:hover:text-white transition active:scale-95 flex items-center justify-center gap-1.5" onClick={clearCanvas}>
+              <Trash2 className="h-3.5 w-3.5 shrink-0" />
+              <span>Clear</span>
             </button>
           ) : (
-            <button id="skip-btn" className="rounded-2xl border-2 border-verdigris-200 dark:border-verdigris-800 bg-white dark:bg-verdigris-900/50 py-3 lg:py-4 text-xs lg:text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-verdigris-50 dark:hover:bg-verdigris-800 transition active:scale-95 flex items-center justify-center gap-2" onClick={handleSkip} disabled={!currentChar || animating}>
-              Skip
+            <button id="skip-btn" className="rounded-xl border border-verdigris-900/10 dark:border-verdigris-700/20 bg-white/80 dark:bg-verdigris-950/40 py-3 lg:py-3.5 text-xs lg:text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-verdigris-50 dark:hover:bg-verdigris-900/50 hover:text-slate-900 dark:hover:text-white transition active:scale-95 flex items-center justify-center gap-1.5 disabled:opacity-50" onClick={handleSkip} disabled={!currentChar || animating}>
+              <SkipForward className="h-3.5 w-3.5 shrink-0" />
+              <span>Skip</span>
             </button>
           )}
 
-          <button id="save-next-btn" className="rounded-2xl bg-verdigris-900 dark:bg-white border-2 border-verdigris-900 dark:border-white py-3 lg:py-4 text-xs lg:text-sm font-bold text-white dark:text-slate-900 hover:bg-verdigris-800 dark:hover:bg-verdigris-100 transition active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50" onClick={handleSave} disabled={!currentChar || animating}>
-            {sessionConfig && sessionConfig.mode === 'single-character' ? 'Save' : 'Save & Next'}
+          <button id="save-next-btn" className="rounded-xl bg-gradient-to-r from-verdigris-600 to-verdigris-700 hover:from-verdigris-700 hover:to-verdigris-800 dark:from-verdigris-500 dark:to-verdigris-600 dark:hover:from-verdigris-600 dark:hover:to-verdigris-700 py-3 lg:py-3.5 text-xs lg:text-sm font-semibold text-white transition-all active:scale-95 flex items-center justify-center gap-1.5 disabled:opacity-50 shadow-sm border border-verdigris-600/10" onClick={handleSave} disabled={!currentChar || animating}>
+            <Check className="h-4 w-4 shrink-0" />
+            <span>{sessionConfig && sessionConfig.mode === 'single-character' ? 'Save' : 'Save & Next'}</span>
           </button>
         </div>
 
         {/* Compact stats */}
         <div className="flex flex-col items-center justify-center pt-3 lg:pt-4 gap-2">
           <div className="flex items-center gap-1 w-full max-w-[160px] h-1 bg-verdigris-100 dark:bg-verdigris-800 rounded-full overflow-hidden">
-             <div className="h-full bg-verdigris-900 dark:bg-white rounded-full bg-opacity-20" style={{ width: `${Math.min(100, completed % 100)}%` }} />
+             <div className="h-full bg-verdigris-600 dark:bg-verdigris-400 rounded-full" style={{ width: `${Math.min(100, completed % 100)}%` }} />
           </div>
           <div className="flex items-center justify-center gap-2 text-[11px] font-bold tracking-widest uppercase text-slate-500 dark:text-slate-400">
             <span>Done: <span className="text-slate-900 dark:text-white">{completed}</span></span>
@@ -371,7 +376,7 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
 
         {invalidMsg && (
           <div className="fixed inset-x-0 bottom-8 z-50 flex justify-center pointer-events-none animate-in fade-in slide-in-from-bottom-4">
-            <div className="rounded-2xl bg-verdigris-900 dark:bg-white px-6 py-3 text-sm font-bold text-white dark:text-slate-900 shadow-xl">
+            <div className="rounded-2xl bg-verdigris-900 dark:bg-verdigris-100 px-6 py-3 text-sm font-bold text-white dark:text-slate-900 shadow-xl">
               {invalidMsg}
             </div>
           </div>
