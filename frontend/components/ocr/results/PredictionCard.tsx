@@ -123,9 +123,9 @@ export function PredictionCard({
 
         <div className="flex flex-col">
           {(hasPrediction ? topPredictions : [
-            { label: "Primary prediction", confidence: 0 },
-            { label: "Close alternative", confidence: 0 },
-            { label: "Possible match", confidence: 0 },
+            { label: "Most likely character", confidence: 0 },
+            { label: "Close matching", confidence: 0 },
+            { label: "Another close matching", confidence: 0 },
           ]).map((item, index) => {
             const confidence = Math.round(item.confidence * 1000) / 10;
             
@@ -134,12 +134,18 @@ export function PredictionCard({
                 <div className="flex items-center gap-3">
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-verdigris-900/10 text-[11px] font-bold text-verdigris-900 dark:bg-verdigris-200/10 dark:text-verdigris-200">{index + 1}</span>
                   {hasPrediction ? (
-                    <span className="flex w-6 justify-center font-display text-2xl leading-none text-slate-950 dark:text-white">
-                      {getOdiaCharacter(item.label)}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="flex w-6 justify-center font-display text-2xl leading-none text-slate-950 dark:text-white">
+                        {getOdiaCharacter(item.label)}
+                      </span>
+                      <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500">({item.label})</span>
+                    </div>
                   ) : (
-                    <div className="flex h-6 w-6 items-center justify-center rounded-[4px] border border-dashed border-verdigris-300 bg-verdigris-100/50 dark:border-white/10 dark:bg-white/5">
-                      <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500">?</span>
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-6 w-6 items-center justify-center rounded-[4px] border border-dashed border-verdigris-300 bg-verdigris-100/50 dark:border-white/10 dark:bg-white/5">
+                        <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500">?</span>
+                      </div>
+                      <span className="text-xs font-semibold text-slate-400 dark:text-slate-500">{item.label}</span>
                     </div>
                   )}
                 </div>

@@ -35,7 +35,7 @@ function TeamMemberAvatar({ name, photoFilename, validPhotos, className = "h-16 
 
 function TeamMemberCard({ member, validPhotos, isFlipped, onFlip }: { member: TeamMember; validPhotos: string[]; isFlipped: boolean; onFlip: () => void }) {
 	return (
-		<div className="group flex flex-col h-[420px] w-[85vw] max-w-[320px] shrink-0 snap-center sm:w-full sm:max-w-none rounded-[16px] border border-verdigris-900/10 dark:border-verdigris-700/20 bg-white/80 dark:bg-verdigris-950/40 backdrop-blur-md shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-verdigris-500/30 dark:hover:border-verdigris-400/30 relative">
+		<div className="group flex flex-col h-[340px] w-[75vw] max-w-[260px] sm:h-[420px] sm:w-full sm:max-w-none shrink-0 snap-center rounded-[16px] border border-verdigris-900/10 dark:border-verdigris-700/20 bg-white/80 dark:bg-verdigris-950/40 backdrop-blur-md shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-verdigris-500/30 dark:hover:border-verdigris-400/30 relative">
 			{/* Flippable Top Section */}
 			<div
 				className="relative flex-1 cursor-pointer [perspective:1200px]"
@@ -52,11 +52,11 @@ function TeamMemberCard({ member, validPhotos, isFlipped, onFlip }: { member: Te
 							isFlipped ? "opacity-0 pointer-events-none" : "opacity-100"
 						}`}
 					>
-						<div className="relative mb-5">
+						<div className="relative mb-4 sm:mb-5">
 							{/* Outer ring gradient glow */}
 							<div className="absolute -inset-1 bg-gradient-to-tr from-verdigris-500/20 to-[#d4a055]/30 rounded-full blur-sm opacity-60 group-hover:opacity-100 transition duration-300"></div>
 							<div className="relative ring-2 ring-verdigris-500/25 dark:ring-verdigris-400/25 rounded-full p-1 bg-white/50 dark:bg-verdigris-950/50">
-								<TeamMemberAvatar name={member.name} photoFilename={member.photoFilename} validPhotos={validPhotos} className="h-24 w-24 transition-transform duration-300 group-hover:scale-[1.03]" />
+								<TeamMemberAvatar name={member.name} photoFilename={member.photoFilename} validPhotos={validPhotos} className="h-20 w-20 sm:h-24 sm:w-24 transition-transform duration-300 group-hover:scale-[1.03]" />
 							</div>
 						</div>
 
@@ -177,7 +177,7 @@ export function TeamPanel({ validPhotos = [], members = TEAM_MEMBERS }: { validP
 				</section>
 
 				<section className="w-full">
-					<div className="grid grid-cols-1 gap-6 justify-items-center sm:grid-cols-2 lg:grid-cols-5 xl:gap-6 w-full">
+					<div className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-6 w-full scrollbar-none sm:grid sm:grid-cols-2 lg:grid-cols-5 sm:pb-0 justify-items-center xl:gap-6">
 						{members.map((member) => (
 							<TeamMemberCard
 								key={member.name}
@@ -193,8 +193,8 @@ export function TeamPanel({ validPhotos = [], members = TEAM_MEMBERS }: { validP
 				</section>
 
 				<section className="mt-12 pt-12 border-t border-verdigris-900/10 dark:border-white/10 w-full">
-					<div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-						<div className="flex flex-col items-center text-center p-6 rounded-[16px] border border-verdigris-900/5 bg-white/40 dark:bg-verdigris-950/20 backdrop-blur-sm hover:border-verdigris-500/20 transition-all duration-300">
+					<div className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-6 w-full scrollbar-none sm:grid sm:grid-cols-3 sm:pb-0">
+						<div className="flex flex-col items-center text-center p-4 sm:p-6 w-[70vw] max-w-[240px] sm:w-full shrink-0 snap-center rounded-[16px] border border-verdigris-900/5 bg-white/40 dark:bg-verdigris-950/20 backdrop-blur-md shadow-sm hover:border-verdigris-500/20 transition-all duration-300">
 							<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-verdigris-50 dark:bg-verdigris-500/10 text-indigo-600 dark:text-indigo-400 ring-1 ring-inset ring-verdigris-600/20 dark:ring-verdigris-400/20">
 								<GraduationCap className="h-5 w-5" />
 							</div>
@@ -202,7 +202,7 @@ export function TeamPanel({ validPhotos = [], members = TEAM_MEMBERS }: { validP
 							<p className="mt-2 text-xs text-slate-500 dark:text-slate-400 leading-relaxed max-w-[220px]">Department of Computer Science & Applications</p>
 						</div>
 
-						<div className="flex flex-col items-center text-center p-6 rounded-[16px] border border-verdigris-900/5 bg-white/40 dark:bg-verdigris-950/20 backdrop-blur-sm hover:border-verdigris-500/20 transition-all duration-300">
+						<div className="flex flex-col items-center text-center p-4 sm:p-6 w-[70vw] max-w-[240px] sm:w-full shrink-0 snap-center rounded-[16px] border border-verdigris-900/5 bg-white/40 dark:bg-verdigris-950/20 backdrop-blur-md shadow-sm hover:border-verdigris-500/20 transition-all duration-300">
 							<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-verdigris-50 dark:bg-verdigris-500/10 text-[#d4a055] ring-1 ring-inset ring-verdigris-600/20 dark:ring-verdigris-400/20">
 								<Building2 className="h-5 w-5" />
 							</div>
@@ -210,7 +210,7 @@ export function TeamPanel({ validPhotos = [], members = TEAM_MEMBERS }: { validP
 							<p className="mt-2 text-xs text-slate-500 dark:text-slate-400 leading-relaxed max-w-[220px]">Academic Industry Exposure & Internship Programme</p>
 						</div>
 
-						<div className="flex flex-col items-center text-center p-6 rounded-[16px] border border-verdigris-900/5 bg-white/40 dark:bg-verdigris-950/20 backdrop-blur-sm hover:border-verdigris-500/20 transition-all duration-300">
+						<div className="flex flex-col items-center text-center p-4 sm:p-6 w-[70vw] max-w-[240px] sm:w-full shrink-0 snap-center rounded-[16px] border border-verdigris-900/5 bg-white/40 dark:bg-verdigris-950/20 backdrop-blur-md shadow-sm hover:border-verdigris-500/20 transition-all duration-300">
 							<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-verdigris-50 dark:bg-verdigris-500/10 text-verdigris-600 dark:text-verdigris-400 ring-1 ring-inset ring-verdigris-600/20 dark:ring-verdigris-400/20">
 								<UserCheck className="h-5 w-5" />
 							</div>

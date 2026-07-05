@@ -94,7 +94,7 @@ export function Navbar() {
 						aria-label={open ? "Close menu" : "Open menu"}
 						aria-expanded={open}
 						onClick={() => setOpen(!open)}
-						className={`relative z-[80] flex h-10 w-10 items-center justify-center rounded-md transition-colors ${open ? 'bg-verdigris-100 text-slate-900 dark:bg-white/10 dark:text-white' : 'text-slate-500 hover:bg-verdigris-100/50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white'}`}
+						className={`relative z-[80] flex h-10 w-10 items-center justify-center rounded-xl transition-all active:scale-95 ${open ? 'bg-verdigris-100 text-slate-900 dark:bg-white/10 dark:text-white ring-1 ring-verdigris-200/50 dark:ring-white/10' : 'text-slate-500 hover:bg-verdigris-100/50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white'}`}
 					>
 						<motion.div
 							initial={false}
@@ -132,7 +132,7 @@ export function Navbar() {
 								animate={{ opacity: 1, y: 0, scale: 1 }}
 								exit={{ opacity: 0, y: -8, scale: 0.98 }}
 								transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-								className="absolute right-4 top-2 w-full max-w-[200px] rounded-[8px] border border-verdigris-200 bg-white/80 backdrop-blur-xl p-3 shadow-2xl dark:border-white/10 dark:bg-[#0a0a0a]/90 sm:right-6"
+								className="absolute right-4 top-1 w-48 rounded-xl border border-verdigris-200 bg-white/95 backdrop-blur-xl p-2.5 shadow-2xl dark:border-white/10 dark:bg-[#0a0a0a]/95 sm:right-6"
 							>
 								<nav className="flex flex-col gap-1" aria-label="Mobile navigation">
 									{internalLinks.map((item) => {
@@ -141,7 +141,7 @@ export function Navbar() {
 											<Link
 												key={item.id}
 												href={item.href}
-												className={`flex px-3 py-2 text-[12px] font-semibold tracking-[0.15em] transition-colors rounded-md ${isActive ? 'bg-verdigris-100/50 text-slate-900 dark:bg-white/5 dark:text-slate-100' : 'text-slate-500 hover:text-slate-900 hover:bg-verdigris-100/50 dark:text-slate-400 dark:hover:text-slate-300 dark:hover:bg-white/5'}`}
+												className={`flex px-3 py-2 text-[12px] font-semibold tracking-[0.15em] transition-colors rounded-lg ${isActive ? 'bg-verdigris-100/50 text-slate-900 dark:bg-white/5 dark:text-slate-100' : 'text-slate-500 hover:text-slate-900 hover:bg-verdigris-100/50 dark:text-slate-400 dark:hover:text-slate-300 dark:hover:bg-white/5'}`}
 												onClick={() => setOpen(false)}
 											>
 												{item.label}
@@ -158,7 +158,7 @@ export function Navbar() {
 												href={item.href}
 												target="_blank"
 												rel="noreferrer"
-												className="flex w-full items-center justify-between rounded-md border border-verdigris-200/60 dark:border-white/10 px-3 py-2 text-[12px] font-semibold tracking-[0.15em] text-slate-500 dark:text-slate-400 transition-colors hover:border-verdigris-300 hover:bg-verdigris-100/50 hover:text-slate-900 dark:hover:border-white/20 dark:hover:bg-white/5 dark:hover:text-slate-300"
+												className="flex w-full items-center justify-between rounded-lg border border-verdigris-200/60 dark:border-white/10 px-3 py-2 text-[12px] font-semibold tracking-[0.15em] text-slate-500 dark:text-slate-400 transition-colors hover:border-verdigris-300 hover:bg-verdigris-100/50 hover:text-slate-900 dark:hover:border-white/20 dark:hover:bg-white/5 dark:hover:text-slate-300"
 												onClick={() => setOpen(false)}
 											>
 												{item.label}
@@ -175,4 +175,3 @@ export function Navbar() {
 		</header>
 	);
 }
-

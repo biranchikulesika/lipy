@@ -13,8 +13,31 @@ export function TopPredictions({ items }: TopPredictionsProps) {
       </div>
 
       {items.length === 0 ? (
-        <div className="mt-5 rounded-2xl border border-dashed border-verdigris-900/10 bg-verdigris-50/70 p-5 text-sm leading-6 text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
-          The three highest softmax scores will appear here after prediction.
+        <div className="mt-5 space-y-4 opacity-50 select-none">
+          {[
+            { title: "Most likely character", desc: "Will show the highest confidence result" },
+            { title: "Close matching alternative", desc: "Will show the second highest confidence result" },
+            { title: "Another close matching", desc: "Will show the third highest confidence result" }
+          ].map((ph, index) => (
+            <div key={index} className="rounded-2xl border border-dashed border-verdigris-900/15 dark:border-white/10 bg-verdigris-50/20 p-4 dark:bg-white/5">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-300 text-sm font-semibold text-white dark:bg-slate-700 dark:text-slate-300">
+                    {index + 1}
+                  </span>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">{ph.title}</p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500">{ph.desc}</p>
+                  </div>
+                </div>
+                <p className="font-mono text-sm font-semibold text-slate-400 dark:text-slate-500">--%</p>
+              </div>
+
+              <div className="mt-4 h-2 overflow-hidden rounded-full bg-verdigris-100 dark:bg-white/10">
+                <div className="h-full rounded-full bg-verdigris-200 dark:bg-slate-700" style={{ width: '0%' }} />
+              </div>
+            </div>
+          ))}
         </div>
       ) : (
         <div className="mt-5 space-y-4">
