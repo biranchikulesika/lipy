@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { odiaCharacters, OdiaCharacter } from '@/lib/lipyd/odiaCharacters';
 
-export default function CharacterSearch({ onSelect, selected, onStart, startLabel = 'Start Collecting' }: { onSelect: (c: OdiaCharacter | null) => void, selected: OdiaCharacter | null, onStart?: () => void, startLabel?: string }) {
+export default function CharacterSearch({ onSelect, selected, onStart, startLabel = 'Start Collecting', onFocusChange }: { onSelect: (c: OdiaCharacter | null) => void, selected: OdiaCharacter | null, onStart?: () => void, startLabel?: string, onFocusChange?: (focused: boolean) => void }) {
   const [q, setQ] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -41,7 +41,9 @@ export default function CharacterSearch({ onSelect, selected, onStart, startLabe
           ref={inputRef}
           value={displayValue}
           onChange={(e) => setQ(e.target.value)}
-          className="w-full rounded-xl border border-verdigris-300 dark:border-verdigris-700 bg-white dark:bg-verdigris-950 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none transition focus:border-verdigris-400 dark:focus:border-verdigris-600 focus:ring-2 focus:ring-verdigris-900/5 dark:focus:ring-white/5"
+          onFocus={() => onFocusChange?.(true)}
+          onBlur={() => onFocusChange?.(false)}
+          className="w-full rounded-xl border border-verdigris-300 dark:border-verdigris-700 bg-white dark:bg-verdigris-950 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition focus:border-verdigris-400 dark:focus:border-verdigris-600 focus:ring-2 focus:ring-verdigris-900/5 dark:focus:ring-white/5"
           placeholder="Search character (e.g. CONS_K, VOW_A)..."
           aria-label="Search character"
         />
@@ -63,7 +65,7 @@ export default function CharacterSearch({ onSelect, selected, onStart, startLabe
       </div>
 
       {suggestions.length > 0 && (
-        <div className="mt-3 grid grid-cols-3 gap-2">
+        <div className="mt-2 grid grid-cols-3 gap-2">
           {suggestions.map((s) => (
             <button
               key={s.id}
@@ -71,19 +73,22 @@ export default function CharacterSearch({ onSelect, selected, onStart, startLabe
                 onSelect(s);
                 setQ('');
               }}
-              className="rounded-xl border border-verdigris-900/5 dark:border-white/5 bg-verdigris-500/5 dark:bg-white/5 p-2.5 text-center transition hover:bg-verdigris-500/15 dark:hover:bg-white/10"
+              className="rounded-xl border border-verdigris-900/5 dark:border-white/5 bg-verdigris-500/5 dark:bg-white/5 p-2 text-center transition hover:bg-verdigris-500/15 dark:hover:bg-white/10"
               title={`Select ${s.id}`}
             >
-              <div className="text-2xl font-bold text-slate-900 dark:text-white">{s.char}</div>
-              <div className="mt-0.5 text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500">{s.id}</div>
+              <div className="text-xl font-bold text-slate-900 dark:text-white">{s.char}</div>
+              <div className="mt-0.5 text-[9px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500">{s.id}</div>
             </button>
           ))}
         </div>
       )}
       {onStart && (
-        <div className="mt-4">
-          <button className="w-full rounded-xl bg-verdigris-900 dark:bg-verdigris-100 px-4 py-3.5 text-sm font-semibold text-white dark:text-slate-900 transition hover:bg-verdigris-800 dark:hover:bg-verdigris-200 disabled:opacity-50" onClick={() => onStart()} disabled={!selected}>
-            {startLabel}
+        <div className="mt-3">
+          <button className="w-full rounded-xl bg-gradient-to-r from-verdigris-600 to-verdigris-700 hover:from-verdigris-700 hover:to-verdigris-800 dark:from-verdigris-500 dark:to-verdigris-600 dark:hover:from-verdigris-600 dark:hover:to-verdigris-700 py-3 text-sm font-bold text-white transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none shadow-sm hover:shadow group border border-verdigris-600/10" onClick={() => onStart()} disabled={!selected}>
+            <span>{startLabel}</span>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
           </button>
         </div>
       )}

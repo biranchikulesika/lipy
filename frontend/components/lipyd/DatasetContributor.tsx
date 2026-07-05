@@ -1,13 +1,25 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ContributorSetup from '@/components/lipyd/ContributorSetup';
 import CanvasBoard from '@/components/lipyd/CanvasBoard';
 
 export function DatasetContributor() {
   const [view, setView] = useState('home');
   const [sessionConfig, setSessionConfig] = useState<any>(null);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const isHome = view === 'home';
+
+  useEffect(() => {
+    if (isSearchFocused) {
+      document.body.classList.add('hide-navbar');
+    } else {
+      document.body.classList.remove('hide-navbar');
+    }
+    return () => {
+      document.body.classList.remove('hide-navbar');
+    };
+  }, [isSearchFocused]);
 
   const updateSessionConfig = (updates: any) => {
     setSessionConfig((current: any) => {
@@ -18,15 +30,17 @@ export function DatasetContributor() {
   };
 
   return (
-    <main className="relative mx-auto flex h-[calc(100svh-4.5rem)] max-w-[1500px] flex-col overflow-y-auto px-3 pb-3 pt-2 sm:px-4 lg:px-8 lg:py-6">
-      <div className={`mx-auto w-full flex-1 flex flex-col ${isHome ? 'items-center pt-8 lg:pt-16 max-w-screen-sm' : 'pt-2 lg:pt-4 max-w-5xl justify-center h-full'}`}>
-        <div key={view} className="w-full flex-1 flex flex-col justify-center animate-in fade-in zoom-in-95 duration-200 min-h-0">
+    <main className={`relative mx-auto flex ${isSearchFocused ? 'h-svh pt-1' : 'h-[calc(100svh-4.5rem)] pt-2'} max-w-[1500px] flex-col ${(isHome && !isSearchFocused) ? 'overflow-y-auto' : 'overflow-hidden'} px-3 pb-3 sm:px-4 lg:px-8 lg:py-6`}>
+      <div className={`mx-auto w-full flex-1 flex flex-col ${isHome ? `items-center ${isSearchFocused ? 'pt-1 sm:pt-8' : 'pt-8 lg:pt-16'} max-w-screen-sm` : 'pt-2 lg:pt-4 max-w-5xl justify-center h-full'}`}>
+        <div key={view} className={`w-full flex-1 flex flex-col ${isSearchFocused ? 'justify-start pt-4 sm:justify-center sm:pt-0' : 'justify-center'} animate-in fade-in zoom-in-95 duration-200 min-h-0`}>
           {view === 'home' && (
             <ContributorSetup
               onStart={(cfg) => {
                 updateSessionConfig(cfg);
                 setView('collect');
               }}
+              isSearchFocused={isSearchFocused}
+              onSearchFocusChange={setIsSearchFocused}
             />
           )}
           {view === 'collect' && sessionConfig && (

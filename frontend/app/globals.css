@@ -151,3 +151,10 @@ img, svg, canvas {
   transform: rotateY(180deg);
   -webkit-transform: rotateY(180deg);
 }
+
+/* Hide navbar when input is active on mobile */
+@media (max-width: 639px) {
+  body.hide-navbar header {
+    display: none !important;
+  }
+}

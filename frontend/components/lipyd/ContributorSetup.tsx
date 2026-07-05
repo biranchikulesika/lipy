@@ -6,7 +6,11 @@ import { getAllSamples, saveContributor } from '@/lib/lipyd/storageService';
 import { OdiaCharacter } from '@/lib/lipyd/odiaCharacters';
 import { exportDataset } from '@/lib/lipyd/exportService';
 
-export default function ContributorSetup({ onStart }: { onStart: (cfg: any) => void }) {
+export default function ContributorSetup({ onStart, isSearchFocused, onSearchFocusChange }: { onStart: (cfg: any) => void, isSearchFocused?: boolean, onSearchFocusChange?: (focused: boolean) => void }) {
+  const [localSearchFocused, setLocalSearchFocused] = useState(false);
+  const activeFocus = isSearchFocused ?? localSearchFocused;
+  const setFocus = onSearchFocusChange ?? setLocalSearchFocused;
+
   const [name, setName] = useState('');
   const [contributorId, setContributorId] = useState('');
   const [mode, setMode] = useState('random');
@@ -178,7 +182,9 @@ export default function ContributorSetup({ onStart }: { onStart: (cfg: any) => v
   }
 
   return (
-    <div className="space-y-6 text-center max-w-md mx-auto w-full rounded-[16px] p-6 sm:p-8 border border-verdigris-900/10 dark:border-verdigris-700/20 bg-white/80 dark:bg-verdigris-950/40 backdrop-blur-md shadow-sm">
+    <div className={`text-center max-w-md mx-auto w-full rounded-[16px] border border-verdigris-900/10 dark:border-verdigris-700/20 bg-white/80 dark:bg-verdigris-950/40 backdrop-blur-md shadow-sm transition-all duration-200 ${
+      activeFocus ? 'py-3 px-4 sm:py-6 sm:px-8 space-y-3' : 'py-4 px-5 sm:py-6 sm:px-8 space-y-4'
+    }`}>
       <div className="space-y-1">
         <h2 className="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-verdigris-600 to-[#d4a055] dark:from-verdigris-400 dark:to-[#d4a055]">LiPyD</h2>
         <p className="text-sm text-slate-500 dark:text-slate-400">Help build the Odia handwriting dataset.</p>
@@ -189,12 +195,40 @@ export default function ContributorSetup({ onStart }: { onStart: (cfg: any) => v
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-xl border border-verdigris-300 dark:border-verdigris-750 bg-white/70 dark:bg-verdigris-950 px-4 py-3.5 text-base text-slate-900 dark:text-white outline-none transition focus:border-verdigris-400 dark:focus:border-verdigris-600 focus:ring-2 focus:ring-verdigris-900/5 dark:focus:ring-white/5 shadow-sm"
+            onFocus={() => onSearchFocusChange?.(true)}
+            onBlur={(e) => {
+              onSearchFocusChange?.(false);
+              const val = e.target.value.trim();
+              if (val) {
+                setName(val);
+                setEditing(false);
+                try {
+                  setCookie('lipy_name', val);
+                  setCookie('lipy_contributorId', contributorId);
+                } catch (err) { }
+                try {
+                  const raw = localStorage.getItem('lipy_session_config');
+                  const currentCfg = raw ? JSON.parse(raw) : {};
+                  const nextCfg = {
+                    ...currentCfg,
+                    name: val,
+                    contributorId: contributorId
+                  };
+                  localStorage.setItem('lipy_session_config', JSON.stringify(nextCfg));
+                } catch (err) { }
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.currentTarget.blur();
+              }
+            }}
+            className="w-full rounded-xl border border-verdigris-300 dark:border-verdigris-750 bg-white/70 dark:bg-verdigris-950 px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none transition focus:border-verdigris-400 dark:focus:border-verdigris-600 focus:ring-2 focus:ring-verdigris-900/5 dark:focus:ring-white/5 shadow-sm"
             placeholder="Enter your name"
           />
         </div>
       ) : (
-        <div className="w-full py-2 text-left">
+        <div className="w-full py-1.5 text-left">
           <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
             <div className="min-w-0">
               <div className="text-sm font-medium text-slate-500 dark:text-slate-400">Welcome back,</div>
@@ -237,13 +271,13 @@ export default function ContributorSetup({ onStart }: { onStart: (cfg: any) => v
         </div>
       )}
 
-      <div className="space-y-3 w-full">
+      <div className="space-y-2 w-full">
         <div className="text-left text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Choose Mode</div>
         <div className="relative flex p-1 bg-verdigris-100/50 dark:bg-verdigris-900/40 rounded-xl border border-verdigris-200/30 dark:border-verdigris-800/30 w-full">
           <button
             type="button"
             onClick={() => setMode('single')}
-            className={`flex-1 py-2.5 text-center rounded-lg text-sm font-semibold transition-all duration-200 ${
+            className={`flex-1 py-2 text-center rounded-lg text-sm font-semibold transition-all duration-200 ${
               mode === 'single'
                 ? 'bg-white dark:bg-verdigris-800 text-slate-900 dark:text-white shadow-sm ring-1 ring-verdigris-900/5'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
@@ -254,7 +288,7 @@ export default function ContributorSetup({ onStart }: { onStart: (cfg: any) => v
           <button
             type="button"
             onClick={() => setMode('random')}
-            className={`flex-1 py-2.5 text-center rounded-lg text-sm font-semibold transition-all duration-200 ${
+            className={`flex-1 py-2 text-center rounded-lg text-sm font-semibold transition-all duration-200 ${
               mode === 'random'
                 ? 'bg-white dark:bg-verdigris-800 text-slate-900 dark:text-white shadow-sm ring-1 ring-verdigris-900/5'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
@@ -267,14 +301,17 @@ export default function ContributorSetup({ onStart }: { onStart: (cfg: any) => v
 
       {mode === 'single' && (
         <div className="text-left">
-          <CharacterSearch selected={selected} onSelect={(c) => setSelected(c)} onStart={handleStart} startLabel="Start Contributing" />
+          <CharacterSearch selected={selected} onSelect={(c) => setSelected(c)} onStart={handleStart} startLabel="Start Contributing" onFocusChange={setFocus} />
         </div>
       )}
 
       {mode !== 'single' && (
-        <div className="pt-2">
-          <button className="w-full rounded-xl bg-verdigris-900 dark:bg-verdigris-100 px-4 py-3.5 text-base font-semibold text-white dark:text-slate-900 transition hover:bg-verdigris-800 dark:hover:bg-verdigris-200 disabled:opacity-50" onClick={handleStart} disabled={!name}>
-            Start Contributing
+        <div className="pt-1">
+          <button className="w-full rounded-xl bg-gradient-to-r from-verdigris-600 to-verdigris-700 hover:from-verdigris-700 hover:to-verdigris-800 dark:from-verdigris-500 dark:to-verdigris-600 dark:hover:from-verdigris-600 dark:hover:to-verdigris-700 py-3 text-sm font-bold text-white transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none shadow-sm hover:shadow group border border-verdigris-600/10" onClick={handleStart} disabled={!name}>
+            <span>Start Contributing</span>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
           </button>
         </div>
       )}
@@ -293,7 +330,7 @@ export default function ContributorSetup({ onStart }: { onStart: (cfg: any) => v
       )}
 
       {!editing && (
-        <div className="flex items-center justify-center gap-4 text-sm pt-4 border-t border-verdigris-900/5 dark:border-white/5">
+        <div className={`flex items-center justify-center gap-4 text-sm pt-4 border-t border-verdigris-900/5 dark:border-white/5 ${activeFocus ? 'hidden sm:flex' : ''}`}>
             <button className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition" onClick={() => setShowLeaveConfirm(true)}>Reset profile</button>
             <span className="text-slate-300 dark:text-slate-700">•</span>
             <button className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition flex items-center gap-1" onClick={handleExport} disabled={exporting}>
