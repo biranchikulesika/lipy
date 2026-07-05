@@ -47,9 +47,13 @@ export function Navbar() {
 	return (
 		<header className="sticky top-0 z-50 h-[4.5rem] border-b border-verdigris-200/60 dark:border-white/5 bg-white/80 dark:bg-[#0a0a0a]/90 backdrop-blur-xl supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-[#0a0a0a]/70">
 			<div className="mx-auto flex h-full max-w-[1500px] items-center justify-between px-4 sm:px-6 lg:px-8">
-				<Link href="/" className="flex flex-col items-start justify-center">
+				<Link
+					href={pathname === "/lipyd" ? "/lipyd" : "/"}
+					className="flex flex-col items-start justify-center"
+					{...(pathname === "/lipyd" ? { onClick: (e) => { e.preventDefault(); window.location.href = "/lipyd"; } } : {})}
+				>
 					<span className="font-display text-[16px] font-bold tracking-[0.15em] text-slate-950 dark:text-white sm:text-[18px]">
-						LiPy
+						{pathname === "/lipyd" ? "LiPyD" : "LiPy"}
 					</span>
 				</Link>
 

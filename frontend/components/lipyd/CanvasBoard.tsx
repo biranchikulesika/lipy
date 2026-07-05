@@ -256,7 +256,7 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
 
   return (
     <div className="flex flex-col items-center justify-center pt-0 lg:pt-4 w-full max-w-[340px] sm:max-w-[400px] lg:max-w-[480px] mx-auto flex-1 min-h-0">
-      <div className="w-full flex-1 flex flex-col">
+      <div className="w-full flex flex-col my-auto">
         <div className="relative w-full aspect-square rounded-3xl border-2 border-verdigris-200 dark:border-verdigris-800 bg-white dark:bg-verdigris-950 overflow-hidden shadow-sm flex items-center justify-center group touch-none mb-3 lg:mb-6">
           <canvas ref={canvasRef} className="block h-full w-full touch-none" />
 
