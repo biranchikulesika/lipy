@@ -32,6 +32,10 @@ export function Navbar() {
 		return () => document.removeEventListener("pointerdown", onDown);
 	}, [open]);
 
+	if (pathname && pathname.startsWith('/admin')) {
+		return null;
+	}
+
 	// Desktop classes
 	const linkBaseClass =
 		"relative px-4 py-2 text-[12px] font-semibold tracking-[0.15em] transition-colors duration-200 sm:text-[13px]";

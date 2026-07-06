@@ -16,3 +16,5 @@ data/samples/
 data/mini_dataset/
 outputs/
 frontend/.env
+data/dataset/complete_dataset/
+.agents/
