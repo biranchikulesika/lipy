@@ -18,11 +18,11 @@ def preprocess_image(image_bytes: bytes) -> np.ndarray:
 
     try:
         image = Image.open(BytesIO(image_bytes))
-        image = ImageOps.exif_transpose(image).convert("L")
+        image = ImageOps.exif_transpose(image).convert("RGB")
     except UnidentifiedImageError as exc:
         raise ValueError("Invalid or corrupted image file.") from exc
 
-    grayscale = np.array(image)
-    resized = cv2.resize(grayscale, (IMAGE_SIZE, IMAGE_SIZE), interpolation=cv2.INTER_AREA)
+    rgb_array = np.array(image)
+    resized = cv2.resize(rgb_array, (IMAGE_SIZE, IMAGE_SIZE), interpolation=cv2.INTER_AREA)
     normalized = resized.astype(np.float32) / 255.0
-    return normalized.reshape(1, IMAGE_SIZE, IMAGE_SIZE, 1)
+    return normalized.reshape(1, IMAGE_SIZE, IMAGE_SIZE, 3)

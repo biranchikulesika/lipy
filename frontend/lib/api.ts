@@ -20,13 +20,17 @@ async function readErrorMessage(response: Response): Promise<string> {
   }
 }
 
-export async function predictOdiaCharacter(image: File): Promise<PredictionResponse> {
+export async function predictOdiaCharacter(image: File | Blob): Promise<PredictionResponse> {
   if (!API_BASE_URL) {
     throw new Error("NEXT_PUBLIC_API_URL is not configured.");
   }
 
   const formData = new FormData();
-  formData.append("image", image);
+  if (image instanceof File) {
+    formData.append("image", image);
+  } else {
+    formData.append("image", image, "lipy-upload.png");
+  }
 
   const response = await fetch(`${API_BASE_URL}/predict`, {
     method: "POST",

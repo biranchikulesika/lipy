@@ -19,7 +19,7 @@ export const CameraContent = forwardRef<InputModeRef, CameraContentProps>(
 		const streamRef = useRef<MediaStream | null>(null);
 		const [capturedFrameUrl, setCapturedFrameUrl] = useState<string | null>(null);
 		const [cameraError, setCameraError] = useState<string | null>(null);
-		const capturedFileRef = useRef<File | null>(null);
+		const capturedBlobRef = useRef<Blob | File | null>(null);
 
 		const startCamera = async () => {
 			let isMounted = true;
@@ -103,9 +103,9 @@ export const CameraContent = forwardRef<InputModeRef, CameraContentProps>(
 			};
 		}, [capturedFrameUrl]);
 
-		const captureFrame = async (): Promise<File | null> => {
-			if (capturedFileRef.current) {
-				return capturedFileRef.current;
+		const captureFrame = async (): Promise<Blob | File | null> => {
+			if (capturedBlobRef.current) {
+				return capturedBlobRef.current;
 			}
 
 			const video = videoRef.current;
@@ -135,23 +135,22 @@ export const CameraContent = forwardRef<InputModeRef, CameraContentProps>(
 				return null;
 			}
 
-			const file = new File([blob], "lipy-camera.png", { type: "image/png" });
 			const nextUrl = URL.createObjectURL(blob);
 
 			setCapturedFrameUrl(nextUrl);
-			capturedFileRef.current = file;
+			capturedBlobRef.current = blob;
 
 			stopStream(streamRef.current);
 			streamRef.current = null;
 
-			return file;
+			return blob;
 		};
 
 		useImperativeHandle(ref, () => ({
 			clear: () => {
 				if (capturedFrameUrl) URL.revokeObjectURL(capturedFrameUrl);
 				setCapturedFrameUrl(null);
-				capturedFileRef.current = null;
+				capturedBlobRef.current = null;
 				onReadyChange(false);
 				startCamera().then((fn) => {
 					cleanupFn = fn;

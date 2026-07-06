@@ -13,5 +13,5 @@ export type InputMode = "draw" | "upload" | "camera";
 
 export interface InputModeRef {
   clear: () => void;
-  predict: () => Promise<File | null>;
+  predict: () => Promise<File | Blob | null>;
 }

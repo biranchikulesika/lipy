@@ -59,19 +59,10 @@ export const DrawContent = forwardRef<InputModeRef, DrawContentProps>(
 				const canvas = canvasRef.current;
 				if (!canvas) return null;
 
-				return await new Promise<File | null>((resolve) => {
+				return await new Promise<Blob | null>((resolve) => {
 					canvas.toBlob(
 						(blob) => {
-							if (!blob) {
-								resolve(null);
-								return;
-							}
-
-							resolve(
-								new File([blob], "lipy-drawing.png", {
-									type: "image/png",
-								})
-							);
+							resolve(blob);
 						},
 						"image/png"
 					);

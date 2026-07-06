@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 from typing import List
 
@@ -41,6 +41,11 @@ app.add_middleware(
 @app.on_event("startup")
 def warm_model() -> None:
     load_prediction_bundle()
+
+
+@app.get("/")
+def read_root() -> dict[str, str]:
+    return {"message": "Welcome to the LiPy OCR API! Access /docs for interactive documentation."}
 
 
 @app.get("/health")
