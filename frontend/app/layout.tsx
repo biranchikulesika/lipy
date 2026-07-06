@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans, Space_Grotesk } from "next/font/google";
 import { Navbar } from "@/components/navigation/Navbar";
 import "./globals.css";
@@ -30,6 +30,9 @@ export const metadata: Metadata = {
   keywords: ["Odia", "Handwriting", "OCR", "LiPyD", "Machine Learning", "Dataset", "AI", "Utkal University", "NIELET Bhubaneswar", "Odia Handwriting Recognition", "Odia OCR", "Odia Character Recognition", "Odia Handwritten Character Recognition", "Odia Handwritten Character Dataset"],
   authors: [{ name: "LiPy Team" }],
   creator: "LiPy Team",
+  icons: {
+    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✍️</text></svg>",
+  },
   openGraph: {
     title: "LiPy | Odia Handwriting Recognition",
     description: "An open workspace for Odia handwritten character recognition OCR and dataset contribution.",
