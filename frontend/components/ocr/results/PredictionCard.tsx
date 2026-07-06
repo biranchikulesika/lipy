@@ -95,7 +95,7 @@ export function PredictionCard({
         ) : hasPrediction ? (
           <div className="flex flex-col items-center justify-center gap-4 sm:gap-5 w-full">
             <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-3xl bg-gradient-to-br from-verdigris-800 to-verdigris-900 text-6xl font-semibold text-white shadow-inner dark:from-verdigris-200 dark:to-verdigris-300 dark:text-slate-950 sm:h-32 sm:w-32 sm:text-7xl">
-              {getOdiaCharacter(prediction!.prediction)}
+              {prediction!.character || getOdiaCharacter(prediction!.prediction)}
             </div>
             <div className="flex w-full flex-col items-center justify-center text-center">
               {/* Removed mapping label and percentage confidence score from main card */}
@@ -136,7 +136,7 @@ export function PredictionCard({
                   {hasPrediction ? (
                     <div className="flex items-center gap-2">
                       <span className="flex w-6 justify-center font-display text-2xl leading-none text-slate-950 dark:text-white">
-                        {getOdiaCharacter(item.label)}
+                        {item.character || getOdiaCharacter(item.label)}
                       </span>
                       <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500">({item.label})</span>
                     </div>

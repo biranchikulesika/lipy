@@ -87,6 +87,18 @@ export function ParticleCanvas({ text = "See everyday moments from your digital 
       createObstacleMap(textRef.current);
     };
 
+    const ODIA_CHARS = [
+      // Consonants
+      'କ', 'ଖ', 'ଗ', 'ଘ', 'ଙ', 'ଚ', 'ଛ', 'ଜ', 'ଝ', 'ଞ', 'ଟ', 'ଠ', 'ଡ', 'ଢ', 'ଣ', 'ତ', 'ଥ', 'ଦ', 'ଧ', 'ନ', 'ପ', 'ଫ', 'ବ', 'ଭ', 'ମ', 'ଯ', 'ର', 'ଳ', 'ଶ', 'ଷ', 'ସ', 'ହ', 'ୟ',
+      // Vowels
+      'ଅ', 'ଆ', 'ଇ', 'ଈ', 'ଉ', 'ଊ', 'ଋ', 'ଏ', 'ଐ', 'ଓ', 'ଔ',
+      // Diacritics / Matras attached to consonants
+      'କା', 'କି', 'କୀ', 'କୁ', 'କୂ', 'କୃ', 'କେ', 'କୈ', 'କୋ', 'କୌ', 'କଂ', 'କଃ', 'କଁ',
+      'ଖା', 'ଗୁ', 'ଚେ', 'ଜି', 'ତୁ', 'ଦୀ', 'ଧୁ', 'ନୀ', 'ପୁ', 'ଫୁ', 'ବା', 'ଭେ', 'ମା', 'ଯି', 'ରୁ', 'ଳି', 'ଶୀ', 'ଷୁ', 'ସୁ', 'ହେ',
+      // Juktakyaras (Conjuncts)
+      'କ୍ଷ', 'ଜ୍ଞ', 'ଦ୍ଧ', 'ସ୍ତ', 'ନ୍ଦ', 'ନ୍ତ', 'ଙ୍ଗ', 'ଞ୍ଚ', 'ଳ୍ଳ', 'ଷ୍ଠ', 'ବ୍ଦ', 'ମ୍ପ', 'ଶ୍ର', 'ପ୍ର', 'ତ୍ର', 'କ୍ର', 'ଜ୍ଜ', 'ହ୍ନ', 'ଦ୍ଯ', 'ଳ୍ପ', 'ଦ୍ଵ', 'ଣ୍ଡ', 'ଣ୍ଟ', 'ଷ୍ଣ', 'ସ୍ନ', 'ସ୍ପ'
+    ];
+
     class Boid {
       x: number;
       y: number;
@@ -96,6 +108,7 @@ export function ParticleCanvas({ text = "See everyday moments from your digital 
       maxSpeed: number;
       steerStrength: number;
       stuckFrames: number;
+      char: string;
       
       constructor() {
         this.x = Math.random() * width;
@@ -103,24 +116,36 @@ export function ParticleCanvas({ text = "See everyday moments from your digital 
         this.vx = (Math.random() - 0.5) * 2;
         this.vy = (Math.random() - 0.5) * 2;
         
-        this.size = Math.random() * 1.5 + 1.5;
+        // Layered sizes: 50% small (10px-14px), 35% medium (14px-18px), 15% big (18px-24px)
+        const r = Math.random();
+        if (r < 0.50) {
+          this.size = Math.random() * 2 + 5.0; // Small: 5.0 to 7.0
+        } else if (r < 0.85) {
+          this.size = Math.random() * 2 + 7.0; // Medium: 7.0 to 9.0
+        } else {
+          this.size = Math.random() * 3 + 9.0; // Big: 9.0 to 12.0
+        }
+        
         this.maxSpeed = Math.random() * 1.5 + 1.0;
         this.steerStrength = Math.random() * 0.05 + 0.02;
         this.stuckFrames = 0;
+        this.char = ODIA_CHARS[Math.floor(Math.random() * ODIA_CHARS.length)];
       }
 
       update(time: number, mouseX: number, mouseY: number) {
-        const scale1 = 0.003;
+        // 1. Noise Flow Field (Global wind current)
+        const scale1 = 0.002;
         const scale2 = 0.001;
         
-        const noise1 = Math.sin(this.x * scale1 + time * 0.0005) * Math.cos(this.y * scale1 - time * 0.0004);
-        const noise2 = Math.sin(this.y * scale2 - time * 0.0002) * Math.cos(this.x * scale2 + time * 0.0003);
+        const noise1 = Math.sin(this.x * scale1 + time * 0.0003) * Math.cos(this.y * scale1 - time * 0.0002);
+        const noise2 = Math.sin(this.y * scale2 - time * 0.0001) * Math.cos(this.x * scale2 + time * 0.0002);
         
-        const flowAngle = (noise1 + noise2) * Math.PI * 4;
+        const flowAngle = (noise1 + noise2) * Math.PI * 2;
         
         let targetVx = Math.cos(flowAngle) * this.maxSpeed;
         let targetVy = Math.sin(flowAngle) * this.maxSpeed;
         
+        // 2. Obstacle Map Avoidance (if rendering text obstacle shape)
         if (obstacleData) {
           let cx = Math.floor(this.x);
           let cy = Math.floor(this.y);
@@ -164,22 +189,95 @@ export function ParticleCanvas({ text = "See everyday moments from your digital 
           }
         }
 
-        let dx = mouseX - this.x;
-        let dy = mouseY - this.y;
-        let dist = Math.sqrt(dx * dx + dy * dy);
+        // 3. Flocking forces (Alignment and Strong Separation, No Cohesion)
+        let separationX = 0;
+        let separationY = 0;
+        let alignmentX = 0;
+        let alignmentY = 0;
+        let neighborsCount = 0;
         
-        if (dist < 200 && mouseX !== -1000) {
-          const panic = (200 - dist) / 200;
-          targetVx -= (dx / dist) * panic * this.maxSpeed * 8;
-          targetVy -= (dy / dist) * panic * this.maxSpeed * 8;
+        for (let j = 0; j < boids.length; j++) {
+          const other = boids[j];
+          if (other === this) continue;
+          
+          const pdx = this.x - other.x;
+          const pdy = this.y - other.y;
+          const pdist = Math.sqrt(pdx * pdx + pdy * pdy);
+          
+          // Dynamic radius to prevent typographic overlapping (with extra safety padding)
+          const sepRadius = this.size * 2 + other.size * 2 + 8;
+          const flockRadius = 80;
+          
+          if (pdist < flockRadius && pdist > 0.01) {
+            // Strong quadratic separation force (non-linear repulsion increases as distance drops)
+            if (pdist < sepRadius) {
+              const force = (sepRadius - pdist) / sepRadius;
+              const strongForce = force * force * 6.0;
+              separationX += (pdx / pdist) * strongForce * this.maxSpeed;
+              separationY += (pdy / pdist) * strongForce * this.maxSpeed;
+            }
+            
+            // Alignment
+            alignmentX += other.vx;
+            alignmentY += other.vy;
+            
+            neighborsCount++;
+          }
         }
         
+        if (neighborsCount > 0) {
+          alignmentX = (alignmentX / neighborsCount) - this.vx;
+          alignmentY = (alignmentY / neighborsCount) - this.vy;
+          
+          // Apply moderate alignment
+          targetVx += alignmentX * 0.4;
+          targetVy += alignmentY * 0.4;
+        }
+
+        // Add separation directly (no division by neighborsCount to avoid diluting repulsion)
+        targetVx += separationX;
+        targetVy += separationY;
+
+        // 4. Mouse interaction (Slipstream and repulsion)
+        if (mouseX !== -1000) {
+          const dx = mouseX - this.x;
+          const dy = mouseY - this.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          
+          if (dist < 180) {
+            const force = (180 - dist) / 180;
+            // Repel away from cursor
+            targetVx -= (dx / dist) * force * this.maxSpeed * 5;
+            targetVy -= (dy / dist) * force * this.maxSpeed * 5;
+            
+            // Swirl slipstream (aerodynamic vortex around mouse)
+            const swirlX = -dy / dist;
+            const swirlY = dx / dist;
+            targetVx += swirlX * force * this.maxSpeed * 2.0;
+            targetVy += swirlY * force * this.maxSpeed * 2.0;
+          }
+        }
+        
+        // 5. Apply physics integration
         this.vx += (targetVx - this.vx) * this.steerStrength;
         this.vy += (targetVy - this.vy) * this.steerStrength;
+        
+        // Limit speed to prevent chaotic teleportation
+        const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+        const maxAllowed = this.maxSpeed * 2.0;
+        if (speed > maxAllowed) {
+          this.vx = (this.vx / speed) * maxAllowed;
+          this.vy = (this.vy / speed) * maxAllowed;
+        }
+        
+        // Aerodynamic damping (moving through air resistance)
+        this.vx *= 0.98;
+        this.vy *= 0.98;
         
         this.x += this.vx;
         this.y += this.vy;
         
+        // Wrapping screen borders smoothly
         if (this.x < -20) this.x = width + 20;
         else if (this.x > width + 20) this.x = -20;
         
@@ -188,29 +286,17 @@ export function ParticleCanvas({ text = "See everyday moments from your digital 
       }
 
       draw(ctx: CanvasRenderingContext2D, isDark: boolean) {
-        const angle = Math.atan2(this.vy, this.vx);
-        
-        ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.45)' : 'rgba(0, 0, 0, 0.65)';
-        
-        ctx.translate(this.x, this.y);
-        ctx.rotate(angle);
-        
-        ctx.beginPath();
-        ctx.moveTo(this.size * 2, 0);
-        ctx.lineTo(-this.size, this.size);
-        ctx.lineTo(-this.size * 0.5, 0);
-        ctx.lineTo(-this.size, -this.size);
-        ctx.closePath();
-        ctx.fill();
-        
-        ctx.rotate(-angle);
-        ctx.translate(-this.x, -this.y);
+        ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.45)' : 'rgba(0, 0, 0, 0.3)';
+        ctx.font = `500 ${this.size * 2}px system-ui, -apple-system, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(this.char, this.x, this.y);
       }
     }
 
     const initBoids = () => {
       boids = [];
-      const count = Math.min(Math.floor((width * height) / 4000), 600);
+      const count = Math.min(Math.floor((width * height) / 16000), 160);
       for (let i = 0; i < count; i++) {
         boids.push(new Boid());
       }
@@ -240,7 +326,8 @@ export function ParticleCanvas({ text = "See everyday moments from your digital 
       ctx.clearRect(-100, -100, width + 200, height + 200);
       time += 16; 
       
-      const isDark = document.documentElement.classList.contains('dark');
+      const isDark = document.documentElement.classList.contains('dark') || 
+                     (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
       if (textRef.current && textRef.current !== currentRenderedText) {
         createObstacleMap(textRef.current);

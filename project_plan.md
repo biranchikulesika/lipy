@@ -178,7 +178,7 @@ Use for:
 
 Use for:
 
-- grayscale conversion
+- RGB color conversion
 - resizing
 - normalization
 - shape verification
@@ -188,8 +188,8 @@ Use for:
 
 Use for:
 
-- simple baseline CNN
-- quick training check
+- EfficientNetB0 baseline architecture configuration
+- transfer learning configuration with ImageNet weights
 - confirming the dataset can learn
 
 ### `notebooks/04_full_training.ipynb`

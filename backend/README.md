@@ -15,7 +15,7 @@ The backend of LiPy is a robust, lightweight OCR inference API built with **Fast
 2. **Model Caching**: Upon startup, the backend pre-loads this discovered `.keras` model utilizing Python's `lru_cache`. This guarantees rapid inference without disk I/O on every request.
 3. **Preprocessing Pipeline**: Uploaded images are passed through a strict preprocessing pipeline that mirrors the model's training:
    - EXIF orientation correction.
-   - Grayscale conversion.
+   - RGB color conversion (3 channels).
    - Area-interpolation resizing to exactly `64x64`.
    - Pixel normalization into the `[0, 1]` range.
 3. **Inference**: The model returns raw probabilities across all Odia classes.

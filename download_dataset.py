@@ -119,7 +119,7 @@ def fetch_all_metadata(base_url: str, headers: dict[str, str], table_name: str, 
                 break
             current_limit = min(batch_size, remaining)
             
-        url = f"{base_url}/rest/v1/{table_name}?select=id,filename,storage_path&order=id.asc&limit={current_limit}&offset={offset}"
+        url = f"{base_url}/rest/v1/{table_name}?select=id,filename,storage_path&status=eq.verified&order=id.asc&limit={current_limit}&offset={offset}"
         req = urllib.request.Request(url, headers=headers)
         
         try:

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
+import { Logo } from "@/components/ui/logo";
 import {
 	GraduationCap,
 	Users2,
@@ -145,8 +146,8 @@ export function AboutPanel() {
 						{/* Body */}
 						<div className="grid lg:grid-cols-12 gap-8 items-center my-auto">
 							<div className="lg:col-span-7 space-y-6">
-								<h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
-									Meet <span className="text-transparent bg-clip-text bg-gradient-to-r from-verdigris-600 via-verdigris-500 to-verdigris-400 dark:from-verdigris-400 dark:to-verdigris-300">LiPy</span>
+								<h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight flex flex-wrap items-center gap-3">
+									Meet <Logo className="text-4xl sm:text-5xl lg:text-6xl" />
 								</h1>
 
 								<p className="text-base sm:text-lg leading-relaxed text-slate-600 dark:text-slate-400 max-w-xl">
@@ -203,8 +204,8 @@ export function AboutPanel() {
 								<div className="inline-flex p-4 bg-verdigris-500/10 text-verdigris-600 dark:text-verdigris-400 rounded-2xl mb-2">
 									<Database className="h-12 w-12" />
 								</div>
-								<h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
-									LiPy Dataset Collection
+								<h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight flex flex-wrap items-center gap-2">
+									<Logo className="text-3xl sm:text-4xl lg:text-5xl" /> Dataset Collection
 								</h2>
 								<p className="text-sm sm:text-base leading-relaxed text-slate-500 dark:text-slate-400">
 									Crowdsourcing odia handwriting samples through LiPyD.

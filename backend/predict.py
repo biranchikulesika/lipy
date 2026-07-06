@@ -37,17 +37,21 @@ def predict_upload(upload: UploadFile) -> Dict[str, Any]:
         raise ValueError("Uploaded file is empty.")
 
     batch = preprocess_image(image_bytes)
-    model, class_names, _ = load_prediction_bundle()
+    model, class_names, label_map = load_prediction_bundle()
 
     raw_output = model.predict(batch, verbose=0)
     probabilities = _normalize_probabilities(np.asarray(raw_output))
     scores = probabilities[0]
+
+    # Map class name to character using the loaded label_map (character -> class_id)
+    class_to_char = {v: k for k, v in label_map.items()}
 
     top_indices = np.argsort(scores)[::-1][:TOP_K]
     top_predictions: List[Dict[str, Any]] = [
         {
             "label": class_names[index],
             "confidence": round(float(scores[index]), 4),
+            "character": class_to_char.get(class_names[index], ""),
         }
         for index in top_indices
     ]
@@ -55,5 +59,6 @@ def predict_upload(upload: UploadFile) -> Dict[str, Any]:
     return {
         "prediction": top_predictions[0]["label"],
         "confidence": top_predictions[0]["confidence"],
+        "character": top_predictions[0]["character"],
         "top_predictions": top_predictions,
     }

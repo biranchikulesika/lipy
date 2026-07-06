@@ -19,11 +19,13 @@ except ImportError:
 class TopPrediction(BaseModel):
     label: str
     confidence: float
+    character: str | None = None
 
 
 class PredictionResponse(BaseModel):
     prediction: str
     confidence: float
+    character: str | None = None
     top_predictions: List[TopPrediction]
 
 

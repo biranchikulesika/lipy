@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
-import { createBrowserClient } from '@supabase/ssr';
+import { createClient } from '@/lib/supabase/client';
 import type { UserIdentity } from '@supabase/supabase-js';
 import {
   Loader2, ShieldAlert, KeyRound, Link as LinkIcon,
   Check, X, Mail, Shield, Fingerprint,
-  Eye, EyeOff, ChevronRight, CircleCheck, CircleAlert,
+  Eye, EyeOff, ChevronRight, ChevronLeft, CircleCheck, CircleAlert,
   Wand2, Lock, Unlink,
 } from 'lucide-react';
 
@@ -71,7 +71,7 @@ function getBrowserAndOS() {
 
 function SettingsSkeleton() {
   return (
-    <div className="p-4 sm:p-6 max-w-2xl mx-auto space-y-3 animate-pulse">
+    <div className="p-3 sm:p-6 max-w-2xl mx-auto space-y-2.5 sm:space-y-3 animate-pulse">
       <div className="h-14 rounded-xl bg-stone-200/70 dark:bg-stone-800/60" />
       <div className="h-52 rounded-xl bg-stone-200/70 dark:bg-stone-800/60" />
     </div>
@@ -96,7 +96,7 @@ function AlertBanner({
       className="overflow-hidden"
       role="alert"
     >
-      <div className={`p-3.5 sm:p-4 rounded-xl text-[13px] flex items-start gap-2.5 border ${
+      <div className={`p-3 sm:p-4 rounded-xl text-[13px] flex items-start gap-2 border ${
         isError
           ? 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-900/40 text-red-600 dark:text-red-400'
           : 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/40 text-emerald-600 dark:text-emerald-400'
@@ -149,7 +149,7 @@ function MethodStatusTile({
   icon: React.ReactNode;
 }) {
   return (
-    <div className={`flex items-center gap-2.5 p-3 rounded-xl border text-sm font-semibold ${
+    <div className={`flex items-center gap-2 p-3 rounded-xl border text-sm font-semibold ${
       active
         ? 'bg-emerald-50/40 dark:bg-emerald-950/15 border-emerald-250 dark:border-emerald-900/40 text-emerald-700 dark:text-emerald-400'
         : 'bg-stone-50 dark:bg-stone-900/30 border-stone-200 dark:border-stone-850 text-stone-505 dark:text-stone-500'
@@ -185,7 +185,7 @@ function SocialRow({
   name: string;
   icon: React.ReactNode;
   linked: boolean;
-  email?: string;
+  email?: string | null;
   loading: boolean;
   pendingUnlink: boolean;
   onConnect: () => void;
@@ -195,7 +195,7 @@ function SocialRow({
   canUnlink?: boolean;
 }) {
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-2 sm:py-2.5 first:pt-0 last:pb-0">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-1.5 sm:py-2.5 first:pt-0 last:pb-0">
       <div className="hidden sm:flex items-center gap-3 min-w-0">
         <div className="shrink-0">{icon}</div>
         <div className="min-w-0">
@@ -246,7 +246,7 @@ function SocialRow({
                 onClick={onDisconnect}
                 disabled={loading || !canUnlink}
                 title={!canUnlink ? "At least one social account is mandatory to prevent lockout." : undefined}
-                className="w-full sm:w-48 h-9 sm:h-10 border border-red-200/50 hover:bg-red-50 dark:hover:bg-red-950/10 text-red-600 dark:text-red-400 text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1"
+                className="w-full sm:w-48 h-9 sm:h-10 border border-red-200/40 hover:bg-red-50/70 dark:hover:bg-red-950/15 text-red-600 dark:text-red-400 text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl transition-all duration-200 ease-out active:scale-97 hover:-translate-y-[1px] shadow-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none flex items-center justify-center gap-1.5"
               >
                 {icon}
                 <span className="hidden sm:inline">Disconnect</span>
@@ -256,7 +256,7 @@ function SocialRow({
               <button
                 onClick={onConnect}
                 disabled={loading}
-                className="w-full sm:w-48 h-9 sm:h-10 bg-stone-900 dark:bg-stone-100 hover:bg-stone-800 dark:hover:bg-stone-200 text-white dark:text-stone-900 text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl transition-all disabled:opacity-50 flex items-center justify-center gap-1"
+                className="w-full sm:w-48 h-9 sm:h-10 bg-stone-900 hover:bg-stone-850 dark:bg-stone-100 dark:hover:bg-stone-50 text-white dark:text-stone-900 text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl transition-all duration-200 ease-out active:scale-97 hover:-translate-y-[1px] shadow-md dark:shadow-sm disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-1.5"
               >
                 {icon}
                 <span className="hidden sm:inline">Connect</span>
@@ -282,7 +282,7 @@ function PasswordChangeModal({
   open: boolean;
   onClose: () => void;
   userEmail: string;
-  getSupabase: () => ReturnType<typeof createBrowserClient>;
+  getSupabase: () => ReturnType<typeof createClient>;
   onSuccess: (msg: string) => void;
 }) {
   const [newPassword, setNewPassword] = useState('');
@@ -294,6 +294,7 @@ function PasswordChangeModal({
   const [showCurrent, setShowCurrent] = useState(false);
   const [modalError, setModalError] = useState<string | null>(null);
   const [magicLinkSent, setMagicLinkSent] = useState(false);
+  const [passwordUpdated, setPasswordUpdated] = useState(false);
 
   const strength = useMemo(() => getPasswordStrength(newPassword), [newPassword]);
   const passwordsMatch = confirmPassword.length > 0 && newPassword === confirmPassword;
@@ -306,6 +307,7 @@ function PasswordChangeModal({
       setCurrentPassword('');
       setModalError(null);
       setMagicLinkSent(false);
+      setPasswordUpdated(false);
       setShowNew(false);
       setShowConfirm(false);
       setShowCurrent(false);
@@ -405,7 +407,7 @@ function PasswordChangeModal({
           }
         } catch { /* noop */ }
         onSuccess('Password updated successfully.');
-        onClose();
+        setPasswordUpdated(true);
       }
     } catch (e: unknown) {
       setModalError(e instanceof Error ? e.message : 'An error occurred.');
@@ -423,7 +425,6 @@ function PasswordChangeModal({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-sm"
-        onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
         role="dialog"
         aria-modal="true"
         aria-labelledby="password-modal-title"
@@ -471,7 +472,7 @@ function PasswordChangeModal({
             </AnimatePresence>
 
             <div className="p-5 space-y-3.5 pb-6 sm:pb-5">
-              {!magicLinkSent ? (
+              {!magicLinkSent && !passwordUpdated ? (
                 <div className="space-y-4">
                   {/* Password Input Fields */}
                   <div className="space-y-3.5">
@@ -498,17 +499,23 @@ function PasswordChangeModal({
                       {newPassword.length > 0 && (
                         <div className="space-y-1 pt-0.5">
                           <div className="flex gap-1 h-1">
-                            {[1, 2, 3, 4, 5].map(i => (
+                            {[1, 2, 3, 4, 5].map(index => (
                               <div
-                                key={i}
+                                key={index}
                                 className={`flex-1 rounded-full transition-all duration-300 ${
-                                  i <= strength.score ? strength.color : 'bg-stone-200 dark:bg-stone-800'
+                                  index <= strength.score
+                                    ? strength.score <= 2
+                                      ? 'bg-red-500'
+                                      : strength.score <= 4
+                                        ? 'bg-amber-500'
+                                        : 'bg-emerald-500'
+                                    : 'bg-stone-200 dark:bg-stone-800'
                                 }`}
                               />
                             ))}
                           </div>
-                          <p className={`text-[11px] font-medium ${strength.score <= 2 ? 'text-amber-500' : 'text-emerald-500'}`}>
-                            {strength.label}
+                          <p className="text-[10px] text-stone-500 dark:text-stone-400 text-left">
+                            Password strength: <span className="font-bold">{strength.label}</span>
                           </p>
                         </div>
                       )}
@@ -520,7 +527,7 @@ function PasswordChangeModal({
                           type={showConfirm ? 'text' : 'password'}
                           value={confirmPassword}
                           onChange={e => setConfirmPassword(e.target.value)}
-                          placeholder="Confirm Password"
+                          placeholder="Confirm New Password"
                           disabled={loading}
                           className={`w-full px-4 py-3 sm:py-2.5 pr-10 text-sm rounded-xl bg-stone-50 dark:bg-stone-900/50 border transition-all disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500/30 ${
                             passwordsMismatch
@@ -577,14 +584,13 @@ function PasswordChangeModal({
                     <button
                       onClick={handlePasswordSubmit}
                       disabled={loading || newPassword.length < 8 || !passwordsMatch || !currentPassword}
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 sm:py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40 flex items-center justify-center gap-2 shadow-sm shadow-blue-600/20"
+                      className="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 sm:py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ease-out active:scale-[0.98] hover:-translate-y-[1px] disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center gap-2 shadow-md hover:shadow-lg shadow-blue-500/15 hover:shadow-blue-500/25"
                     >
                       {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                       Update Password
                     </button>
                   </div>
 
-                  {/* Divider with OR */}
                   <div className="relative py-2">
                     <div className="absolute inset-0 flex items-center">
                       <div className="w-full border-t border-stone-200 dark:border-stone-850" />
@@ -596,20 +602,18 @@ function PasswordChangeModal({
                     </div>
                   </div>
 
-                  {/* Send Reset Link Action */}
                   <div className="text-center pt-1">
                     <button
                       onClick={handleSendMagicLink}
                       disabled={loading}
-                      className="w-full py-2.5 border border-stone-250 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-900 rounded-xl text-xs font-semibold transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-sm"
+                      className="w-full py-2.5 border border-stone-250 dark:border-stone-800 hover:bg-stone-55 dark:hover:bg-stone-900 rounded-xl text-xs font-semibold transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-sm"
                     >
                       {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Mail className="w-3.5 h-3.5" />}
                       Send me the password reset link
                     </button>
                   </div>
                 </div>
-              ) : (
-                /* Success Screen when Magic Link is Sent */
+              ) : magicLinkSent ? (
                 <div className="flex flex-col items-center gap-3 py-4 text-center">
                   <div className="p-3 bg-emerald-50 dark:bg-emerald-950/30 rounded-xl animate-pulse">
                     <Mail className="w-6 h-6 text-emerald-500" />
@@ -618,6 +622,24 @@ function PasswordChangeModal({
                     <p className="text-sm font-semibold text-stone-900 dark:text-stone-100">Reset Link Sent!</p>
                     <p className="text-xs text-stone-500 dark:text-stone-400 max-w-xs mx-auto leading-relaxed">
                       Check your inbox at <span className="font-semibold text-stone-800 dark:text-stone-200">{userEmail}</span> to set your new password directly.
+                    </p>
+                  </div>
+                  <button
+                    onClick={onClose}
+                    className="mt-3 w-full sm:w-auto px-6 py-2 border border-stone-250 dark:border-stone-800 rounded-xl text-xs font-semibold hover:bg-stone-55 dark:hover:bg-stone-900 transition-colors shadow-sm"
+                  >
+                    Done
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-3 py-4 text-center">
+                  <div className="p-3 bg-emerald-50 dark:bg-emerald-950/30 rounded-xl">
+                    <Check className="w-6 h-6 text-emerald-500" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold text-stone-900 dark:text-stone-100">Password Changed!</p>
+                    <p className="text-xs text-stone-500 dark:text-stone-400 max-w-xs mx-auto leading-relaxed">
+                      Your password has been updated successfully. You can now use your new password.
                     </p>
                   </div>
                   <button
@@ -648,6 +670,12 @@ export function AuthSettings() {
   const [lastSignInAt, setLastSignInAt] = useState('');
   const [createdAt, setCreatedAt] = useState('');
   const [securityEvents, setSecurityEvents] = useState<any[]>([]);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const gridRef = useRef<HTMLDivElement | null>(null);
+  const [maxCardHeight, setMaxCardHeight] = useState<number>(400);
+  const [maxRows, setMaxRows] = useState(5);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isDesktop, setIsDesktop] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -655,12 +683,48 @@ export function AuthSettings() {
   const [pwModalOpen, setPwModalOpen] = useState(false);
   const [pendingUnlinkProvider, setPendingUnlinkProvider] = useState<string | null>(null);
 
+  const updateMaxCardHeight = useCallback(() => {
+    if (typeof window === 'undefined') return;
+    setIsDesktop(window.innerWidth >= 1024);
+    
+    if (!containerRef.current || !gridRef.current) return;
+    const containerRect = containerRef.current.getBoundingClientRect();
+    const gridRect = gridRef.current.getBoundingClientRect();
+    
+    // Remaining height from bottom of grid to bottom of container minus padding/spacing
+    const availableHeight = containerRect.bottom - gridRect.bottom - 48;
+    const computedMaxCardHeight = Math.max(150, availableHeight);
+    setMaxCardHeight(computedMaxCardHeight);
+    
+    // Card decorations (py-4 is 32px, spacing is 16px, table headers is 40px, paddings is 10px, SectionLabel height is 24px) ~ 125px
+    const cardDecorations = 125;
+    const availableHeightForRows = computedMaxCardHeight - cardDecorations;
+    const rowHeight = 49;
+    const computedRows = Math.floor(availableHeightForRows / rowHeight);
+    const finalRows = Math.max(1, computedRows);
+    setMaxRows(finalRows);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    updateMaxCardHeight();
+    window.addEventListener('resize', updateMaxCardHeight);
+    return () => window.removeEventListener('resize', updateMaxCardHeight);
+  }, [updateMaxCardHeight]);
+
+  useEffect(() => {
+    if (!initialLoading) {
+      const timer = setTimeout(updateMaxCardHeight, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [initialLoading, updateMaxCardHeight]);
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
   const getSupabase = () => {
     if (!supabaseUrl || !supabaseAnonKey) throw new Error('Supabase configuration is missing.');
-    return createBrowserClient(supabaseUrl, supabaseAnonKey);
+    return createClient();
   };
 
   const fetchSecurityEvents = async (userId: string) => {
@@ -671,7 +735,7 @@ export function AuthSettings() {
         .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
-        .limit(10);
+        .limit(150);
       if (!err && data) {
         setSecurityEvents(data);
       }
@@ -845,19 +909,20 @@ export function AuthSettings() {
         onSuccess={(msg) => {
           setSuccess(msg);
           const supabase = getSupabase();
-          supabase.auth.getUser().then(({ data: { user } }) => {
+          supabase.auth.getUser().then((res: any) => {
+            const user = res.data?.user;
             if (user) fetchSecurityEvents(user.id);
           });
         }}
       />
 
-      <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-4xl mx-auto w-full">
+              <div ref={containerRef} className="p-3 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-4xl mx-auto w-full flex flex-col flex-1 h-full overflow-hidden">
         <AnimatePresence mode="popLayout">
           {error && <AlertBanner type="error" message={error} onDismiss={() => setError(null)} />}
           {success && <AlertBanner type="success" message={success} onDismiss={() => setSuccess(null)} />}
         </AnimatePresence>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+        <div ref={gridRef} className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 items-stretch shrink-0">
           
           {/* Column 1: Admin Passport */}
           <div className="lg:col-span-1 lg:h-full">
@@ -865,13 +930,13 @@ export function AuthSettings() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35, ease: 'easeOut' }}
-              className="relative overflow-hidden sm:rounded-2xl sm:border sm:border-stone-200/80 sm:dark:border-stone-800/80 sm:bg-white sm:dark:bg-[#0F0F0F] sm:shadow-sm sm:dark:shadow-none p-3 sm:p-5 space-y-3 sm:space-y-4 lg:h-full"
+              className="relative overflow-hidden sm:rounded-2xl sm:border sm:border-stone-200/80 sm:dark:border-stone-800/80 sm:bg-white sm:dark:bg-[#0F0F0F] sm:shadow-sm sm:dark:shadow-none p-3 sm:p-5 space-y-2.5 sm:space-y-4 lg:h-full"
             >
               {/* Decorative Gradient Background */}
               <div className="hidden sm:block absolute inset-x-0 top-0 h-28 bg-gradient-to-br from-blue-500/[0.08] via-indigo-500/[0.06] to-transparent dark:from-blue-500/[0.04] dark:via-indigo-500/[0.03] pointer-events-none" />
 
               {/* Profile details */}
-              <div className="relative flex flex-col items-center text-center space-y-2 pt-1">
+              <div className="relative flex flex-col items-center text-center space-y-1.5 pt-1">
                 {userAvatar ? (
                   <img
                     src={userAvatar}
@@ -951,11 +1016,11 @@ export function AuthSettings() {
             <SettingsCard delay={0.1} className="lg:h-full">
               
               {/* Credentials management section */}
-              <div className="px-0 py-3 sm:p-5 space-y-2 sm:space-y-3">
+              <div className="px-0 py-2.5 sm:p-5 space-y-1.5 sm:space-y-3">
                 <SectionLabel>Sign-in Credentials</SectionLabel>
-                <div className="space-y-1">
+                <div className="space-y-0.5 sm:space-y-1">
                   {/* Password Login */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-2 sm:py-2.5 first:pt-0">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-1.5 sm:py-2.5 first:pt-0">
                     <div className="hidden sm:flex items-start gap-3 min-w-0">
                       <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/30 text-blue-500 shrink-0">
                         <KeyRound className="w-5 h-5" />
@@ -969,7 +1034,7 @@ export function AuthSettings() {
                     </div>
                     <button
                       onClick={() => setPwModalOpen(true)}
-                      className="w-full sm:w-48 h-9 sm:h-10 bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl transition-all shadow-sm shadow-blue-600/20 flex items-center justify-center gap-1 shrink-0"
+                      className="w-full sm:w-48 h-9 sm:h-10 bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl transition-all duration-200 ease-out active:scale-97 hover:-translate-y-[1px] shadow-md hover:shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20 flex items-center justify-center gap-1.5 shrink-0"
                     >
                       <KeyRound className="w-4 h-4" />
                       Change Password
@@ -992,7 +1057,7 @@ export function AuthSettings() {
                     <button
                       onClick={handleAddPasskey}
                       disabled={loading}
-                      className="w-full sm:w-48 h-9 sm:h-10 bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl transition-all disabled:opacity-50 flex items-center justify-center gap-1 shadow-sm shadow-indigo-600/20 shrink-0"
+                      className="w-full sm:w-48 h-9 sm:h-10 bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl transition-all duration-200 ease-out active:scale-97 hover:-translate-y-[1px] shadow-md hover:shadow-lg shadow-indigo-500/10 hover:shadow-indigo-500/20 disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-1.5 shrink-0"
                     >
                       {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Fingerprint className="w-3.5 h-3.5" />}
                       Register Passkey
@@ -1002,13 +1067,13 @@ export function AuthSettings() {
               </div>
 
               {/* Linked social accounts section */}
-              <div className="px-0 py-3 sm:p-5 space-y-2 sm:space-y-3">
+              <div className="px-0 py-2.5 sm:p-5 space-y-1.5 sm:space-y-3">
                 <SectionLabel>Linked Accounts</SectionLabel>
 
                 {(() => {
                   const linkedSocialCount = (isProviderLinked('google') ? 1 : 0) + (isProviderLinked('github') ? 1 : 0);
                   return (
-                    <div className="space-y-2 pt-1">
+                    <div className="space-y-1.5 pt-1">
                       <SocialRow
                         name="Google"
                         icon={<GoogleIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
@@ -1051,79 +1116,115 @@ export function AuthSettings() {
         </div>
 
         {/* Security & Login Activity */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.35, ease: 'easeOut' }}
-          className="sm:rounded-2xl sm:border sm:border-stone-200/80 sm:dark:border-stone-800/80 sm:bg-white sm:dark:bg-[#0F0F0F] sm:shadow-sm sm:dark:shadow-none px-0 py-5 sm:p-6 space-y-4"
-        >
-          <div>
-            <SectionLabel>Security & Login Activity</SectionLabel>
-          </div>
+        {(() => {
+          const totalPages = Math.ceil(securityEvents.length / maxRows);
+          const effectiveCurrentPage = Math.min(Math.max(1, currentPage), Math.max(1, totalPages));
+          const paginatedEvents = securityEvents.slice((effectiveCurrentPage - 1) * maxRows, effectiveCurrentPage * maxRows);
 
-          <div className="overflow-x-auto w-full">
-            <table className="w-full text-left border-collapse text-sm min-w-[600px]">
-              <thead>
-                <tr className="border-b border-stone-100 dark:border-stone-850 text-xs font-bold uppercase tracking-wider text-stone-400 dark:text-stone-500">
-                  <th className="pb-3 pr-4">Event Type</th>
-                  <th className="pb-3 px-4">Status</th>
-                  <th className="pb-3 px-4">Device & OS</th>
-                  <th className="pb-3 px-4">IP Address</th>
-                  <th className="pb-3 pl-4">Date & Time</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-stone-100/60 dark:divide-stone-850/60">
-                {securityEvents.length > 0 ? (
-                  securityEvents.map((event) => {
-                    const isSuccess = event.status.toLowerCase() === 'success';
-                    const isFailed = event.status.toLowerCase().startsWith('failed');
-                    const isCurrentSession = event.event_type === 'Active Login Session' && (Date.now() - new Date(event.created_at).getTime()) < 10 * 60 * 1000;
-                    
-                    let badgeBg = 'bg-stone-50 dark:bg-stone-850 border-stone-200 dark:border-stone-750 text-stone-600 dark:text-stone-400';
-                    if (isCurrentSession) {
-                      badgeBg = 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-250 dark:border-emerald-900/40 text-emerald-700 dark:text-emerald-400';
-                    } else if (isSuccess) {
-                      badgeBg = 'bg-blue-50 dark:bg-blue-950/20 border-blue-250 dark:border-blue-900/40 text-blue-700 dark:text-blue-400';
-                    } else if (isFailed) {
-                      badgeBg = 'bg-red-50 dark:bg-red-950/20 border-red-200/60 dark:border-red-900/45 text-red-700 dark:text-red-400';
-                    }
+          return (
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.35, ease: 'easeOut' }}
+              style={isDesktop ? { maxHeight: `${maxCardHeight}px` } : undefined}
+              className="sm:rounded-2xl sm:border sm:border-stone-200/80 sm:dark:border-stone-800/80 sm:bg-white sm:dark:bg-[#0F0F0F] sm:shadow-sm sm:dark:shadow-none px-0 py-4 sm:p-6 space-y-3 sm:space-y-4 flex flex-col overflow-hidden w-full h-auto"
+            >
+              <div className="flex items-center justify-between shrink-0">
+                <SectionLabel>Security & Login Activity</SectionLabel>
+                
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      disabled={effectiveCurrentPage === 1}
+                      className="p-1 rounded-lg border border-stone-200 dark:border-stone-850 hover:bg-stone-50 dark:hover:bg-stone-900/60 transition-colors disabled:opacity-40 disabled:cursor-not-allowed text-stone-500 dark:text-stone-400"
+                      aria-label="Previous Page"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <span className="text-xs font-semibold text-stone-500 dark:text-stone-400 px-1 select-none">
+                      Page {effectiveCurrentPage} of {totalPages}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      disabled={effectiveCurrentPage === totalPages}
+                      className="p-1 rounded-lg border border-stone-200 dark:border-stone-850 hover:bg-stone-50 dark:hover:bg-stone-900/60 transition-colors disabled:opacity-40 disabled:cursor-not-allowed text-stone-500 dark:text-stone-400"
+                      aria-label="Next Page"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
 
-                    return (
-                      <tr key={event.id} className="text-stone-900 dark:text-stone-100">
-                        <td className="py-3.5 pr-4 flex items-center gap-2">
-                          {event.event_type === 'Active Login Session' && (
-                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                          )}
-                          <span className="font-semibold text-stone-900 dark:text-stone-100">{event.event_type}</span>
-                        </td>
-                        <td className="py-3.5 px-4">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded border text-xs font-semibold ${badgeBg}`}>
-                            {isCurrentSession ? 'Current Session' : event.status}
-                          </span>
-                        </td>
-                        <td className="py-3.5 px-4 text-stone-600 dark:text-stone-300 font-medium">
-                          {event.device_info || 'Unknown Device'}
-                        </td>
-                        <td className="py-3.5 px-4 text-stone-550 dark:text-stone-400 font-mono text-xs">
-                          {event.ip_address || 'Unknown IP'}
-                        </td>
-                        <td className="py-3.5 pl-4 text-stone-500 dark:text-stone-500">
-                          {new Date(event.created_at).toLocaleString()}
+              <div className="overflow-auto flex-1 min-h-0 w-full">
+                <table className="w-full text-left border-collapse text-sm min-w-[600px]">
+                  <thead>
+                    <tr className="border-b border-stone-100 dark:border-stone-850 text-xs font-bold uppercase tracking-wider text-stone-400 dark:text-stone-500">
+                      <th className="pb-3 pr-4">Event Type</th>
+                      <th className="pb-3 px-4">Status</th>
+                      <th className="pb-3 px-4">Device & OS</th>
+                      <th className="pb-3 px-4">IP Address</th>
+                      <th className="pb-3 pl-4">Date & Time</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-stone-100/60 dark:divide-stone-850/60">
+                    {paginatedEvents.length > 0 ? (
+                      paginatedEvents.map((event) => {
+                        const isSuccess = event.status.toLowerCase() === 'success';
+                        const isFailed = event.status.toLowerCase().startsWith('failed');
+                        const isCurrentSession = event.event_type === 'Active Login Session' && (Date.now() - new Date(event.created_at).getTime()) < 10 * 60 * 1000;
+                        
+                        let badgeBg = 'bg-stone-50 dark:bg-stone-850 border-stone-200 dark:border-stone-750 text-stone-600 dark:text-stone-400';
+                        if (isCurrentSession) {
+                          badgeBg = 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-250 dark:border-emerald-900/40 text-emerald-700 dark:text-emerald-400';
+                        } else if (isSuccess) {
+                          badgeBg = 'bg-blue-50 dark:bg-blue-950/20 border-blue-250 dark:border-blue-900/40 text-blue-700 dark:text-blue-400';
+                        } else if (isFailed) {
+                          badgeBg = 'bg-red-50 dark:bg-red-950/20 border-red-200/60 dark:border-red-900/45 text-red-700 dark:text-red-400';
+                        }
+
+                        return (
+                          <tr key={event.id} className="text-stone-900 dark:text-stone-100">
+                            <td className="py-3 pr-4 flex items-center gap-2">
+                              {event.event_type === 'Active Login Session' && (
+                                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                              )}
+                              <span className="font-semibold text-stone-900 dark:text-stone-100">{event.event_type}</span>
+                            </td>
+                            <td className="py-3 px-4">
+                              <span className={`inline-flex items-center px-2 py-0.5 rounded border text-xs font-semibold ${badgeBg}`}>
+                                {isCurrentSession ? 'Current Session' : event.status}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 text-stone-600 dark:text-stone-300 font-medium">
+                              {event.device_info || 'Unknown Device'}
+                            </td>
+                            <td className="py-3 px-4 text-stone-550 dark:text-stone-400 font-mono text-xs">
+                              {event.ip_address || 'Unknown IP'}
+                            </td>
+                            <td className="py-3 pl-4 text-stone-500 dark:text-stone-500">
+                              {new Date(event.created_at).toLocaleString()}
+                            </td>
+                          </tr>
+                        );
+                      })
+                    ) : (
+                      <tr className="text-stone-550 dark:text-stone-450">
+                        <td colSpan={5} className="py-6 text-center text-stone-500 dark:text-stone-400 font-medium">
+                          No security events recorded yet.
                         </td>
                       </tr>
-                    );
-                  })
-                ) : (
-                  <tr className="text-stone-550 dark:text-stone-450">
-                    <td colSpan={5} className="py-8 text-center text-stone-500 dark:text-stone-400 font-medium">
-                      No security events recorded yet.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </motion.div>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </motion.div>
+          );
+        })()}
       </div>
     </>
   );

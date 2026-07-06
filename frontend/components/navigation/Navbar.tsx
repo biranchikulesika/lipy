@@ -5,11 +5,31 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import { MAIN_NAVIGATION } from "@/constants/navigation";
+import { Logo } from "@/components/ui/logo";
+import { createClient } from "@/lib/supabase/client";
 
 export function Navbar() {
 	const pathname = usePathname();
 	const [open, setOpen] = useState(false);
+	const [isLoggedIn, setIsLoggedIn] = useState(false);
 	const panelRef = useRef<HTMLDivElement | null>(null);
+
+	useEffect(() => {
+		const supabase = createClient();
+		const checkSession = async () => {
+			const { data: { session } } = await supabase.auth.getSession();
+			setIsLoggedIn(!!session);
+		};
+		checkSession();
+
+		const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
+			setIsLoggedIn(!!session);
+		});
+
+		return () => {
+			subscription.unsubscribe();
+		};
+	}, []);
 
 	useEffect(() => {
 		if (!open) return;
@@ -56,9 +76,7 @@ export function Navbar() {
 					className="flex flex-col items-start justify-center"
 					{...(pathname === "/lipyd" ? { onClick: (e) => { e.preventDefault(); window.location.href = "/lipyd"; } } : {})}
 				>
-					<span className="font-display text-[16px] font-bold tracking-[0.15em] text-slate-950 dark:text-white sm:text-[18px]">
-						{pathname === "/lipyd" ? "LiPyD" : "LiPy"}
-					</span>
+					<Logo suffix={pathname === "/lipyd" ? "D" : ""} />
 				</Link>
 
 				<nav aria-label="Primary navigation" className="hidden lg:flex items-center gap-2">
@@ -90,6 +108,14 @@ export function Navbar() {
 								<span className="text-[10px] opacity-40 transition group-hover:opacity-100">↗</span>
 							</a>
 						))}
+						{isLoggedIn && (
+							<Link
+								href="/admin"
+								className="group flex items-center justify-center gap-2 rounded-md border border-amber-500/25 bg-amber-500/5 px-5 py-2 text-[12px] font-semibold tracking-[0.15em] text-amber-600 dark:text-amber-400 transition-all hover:bg-amber-500/10 hover:border-amber-500/50 sm:text-[13px] active:scale-95 duration-200"
+							>
+								Admin Panel
+							</Link>
+						)}
 					</div>
 				</nav>
 
@@ -170,6 +196,19 @@ export function Navbar() {
 											</a>
 										);
 									})}
+
+									{isLoggedIn && (
+										<>
+											<div className="my-1.5 h-px w-full bg-verdigris-200/60 dark:bg-white/10" />
+											<Link
+												href="/admin"
+												className="flex w-full items-center justify-between rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-[12px] font-semibold tracking-[0.15em] text-amber-600 dark:text-amber-400 transition-colors hover:bg-amber-500/10 hover:border-amber-500/40"
+												onClick={() => setOpen(false)}
+											>
+												Admin Panel
+											</Link>
+										</>
+									)}
 								</nav>
 							</motion.div>
 						</div>

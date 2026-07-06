@@ -6,6 +6,8 @@ import { getAllSamples, saveContributor } from '@/lib/lipyd/storageService';
 import { OdiaCharacter } from '@/lib/lipyd/odiaCharacters';
 import { exportDataset } from '@/lib/lipyd/exportService';
 
+import { Logo } from '@/components/ui/logo';
+
 export default function ContributorSetup({ onStart, isSearchFocused, onSearchFocusChange }: { onStart: (cfg: any) => void, isSearchFocused?: boolean, onSearchFocusChange?: (focused: boolean) => void }) {
   const [localSearchFocused, setLocalSearchFocused] = useState(false);
   const activeFocus = isSearchFocused ?? localSearchFocused;
@@ -186,7 +188,7 @@ export default function ContributorSetup({ onStart, isSearchFocused, onSearchFoc
       activeFocus ? 'py-3 px-4 sm:py-6 sm:px-8 space-y-3' : 'py-4 px-5 sm:py-6 sm:px-8 space-y-4'
     }`}>
       <div className="space-y-1">
-        <h2 className="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-verdigris-600 to-[#d4a055] dark:from-verdigris-400 dark:to-[#d4a055]">LiPyD</h2>
+        <h2 className="text-3xl font-extrabold tracking-tight"><Logo suffix="D" className="text-3xl font-extrabold" /></h2>
         <p className="text-sm text-slate-500 dark:text-slate-400">Help build the Odia handwriting dataset.</p>
       </div>
 

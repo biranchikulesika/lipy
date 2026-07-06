@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
 const FAKE_EMAILS = [
-  'admin@lipy.app',
+  'anushka@lipy.app',
   'biranchi@lipy.app',
-  'keeler@proton.me',
-  'kulesika@lipy.app',
-  'biranchi@gmail.com'
+  'baibhab@lipy.app',
+  'soumya@lipy.app',
+  'prajna@lipy.app',
+  'kulesika@lipy.app'
 ];
 
 const FAKE_PASSWORDS = [

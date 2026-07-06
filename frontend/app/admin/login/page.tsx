@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { createBrowserClient } from '@supabase/ssr';
+import { createClient } from '@/lib/supabase/client';
 import { motion, AnimatePresence } from 'motion/react';
 import { Loader2, KeyRound, AtSign, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
@@ -12,13 +12,7 @@ import { useFakeTyping } from '@/hooks/use-fake-typing';
 import { useAuthSequence } from '@/hooks/use-auth-sequence';
 import { authenticateUser } from './actions';
 
-const QUOTES = [
-  "People have so many good things to say about you. Just you have to die first.",
-  "People are not thinking about you. They are busy thinking about what you think of them.",
-  "You cannot make everyone happy. Be clear about whom you're trying to impress.",
-  "You can lie to everyone, but never to yourself.",
-  "Your decision should come from a point of awareness, not from ignorance."
-];
+
 
 const SOCIAL_LINKS = {
   github: "https://github.com/biranchikulesika/lipy",
@@ -30,7 +24,7 @@ const SOCIAL_LINKS = {
 // Instantiate supabase browser client (uses PKCE flow for OAuth, sending ?code= instead of #access_token=)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-const supabase = (supabaseUrl && supabaseAnonKey) ? createBrowserClient(supabaseUrl, supabaseAnonKey) : null;
+const supabase = (supabaseUrl && supabaseAnonKey) ? createClient() : null;
 
 function LoginContent() {
   const [email, setEmail] = useState('');
@@ -41,7 +35,6 @@ function LoginContent() {
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [failedAttemptText, setFailedAttemptText] = useState("I'm Biranchi");
   const [invalidCredentials, setInvalidCredentials] = useState(false);
-  const [quoteIndex, setQuoteIndex] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
   const [isInputFocused, setIsInputFocused] = useState(false);
   const searchParams = useSearchParams();
@@ -58,7 +51,6 @@ function LoginContent() {
   }, [errorParam, providerParam]);
 
   useEffect(() => {
-    setQuoteIndex(Math.floor(Math.random() * QUOTES.length));
     setIsMounted(true);
   }, []);
 
@@ -200,7 +192,7 @@ function LoginContent() {
   };
 
   return (
-    <div className="h-[100dvh] w-full dark:text-[#F5F5F5] text-[#262626] font-sans selection:bg-blue-200 dark:selection:bg-blue-900 selection:text-black dark:selection:text-white flex flex-col md:flex-row relative overflow-hidden select-none">
+    <div className="min-h-[100dvh] w-full dark:text-[#F5F5F5] text-[#262626] font-sans selection:bg-blue-200 dark:selection:bg-blue-900 selection:text-black dark:selection:text-white flex flex-col items-center justify-between p-6 sm:p-8 relative select-none bg-stone-50 dark:bg-[#070707] overflow-y-auto">
 
       {/* Return & Theme Toggle */}
       <AnimatePresence>
@@ -210,7 +202,7 @@ function LoginContent() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-6 left-6 md:top-8 md:left-8 z-50"
+            className="hidden md:block absolute top-8 left-8 z-50"
           >
             <Link
               href="/"
@@ -222,40 +214,18 @@ function LoginContent() {
         )}
       </AnimatePresence>
 
-
-
-      {/* Left Pane (Desktop Only) */}
-      <div className="hidden md:flex flex-1 relative flex-col items-center justify-center border-r-[2px] dark:border-stone-800 border-stone-200 dark:bg-[#0A0A0A] bg-[#FAFAFA]">
-        <div id="particle-canvas-container" className="absolute inset-0 z-0 pointer-events-none transition-opacity duration-1000 opacity-60">
-          {isMounted && <ParticleCanvas text={QUOTES[quoteIndex]} />}
-        </div>
-
-        <div className="absolute inset-0 z-0 flex flex-col items-center justify-center p-8 md:p-16 text-center pointer-events-none select-none overflow-hidden">
-          <AnimatePresence mode="wait">
-            {isMounted && (
-              <motion.h1
-                key={quoteIndex}
-                initial={{ opacity: 0, filter: 'blur(10px)', scale: 0.98 }}
-                animate={{ opacity: 1, filter: 'blur(0px)', scale: 1 }}
-                exit={{ opacity: 0, filter: 'blur(10px)', scale: 1.02 }}
-                transition={{ duration: 1.2, ease: "easeInOut" }}
-                className="text-4xl md:text-6xl lg:text-[4.5rem] font-serif font-bold tracking-tighter dark:text-stone-800/80 text-stone-200/80 leading-[0.9] mix-blend-multiply dark:mix-blend-screen max-w-[80vw] md:max-w-[40vw]"
-              >
-                {QUOTES[quoteIndex]}
-              </motion.h1>
-            )}
-          </AnimatePresence>
-        </div>
+      {/* Fullscreen Particle Background (Hidden on Mobile) */}
+      <div id="particle-canvas-container" className="hidden md:block absolute inset-0 z-0 pointer-events-none bg-gradient-to-br from-[#FAFAFA] to-[#FFFFFF] dark:from-[#0A0A0A] dark:to-[#000000] opacity-100">
+        {isMounted && <ParticleCanvas text="" />}
       </div>
 
-      {/* Right Pane (Form Area) */}
-      <div className={`w-full h-full md:w-[450px] lg:w-[500px] flex flex-col items-center px-6 pb-6 md:p-8 relative dark:bg-[#000000] bg-[#FFFFFF] transition-all duration-500 ${isInputFocused ? 'justify-start pt-4 md:justify-center md:pt-8' : 'justify-center pt-6'}`}>
-
+      {/* Centered Form Area (No rigid box unless wrapping is needed) */}
+      <div className="z-10 w-full max-w-[360px] mx-auto flex flex-col items-center my-auto py-8">
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="w-full max-w-[350px] flex flex-col items-center z-10"
+          className="w-full flex flex-col items-center"
         >
           {/* Main Login Box */}
           <div
@@ -263,14 +233,8 @@ function LoginContent() {
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
-            <h1 className={`text-3xl md:text-5xl font-serif font-light tracking-tight md:tracking-tighter dark:text-white text-black whitespace-nowrap transition-all duration-300 ${isInputFocused ? 'mb-3 md:mb-6' : 'mb-6 md:mb-10'}`}>
-              L
-              <span className="relative inline-flex flex-col items-center">
-                <span className="text-transparent">i</span>
-                <span className="absolute bottom-0 text-current">ı</span>
-                <span className="absolute top-[0.15em] left-[50%] -translate-x-[50%] w-[0.15em] h-[0.15em] rounded-full bg-amber-600 dark:bg-amber-400" />
-              </span>
-              Py Admin
+            <h1 className={`text-3xl md:text-5xl whitespace-nowrap transition-all duration-300 ${isInputFocused ? 'mb-3 md:mb-6' : 'mb-6 md:mb-10'}`}>
+              <Logo suffix=" Admin" className="text-3xl md:text-5xl font-bold" />
             </h1>
 
             <form className="w-full space-y-2" onSubmit={handleSubmit}>
@@ -366,14 +330,7 @@ function LoginContent() {
                 )}
               </div>
 
-              <div className="flex justify-end px-0.5">
-                <Link
-                  href="/admin/forgot-password"
-                  className="text-[12px] text-stone-500 hover:text-stone-800 dark:hover:text-stone-300 transition-colors"
-                >
-                  Forgot password?
-                </Link>
-              </div>
+
 
               <div className="pt-2 relative">
                 <button
@@ -469,7 +426,7 @@ function LoginContent() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
               transition={{ duration: 0.2 }}
-              className="absolute bottom-4 md:bottom-6 w-full flex flex-wrap justify-center gap-x-3 gap-y-1 md:gap-x-4 md:gap-y-2 px-4 md:px-8 text-[10px] md:text-[12px] text-[#737373] dark:text-[#A8A8A8] z-0"
+              className="w-full mt-auto pt-8 pb-2 flex flex-wrap justify-center gap-x-3 gap-y-1 md:gap-x-4 md:gap-y-2 px-4 text-[10px] md:text-[12px] text-[#737373] dark:text-[#A8A8A8] z-10"
             >
               <Link href="/" className="hover:underline">Home</Link>
               <Link href="/about" className="hover:underline">About</Link>

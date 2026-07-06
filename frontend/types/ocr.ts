@@ -1,11 +1,13 @@
 export interface PredictionItem {
   label: string;
   confidence: number;
+  character?: string;
 }
 
 export interface PredictionResponse {
   prediction: string;
   confidence: number;
+  character?: string;
   top_predictions: PredictionItem[];
 }
 

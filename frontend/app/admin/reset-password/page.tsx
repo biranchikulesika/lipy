@@ -3,7 +3,7 @@
 import { useState, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
-import { createBrowserClient } from '@supabase/ssr';
+import { createClient } from '@/lib/supabase/client';
 import { Loader2, KeyRound, Eye, EyeOff, ShieldAlert } from 'lucide-react';
 
 function ResetPasswordContent() {
@@ -43,7 +43,7 @@ function ResetPasswordContent() {
     }
 
     try {
-      const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey);
+      const supabase = createClient();
       const { error: updateError } = await supabase.auth.updateUser({
         password: password,
       });

@@ -1,0 +1,186 @@
+[
+  {
+    "id": "CONS_BA",
+    "char": "ବ"
+  },
+  {
+    "id": "CONS_BHA",
+    "char": "ଭ"
+  },
+  {
+    "id": "CONS_CA",
+    "char": "ଚ"
+  },
+  {
+    "id": "CONS_CHA",
+    "char": "ଛ"
+  },
+  {
+    "id": "CONS_DA",
+    "char": "ଦ"
+  },
+  {
+    "id": "CONS_DDA",
+    "char": "ଡ"
+  },
+  {
+    "id": "CONS_DDHA",
+    "char": "ଢ"
+  },
+  {
+    "id": "CONS_DHA",
+    "char": "ଧ"
+  },
+  {
+    "id": "CONS_GA",
+    "char": "ଗ"
+  },
+  {
+    "id": "CONS_GHA",
+    "char": "ଘ"
+  },
+  {
+    "id": "CONS_HA",
+    "char": "ହ"
+  },
+  {
+    "id": "CONS_JA",
+    "char": "ଜ"
+  },
+  {
+    "id": "CONS_JHA",
+    "char": "ଝ"
+  },
+  {
+    "id": "CONS_KA",
+    "char": "କ"
+  },
+  {
+    "id": "CONS_KHA",
+    "char": "ଖ"
+  },
+  {
+    "id": "CONS_LA",
+    "char": "ଲ"
+  },
+  {
+    "id": "CONS_LLA",
+    "char": "ଳ"
+  },
+  {
+    "id": "CONS_MA",
+    "char": "ମ"
+  },
+  {
+    "id": "CONS_NA",
+    "char": "ନ"
+  },
+  {
+    "id": "CONS_NGA",
+    "char": "ଙ"
+  },
+  {
+    "id": "CONS_NNA",
+    "char": "ଣ"
+  },
+  {
+    "id": "CONS_NYA",
+    "char": "ଞ"
+  },
+  {
+    "id": "CONS_PA",
+    "char": "ପ"
+  },
+  {
+    "id": "CONS_PHA",
+    "char": "ଫ"
+  },
+  {
+    "id": "CONS_RA",
+    "char": "ର"
+  },
+  {
+    "id": "CONS_SA",
+    "char": "ସ"
+  },
+  {
+    "id": "CONS_SHA",
+    "char": "ଶ"
+  },
+  {
+    "id": "CONS_SSHA",
+    "char": "ଷ"
+  },
+  {
+    "id": "CONS_TA",
+    "char": "ତ"
+  },
+  {
+    "id": "CONS_THA",
+    "char": "ଥ"
+  },
+  {
+    "id": "CONS_TTA",
+    "char": "ଟ"
+  },
+  {
+    "id": "CONS_TTHA",
+    "char": "ଠ"
+  },
+  {
+    "id": "CONS_YA",
+    "char": "ଯ"
+  },
+  {
+    "id": "CONS_YYA",
+    "char": "ୟ"
+  },
+  {
+    "id": "DIGIT_1",
+    "char": "୧"
+  },
+  {
+    "id": "VOW_A",
+    "char": "ଅ"
+  },
+  {
+    "id": "VOW_AA",
+    "char": "ଆ"
+  },
+  {
+    "id": "VOW_AI",
+    "char": "ଐ"
+  },
+  {
+    "id": "VOW_AU",
+    "char": "ଔ"
+  },
+  {
+    "id": "VOW_E",
+    "char": "ଏ"
+  },
+  {
+    "id": "VOW_I",
+    "char": "ଇ"
+  },
+  {
+    "id": "VOW_II",
+    "char": "ଈ"
+  },
+  {
+    "id": "VOW_O",
+    "char": "ଓ"
+  },
+  {
+    "id": "VOW_RU",
+    "char": "ଋ"
+  },
+  {
+    "id": "VOW_U",
+    "char": "ଉ"
+  },
+  {
+    "id": "VOW_UU",
+    "char": "ଊ"
+  }
+]

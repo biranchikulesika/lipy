@@ -3,7 +3,7 @@
 import { useState, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
-import { createBrowserClient } from '@supabase/ssr';
+import { createClient } from '@/lib/supabase/client';
 import { Loader2, ArrowLeft, Mail, KeyRound, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 
@@ -30,7 +30,7 @@ function ForgotPasswordContent() {
     }
 
     try {
-      const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey);
+      const supabase = createClient();
       
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/admin/auth/callback?next=/admin/reset-password`,
