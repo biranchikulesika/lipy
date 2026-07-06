@@ -1,0 +1,46 @@
+=============================================================================
+             PREVIEW IMAGES FOR SOCIAL SHARING (OPEN GRAPH / TWITTER)
+=============================================================================
+
+To enable rich card previews when sharing links to different pages of the LiPy 
+application on platforms like WhatsApp, Twitter/X, Discord, Slack, etc., please 
+place the following 4 images inside this 'public' directory:
+
+-----------------------------------------------------------------------------
+1. OCR Workspace Preview Image (Home Page '/')
+-----------------------------------------------------------------------------
+- File Name : og-ocr.png
+- Dimensions: 1200 x 630 pixels (Aspect Ratio: 1.91:1)
+- File Size : under 1 MB (PNG or WebP recommended)
+- Description: A clear, professional screenshot of the primary OCR Workspace 
+               showing the drawing canvas, upload options, and the prediction 
+               results panel.
+
+-----------------------------------------------------------------------------
+2. Dataset Contributor Preview Image ('/lipyd')
+-----------------------------------------------------------------------------
+- File Name : og-dataset.png
+- Dimensions: 1200 x 630 pixels (Aspect Ratio: 1.91:1)
+- File Size : under 1 MB (PNG or WebP recommended)
+- Description: A visual preview showcasing the LiPyD handwriting canvas, 
+               Odia character prompt guidelines, and progress dashboard.
+
+-----------------------------------------------------------------------------
+3. Team Page Preview Image ('/team')
+-----------------------------------------------------------------------------
+- File Name : og-team.png
+- Dimensions: 1200 x 630 pixels (Aspect Ratio: 1.91:1)
+- File Size : under 1 MB (PNG or WebP recommended)
+- Description: A cover photo representing the project development team members 
+               from Utkal University and NIELIT Bhubaneswar.
+
+-----------------------------------------------------------------------------
+4. About Page Preview Image ('/about')
+-----------------------------------------------------------------------------
+- File Name : og-about.png
+- Dimensions: 1200 x 630 pixels (Aspect Ratio: 1.91:1)
+- File Size : under 1 MB (PNG or WebP recommended)
+- Description: A graphical poster or diagram outlining the system architecture, 
+               model parameters, or explanation of the Odia Handwriting 
+               OCR pipeline.
+=============================================================================

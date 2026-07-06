@@ -7,6 +7,24 @@ import path from "path";
 export const metadata: Metadata = {
 	title: "Our Team",
 	description: "Meet the people behind the LiPy Odia Handwriting Recognition system.",
+	openGraph: {
+		title: "Our Team | LiPy Project Developers",
+		description: "Meet the people behind the LiPy Odia Handwriting Recognition system.",
+		images: [
+			{
+				url: "/og-team.png",
+				width: 1200,
+				height: 630,
+				alt: "LiPy Odia Handwriting Recognition Team Members",
+			},
+		],
+	},
+	twitter: {
+		card: "summary_large_image",
+		title: "Our Team | LiPy Project Developers",
+		description: "Meet the people behind the LiPy Odia Handwriting Recognition system.",
+		images: ["/og-team.png"],
+	},
 };
 
 export const dynamic = "force-dynamic";
