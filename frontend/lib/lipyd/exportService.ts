@@ -1,4 +1,4 @@
-﻿import JSZip from 'jszip';
+import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { getAllSamples, SampleRecord } from './storageService';
 
@@ -9,18 +9,11 @@ export async function exportDataset(sessionConfig: any = {}) {
 
   if (!dataset) return;
 
-  const byChar: Record<string, SampleRecord[]> = {};
-  for (const s of samples) {
-    byChar[s.characterId] = byChar[s.characterId] || [];
-    byChar[s.characterId].push(s);
-  }
+  const completeDatasetFolder = dataset.folder('complete_dataset');
+  if (!completeDatasetFolder) return;
 
-  for (const [charId, items] of Object.entries(byChar)) {
-    const folder = dataset.folder(charId);
-    if (!folder) continue;
-    for (const it of items) {
-      folder.file(it.filename, it.imageBlob);
-    }
+  for (const it of samples) {
+    completeDatasetFolder.file(it.filename, it.imageBlob);
   }
 
   const metadata = {
@@ -40,7 +33,7 @@ export async function exportDataset(sessionConfig: any = {}) {
   dataset.file('contributor.json', JSON.stringify(contributor, null, 2));
 
   const content = await zip.generateAsync({ type: 'blob' });
-  const uniqueChars = Object.keys(byChar).length;
+  const uniqueChars = new Set(samples.map(s => s.characterId)).size;
   const now = new Date();
   const pad = (n: number) => n.toString().padStart(2, '0');
   const dateStr = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}`;

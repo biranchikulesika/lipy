@@ -114,7 +114,8 @@ lipy/
 │   └── 05_evaluation.ipynb
 │
 ├── data/
-│   └── mini_dataset/
+│   └── dataset/
+│       └── complete_dataset/
 │
 ├── L.ipynb
 ├── README.md
@@ -125,20 +126,25 @@ lipy/
 
 ## Dataset Workflow
 
-The project's image dataset follows a strictly flat, hierarchical folder structure where the parent directory serves as the class name.
+The project's image dataset follows a completely flat structure where all images are stored directly inside a single folder without class subfolders. The filename itself contains the category class name:
 
 ```text
-mini_dataset/
-├── CONS_KA/
-├── CONS_KHA/
-├── CONS_GA/
-├── VOW_A/
+dataset/complete_dataset/
+├── CONS_KA_C01_S01_0001_20260706T114309_a1b2c3d4.png
+├── CONS_KHA_C01_S01_0002_20260706T114309_e5f6g7h8.png
+├── VOW_A_C02_S01_0001_20260706T114309_1a2b3c4d.png
 └── ...
 ```
 
-- Each image is dynamically sized, and preprocessed into grayscale tensors directly inside `notebooks/02_preprocessing.ipynb`.
-- Classes containing fewer than `MIN_IMAGES = 25` images are automatically ignored to ensure training stability and prevent extreme dataset imbalance.
-- Data lives in Google Drive (`/content/drive/MyDrive/lipy/mini_dataset`) to facilitate Colab compute instances, but falls back to the local `data/mini_dataset/` structure for testing.
+- **Filename Format**: `{characterId}_{contributorId}_{sessionId}_{sampleNumber}_{timestamp}_{randomHash}.png`
+  - `characterId`: The Odia character class code (first two parts split by `_`, e.g., `CONS_KA`, `VOW_A`).
+  - `contributorId`: Unique browser contributor token.
+  - `sessionId`: Session ID token (e.g., `S01`).
+  - `sampleNumber`: Zero-padded 4-digit index showing samples of this character in this session.
+  - `timestamp` & `randomHash`: For guaranteeing filename uniqueness.
+- **Data Preprocessing**: Each image is loaded in color (RGB), resized to `64x64` dimensions, and normalized directly inside `notebooks/02_preprocessing.ipynb`.
+- **Dataset Filtering**: Classes containing fewer than `MIN_IMAGES = 25` images (counted directly from file prefixes) are automatically ignored to ensure training stability and prevent class imbalance.
+- **Storage Path**: Data lives in Google Drive (`/content/drive/MyDrive/lipy/dataset/complete_dataset`) to facilitate Colab compute instances, but falls back to a flat local `data/dataset/complete_dataset/` structure for local verification.
 
 ## Notebook Workflow
 

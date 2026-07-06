@@ -1,4 +1,4 @@
-﻿# LiPy Project Plan
+# LiPy Project Plan
 
 ## 1. Goal
 
@@ -51,8 +51,8 @@ lipy/
 |   |-- requirements.txt
 |   `-- runtime.txt
 |-- data/
-|   `-- mini_dataset/
-|       `-- <CLASS_NAME>/
+|   `-- dataset/
+|       `-- complete_dataset/
 |-- notebooks/
 |   |-- 01_dataset_exploration.ipynb
 |   |-- 02_preprocessing.ipynb
@@ -67,6 +67,7 @@ lipy/
 |-- L.ipynb
 |-- README.md
 |-- project_plan.md
+|-- requirements.txt
 `-- requirements.txt
 ```
 
@@ -82,25 +83,24 @@ Important deployment rule:
 The reference notebook `L.ipynb` defines the dataset format. Training notebooks follow the same structure:
 
 ```text
-mini_dataset/
-|-- CONS_KA/
-|-- CONS_KHA/
-|-- CONS_GA/
-|-- VOW_A/
-`-- ...
+dataset/complete_dataset/
+├── CONS_KA_C01_S01_0001_20260706T114309_a1b2c3d4.png
+├── CONS_KHA_C01_S01_0002_20260706T114309_e5f6g7h8.png
+├── VOW_A_C02_S01_0001_20260706T114309_1a2b3c4d.png
+└── ...
 ```
 
-Each folder name is the class label. Each image inside that folder is one handwritten sample for that class.
+Each image resides directly inside the `complete_dataset` directory. The classification label (e.g. `CONS_KA`, `VOW_A`) is parsed from the first two parts of the filename when split by `_`.
 
 The notebooks use:
 
-- `MIN_IMAGES = 25`
-- sorted valid class folders
+- `MIN_IMAGES = 25` (computed from file prefixes)
+- sorted valid class labels list
 - `label_map = {class_name: integer_id}`
-- grayscale image loading
+- color image loading (RGB)
 - resize to `64 x 64`
 - normalization to `0..1`
-- final shape `(samples, 64, 64, 1)`
+- final shape `(samples, 64, 64, 3)`
 
 ## 6. Google Drive Layout
 
@@ -111,8 +111,8 @@ Recommended Drive paths:
 ```text
 MyDrive/
 |-- lipy/
-|   `-- mini_dataset/
-|       `-- <CLASS_NAME>/
+|   `-- dataset/
+|       `-- complete_dataset/
 `-- lipy_models/
     `-- LiPy_odia_ocr_<model_family>_<YYYYMMDD_HHMMSS>.keras
 ```
@@ -120,7 +120,7 @@ MyDrive/
 The default notebook dataset path is:
 
 ```text
-/content/drive/MyDrive/lipy/mini_dataset
+/content/drive/MyDrive/lipy/dataset/complete_dataset
 ```
 
 The default Google Drive model output path is:
