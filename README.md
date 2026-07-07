@@ -1,140 +1,188 @@
 # LiPy: Odia Handwritten OCR
 
-LiPy is an OCR project for handwritten Odia characters. The repo contains the application code, training workflow, and sync scripts. Large/generated assets are intentionally kept outside Git.
+LiPy is an open-source Optical Character Recognition (OCR) project for handwritten Odia characters. It combines a TensorFlow-based recognition model, a FastAPI inference backend, a modern web frontend, and a reproducible training pipeline.
 
-## Source Of Truth
+The project is designed around a simple principle:
 
-- GitHub owns source code: `backend/`, `frontend/`, `notebooks/`, `scripts/`, and docs.
-- Hugging Face Dataset owns versioned training dataset snapshots.
-- Hugging Face Model owns versioned trained model artifacts.
-- Supabase owns operational/raw contributor data.
-- Local `dataset/` and `models/` folders are independent nested Git working copies.
+- **GitHub** stores source code.
+- **Hugging Face** stores datasets and trained models.
+- **Supabase** stores operational contributor data.
 
-Nothing large should be versioned in more than one place.
+This keeps the repository lightweight while allowing datasets and model versions to evolve independently.
 
-## Project Structure
+---
+
+# Repository Architecture
+
+LiPy separates code, datasets, trained models, and contributor data into independent repositories.
+
+| Component | Source of Truth |
+|------------|-----------------|
+| Source Code | GitHub |
+| Training Datasets | Hugging Face Dataset |
+| Trained Models | Hugging Face Model |
+| Contributor Data | Supabase |
+
+Large assets are intentionally **not versioned inside GitHub**.
+
+---
+
+# Project Structure
 
 ```text
 lipy/
-├── backend/                 # FastAPI inference API
-├── frontend/                # Next.js app
-├── notebooks/               # Training/evaluation notebooks
+│
+├── backend/                 # FastAPI inference backend
+│
+├── frontend/                # Next.js web application
+│
+├── dataset/                 # Local Hugging Face dataset repository
+│   ├── complete_dataset/
+│   ├── mini_dataset/
+│   └── ...
+│
+├── models/                  # Local Hugging Face model repository
+│   ├── model.keras
+│   ├── labels.json
+│   └── training_history.json
+│
+├── notebooks/
+│   └── L.ipynb              # End-to-end training notebook
+│
 ├── scripts/
-│   ├── setup.py
-│   ├── dataset/
-│   │   ├── download_hf.py
-│   │   ├── upload_hf.py
-│   │   ├── download_supabase.py
-│   │   └── validate.py
-│   └── model/
-│       ├── download_hf.py
-│       ├── upload_hf.py
-│       └── verify.py
-├── dataset/                 # Nested Git repo, HF Dataset, ignored by outer Git
-├── models/                  # Nested Git repo, HF Model, ignored by outer Git
-├── training_requirements.txt
-├── README.md
-└── .env.example
+│   ├── common/              # Shared utilities
+│   ├── dataset/             # Dataset management
+│   ├── model/               # Model management
+│   └── requirements.txt
+│
+├── .env.example
+└── README.md
 ```
 
-## Bootstrap
+---
 
-Install Python dependencies for scripts/training, configure `.env`, then fetch disposable assets:
+# Directory Overview
+
+| Directory | Description |
+|-----------|-------------|
+| `backend/` | FastAPI backend responsible for OCR inference |
+| `frontend/` | Web interface for handwriting recognition |
+| `dataset/` | Local nested Git repository containing datasets |
+| `models/` | Local nested Git repository containing trained models |
+| `notebooks/` | Training notebooks and experiments |
+| `scripts/` | Utilities for downloading, validating, and publishing datasets and models |
+
+---
+
+# Repository Workflow
+
+```text
+                GitHub
+          (Source Code Only)
+                   │
+                   ▼
+            Clone Repository
+                   │
+                   ▼
+        Initialize Local Workspace
+                   │
+                   ▼
+      Download Dataset from HF
+                   │
+                   ▼
+      Download Model from HF
+                   │
+                   ▼
+          Train Using L.ipynb
+                   │
+         ┌─────────┴─────────┐
+         ▼                   ▼
+ Update Dataset         Export Model
+         │                   │
+         ▼                   ▼
+ Upload Dataset      Upload Model
+ to Hugging Face     to Hugging Face
+         │                   │
+         └─────────┬─────────┘
+                   ▼
+          Backend Deployment
+              (Railway)
+```
+
+---
+
+# Quick Start
+
+Clone the repository.
 
 ```bash
-pip install -r training_requirements.txt
-cp .env.example .env
-python scripts/setup.py
+git clone https://github.com/biranchikulesika/lipy.git
+cd lipy
 ```
 
-Required Hugging Face variables:
+Create the environment file.
+
+```bash
+cp .env.example .env
+```
+
+Install the shared script dependencies.
+
+```bash
+pip install -r scripts/requirements.txt
+```
+
+Initialize the local workspace.
+
+```bash
+python scripts/common/setup.py
+```
+
+This prepares the local `dataset/` and `models/` repositories by cloning or updating them from Hugging Face.
+
+---
+
+# Environment Variables
 
 ```bash
 HF_DATASET_REPO_ID=biranchikulesika/lipy
+HF_DATASET_FOLDER=complete_dataset
+
 HF_MODEL_REPO_ID=biranchikulesika/lipy
-HF_TOKEN=hf_xxx # only for private repos or uploads
+
+# Required only for uploads or private repositories.
+HF_TOKEN=hf_xxxxxxxxx
 ```
 
-## Dataset Workflow
+Additional variables used by Supabase synchronization are documented in `.env.example`.
 
-Clone or update the dataset working copy from Hugging Face:
+---
 
-```bash
-python scripts/dataset/download_hf.py
-python scripts/dataset/validate.py
-```
+# Documentation
 
-By default this prepares a nested Git repo at:
+Each major component contains its own documentation.
 
-```text
-dataset/
-```
+| Directory | Description |
+|-----------|-------------|
+| `backend/README.md` | Backend API, inference pipeline, deployment, and Railway setup |
+| `frontend/README.md` | Frontend setup and development |
+| `scripts/README.md` | Dataset and model management utilities |
+| `notebooks/L.ipynb` | Complete training workflow from dataset download to model export |
 
-Validate the default training folder:
+---
 
-```bash
-python scripts/dataset/validate.py
-```
+# Technology Stack
 
-Refresh from Supabase operational data:
+- TensorFlow / Keras
+- FastAPI
+- Next.js
+- Hugging Face Hub
+- Supabase
+- Railway
+- Docker
 
-```bash
-python scripts/dataset/download_supabase.py
-python scripts/dataset/validate.py
-python scripts/dataset/upload_hf.py
-```
+---
 
-Training notebooks read from `dataset/complete_dataset/` by default after the dataset repo has been downloaded.
+# License
 
-## Model Workflow
-
-Training writes local artifacts to:
-
-```text
-models/model.keras
-models/labels.json
-models/training_history.json
-```
-
-Verify and upload the selected trained model:
-
-```bash
-python scripts/model/verify.py
-python scripts/model/upload_hf.py
-```
-
-Clone or update the model working copy:
-
-```bash
-python scripts/model/download_hf.py
-```
-
-The backend never trains. Training releases are uploaded from root `models/` to Hugging Face, and Railway restores model artifacts into `models/` during startup.
-
-## Backend
-
-Local run:
-
-```bash
-pip install -r backend/requirements.txt
-python scripts/model/download_hf.py
-uvicorn backend.main:app --host 0.0.0.0 --port 8000
-```
-
-Railway startup downloads the latest model from `https://huggingface.co/biranchikulesika/lipy` through `backend/download_model.py` before starting FastAPI if model files are missing.
-
-Docker:
-
-```bash
-cd backend
-docker build -t lipy-backend .
-docker run --rm -p 8000:8000 --env-file .env lipy-backend
-```
-
-## Frontend
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
+This project is licensed under the MIT License.

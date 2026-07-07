@@ -1,0 +1,14 @@
+# =============================================================================
+# LiPy Script Requirements
+# =============================================================================
+#
+# These dependencies are used by the utility scripts located in scripts/.
+#
+# Most scripts rely only on Python's standard library and the Git CLI.
+# Additional packages listed below are used for optional validation and
+# development workflows.
+#
+# Python 3.11+
+# =============================================================================
+
+tensorflow>=2.18,<3.0

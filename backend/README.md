@@ -1,36 +1,104 @@
 # LiPy Backend
 
-FastAPI inference service for LiPy OCR. The backend loads a trained Keras model and returns top OCR predictions for uploaded images.
+The LiPy backend is a FastAPI application responsible for running OCR inference on handwritten Odia characters.
 
-## Runtime Contract
+It loads a trained TensorFlow model, preprocesses uploaded images, performs prediction, and returns the most likely character along with confidence scores.
 
-- The backend never trains.
-- The backend does not own trained model artifacts in Git.
-- The default model path is `../models/model.keras` when running from the full repo, or `./models/model.keras` in a backend-only deployment.
-- Label metadata must live next to the model as `labels.json`.
-- Cloud startup downloads the latest model from `https://huggingface.co/biranchikulesika/lipy`.
-- To restore backend runtime artifacts locally, run `python backend/download_model.py` from the repository root.
+The backend **never trains models**. It only serves trained model artifacts.
 
-## Endpoints
+---
 
-### `GET /health`
+# Architecture
 
-Returns:
+The backend expects the following runtime artifacts:
 
-```json
-{ "status": "ok" }
+```text
+models/
+├── model.keras
+└── labels.json
 ```
 
-### `POST /predict`
+These files are downloaded from the LiPy Hugging Face Model repository during deployment or can be restored locally using `download_model.py`.
 
-Request:
+```
+Client
+   │
+   ▼
+FastAPI
+   │
+   ▼
+Image Preprocessing
+   │
+   ▼
+TensorFlow Model
+   │
+   ▼
+Top Predictions
+   │
+   ▼
+JSON Response
+```
+
+---
+
+# Project Structure
+
+```text
+backend/
+│
+├── __init__.py
+├── config.py             # Shared backend configuration
+├── download_model.py     # Downloads model artifacts from Hugging Face
+├── Dockerfile
+├── main.py               # FastAPI application
+├── model_loader.py       # Loads model and labels
+├── predict.py            # Prediction pipeline
+├── preprocess.py         # Image preprocessing
+├── README.md
+└── requirements.txt
+```
+
+---
+
+# API Endpoints
+
+## `GET /`
+
+Returns a welcome message.
+
+```json
+{
+  "message": "Welcome to the LiPy OCR API! Visit /docs for interactive documentation."
+}
+```
+
+---
+
+## `GET /health`
+
+Health check endpoint.
+
+```json
+{
+  "status": "ok"
+}
+```
+
+---
+
+## `POST /predict`
+
+Accepts a handwritten character image.
+
+### Request
 
 ```http
 Content-Type: multipart/form-data
-image=<uploaded file>
+
+image=<uploaded image>
 ```
 
-Response:
+### Response
 
 ```json
 {
@@ -38,52 +106,119 @@ Response:
   "confidence": 0.9452,
   "character": "କ",
   "top_predictions": [
-    { "label": "CONS_KA", "confidence": 0.9452, "character": "କ" }
+    {
+      "label": "CONS_KA",
+      "confidence": 0.9452,
+      "character": "କ"
+    },
+    {
+      "label": "CONS_KHA",
+      "confidence": 0.0318,
+      "character": "ଖ"
+    },
+    {
+      "label": "CONS_GA",
+      "confidence": 0.0124,
+      "character": "ଗ"
+    }
   ]
 }
 ```
 
-## Environment
+Interactive API documentation is available at:
 
-| Variable | Purpose | Default |
-| --- | --- | --- |
-| `CORS_ORIGINS` | Comma-separated list of allowed frontend origins. | `*` |
-| `LIPY_MODEL_PATH` | Optional absolute override for the model path. | `../models/model.keras` from full repo |
-| `HF_MODEL_REPO_ID` | Hugging Face model repo used by deployment bootstrap scripts. | `biranchikulesika/lipy` |
-| `HF_TOKEN` | Hugging Face token for private repos. | Optional |
-| `PORT` | HTTP port. | Provider-defined, `8000` locally |
+```text
+/docs
+```
 
-## Local Run
+---
 
-From the repository root:
+# Configuration
+
+The backend works without any environment variables for local development.
+
+Optional configuration:
+
+| Variable | Description | Default |
+|-----------|-------------|---------|
+| `CORS_ORIGINS` | Comma-separated list of allowed origins | `*` |
+| `HF_MODEL_REPO_ID` | Hugging Face model repository | `biranchikulesika/lipy` |
+| `HF_TOKEN` | Hugging Face access token for private repositories | Optional |
+| `LIPY_MODEL_PATH` | Override the default model location | `../models/model.keras` |
+| `PORT` | HTTP server port | `8000` locally |
+
+---
+
+# Local Development
+
+Install dependencies.
 
 ```bash
 pip install -r backend/requirements.txt
-python backend/download_model.py
-uvicorn backend.main:app --host 0.0.0.0 --port 8000
 ```
 
-## Railway Deployment
+Download the latest model.
 
-Railway is configured with `/backend` as the service root. The backend folder contains every file needed to run there:
+```bash
+python backend/download_model.py
+```
 
-- `requirements.txt`
-- `runtime.txt`
-- `Procfile`
-- `download_model.py`
-- FastAPI app code
+Start the API.
 
-Railway runs:
+```bash
+uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+Open:
+
+```text
+http://localhost:8000/docs
+```
+
+---
+
+# Docker
+
+Build the image.
+
+```bash
+cd backend
+
+docker build -t lipy-backend .
+```
+
+Run the container.
+
+```bash
+docker run --rm -p 8000:8000 lipy-backend
+```
+
+On startup the container downloads the latest model (if required) before launching the FastAPI server.
+
+---
+
+# Railway Deployment
+
+Railway deploys the `backend/` directory as an independent service.
+
+Startup command:
 
 ```bash
 python download_model.py && uvicorn main:app --host 0.0.0.0 --port $PORT
 ```
 
-## Docker
+During deployment the backend:
 
-Build from the `backend/` directory:
+1. Downloads the latest `model.keras` and `labels.json` from Hugging Face.
+2. Loads the model into memory.
+3. Starts the FastAPI server.
+4. Serves prediction requests.
 
-```bash
-docker build -t lipy-backend .
-docker run --rm -p 8000:8000 --env-file .env lipy-backend
-```
+---
+
+# Related Documentation
+
+- **Root README** – Project overview and architecture
+- **Frontend README** – Web application
+- **Scripts README** – Dataset and model management
+- **Notebook (`L.ipynb`)** – Model training workflow

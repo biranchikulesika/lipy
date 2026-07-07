@@ -6,54 +6,75 @@ from functools import lru_cache
 from tensorflow.keras.models import load_model
 
 try:
-    from .config import get_model_path
-    from .labels import odia_ml_labels
+    from .config import (
+        get_labels_path,
+        get_model_path,
+    )
 except ImportError:
-    from config import get_model_path
-    from labels import odia_ml_labels
+    from config import (
+        get_labels_path,
+        get_model_path,
+    )
 
 
 @lru_cache(maxsize=1)
 def load_prediction_bundle() -> tuple:
+    """
+    Load the TensorFlow model together with its label metadata.
+
+    Returns
+    -------
+    tuple
+        (
+            model,
+            class_names,
+            label_map,
+        )
+    """
+
     model_path = get_model_path()
+    labels_path = get_labels_path()
 
     if not model_path.exists():
         raise FileNotFoundError(
-            f"TensorFlow model not found at {model_path}. "
-            f"Run 'python backend/download_model.py' from the project root or set LIPY_MODEL_PATH."
+            f"TensorFlow model not found:\n"
+            f"{model_path}\n\n"
+            f"Run 'python backend/download_model.py' or "
+            f"set the LIPY_MODEL_PATH environment variable."
+        )
+
+    if not labels_path.exists():
+        raise FileNotFoundError(
+            f"Label metadata not found:\n"
+            f"{labels_path}\n\n"
+            f"Every model must be accompanied by a labels.json file."
         )
 
     model = load_model(str(model_path), compile=False)
 
-    labels_path = model_path.parent / "labels.json"
-    legacy_labels_path = model_path.with_suffix(".labels.json")
-    classes_path = model_path.with_suffix(".classes.txt")
+    with open(labels_path, "r", encoding="utf-8") as file:
+        labels_data = json.load(file)
 
-    if labels_path.exists() or legacy_labels_path.exists():
-        labels_path = labels_path if labels_path.exists() else legacy_labels_path
-        with open(labels_path, "r", encoding="utf-8") as f:
-            labels_data = json.load(f)
-        class_names = [item["id"] for item in labels_data]
-        # Construct label map dynamically: maps character -> class_id
-        label_map = {item["char"]: item["id"] for item in labels_data if item["char"]}
-    elif classes_path.exists():
-        with open(classes_path, "r", encoding="utf-8") as f:
-            class_names = [line.strip() for line in f if line.strip()]
-        # Fall back to hardcoded label map
-        label_map = dict(odia_ml_labels)
-    else:
-        raise FileNotFoundError(
-            f"Label metadata file not found. "
-            f"Please make sure the trained model is accompanied by either "
-            f"a '{labels_path.name}' file or a '{classes_path.name}' file next to the model."
-        )
+    class_names = [item["id"] for item in labels_data]
 
-    # Validation step: check if class count matches model output size
+    label_map = {
+        item["char"]: item["id"]
+        for item in labels_data
+        if item.get("char")
+    }
+
     expected_classes = model.output_shape[-1]
+
     if len(class_names) != expected_classes:
         raise ValueError(
-            f"Validation Mismatch: Loaded classes count ({len(class_names)}) does not match "
-            f"the model's expected output size ({expected_classes}) for model at {model_path}."
+            "Model validation failed.\n\n"
+            f"Model outputs : {expected_classes}\n"
+            f"labels.json   : {len(class_names)} classes\n\n"
+            "The model and labels.json do not match."
         )
 
-    return model, class_names, label_map
+    return (
+        model,
+        class_names,
+        label_map,
+    )

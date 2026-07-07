@@ -58,7 +58,7 @@ def main() -> None:
         print("Model missing or not a nested repo; preparing Hugging Face model repo.")
         run_script("scripts/model/download_hf.py")
 
-    print("Project ready.")
+    print("✓ Dataset repository ready\n✓ Model repository ready\n\nProject initialization completed.\n\nNext steps:\n\n1. Train the model\n2. Start the backend\n3. Start the frontend")
 
 
 if __name__ == "__main__":
