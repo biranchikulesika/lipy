@@ -5,8 +5,9 @@ from pathlib import Path
 
 
 BASE_DIR = Path(__file__).resolve().parent
-MODEL_DIR = BASE_DIR / "models"
-DEFAULT_MODEL_FILENAME = "odia_ocr_cnn.keras"
+PROJECT_ROOT = BASE_DIR.parent if (BASE_DIR.parent / "scripts").exists() else BASE_DIR
+MODEL_DIR = PROJECT_ROOT / "models"
+DEFAULT_MODEL_FILENAME = "model.keras"
 DEFAULT_MODEL_PATH = MODEL_DIR / DEFAULT_MODEL_FILENAME
 IMAGE_SIZE = 64
 TOP_K = 3
@@ -16,13 +17,8 @@ def get_model_path() -> Path:
     override = os.getenv("LIPY_MODEL_PATH")
     if override:
         return Path(override).expanduser().resolve()
-    
-    keras_files = list(MODEL_DIR.glob("*.keras"))
-    if not keras_files:
-        return DEFAULT_MODEL_PATH
-        
-    keras_files.sort(key=lambda p: p.stat().st_mtime, reverse=True)
-    return keras_files[0]
+
+    return DEFAULT_MODEL_PATH
 
 
 def get_allowed_origins() -> list[str]:

@@ -1,1 +1,1 @@
-﻿"""LiPy OCR backend package."""
+"""LiPy OCR backend package."""

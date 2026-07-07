@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import List
-
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -26,7 +24,7 @@ class PredictionResponse(BaseModel):
     prediction: str
     confidence: float
     character: str | None = None
-    top_predictions: List[TopPrediction]
+    top_predictions: list[TopPrediction]
 
 
 app = FastAPI(title="LiPy OCR API", version="1.0.0")

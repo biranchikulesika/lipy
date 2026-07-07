@@ -1,66 +1,89 @@
 # LiPy Backend
 
-The backend of LiPy is a robust, lightweight OCR inference API built with **FastAPI**. It serves the Keras-trained Convolutional Neural Network (CNN) to predict handwritten Odia characters.
+FastAPI inference service for LiPy OCR. The backend loads a trained Keras model and returns top OCR predictions for uploaded images.
 
-## Technical Architecture
+## Runtime Contract
 
-- **Framework**: FastAPI (Python 3)
-- **Machine Learning**: TensorFlow / Keras for model inference
-- **Image Processing**: OpenCV and Pillow (PIL)
-- **Deployment**: Configured for Railway deployment via `Procfile` and `runtime.txt`
+- The backend never trains.
+- The backend does not own trained model artifacts in Git.
+- The default model path is `../models/model.keras` when running from the full repo, or `./models/model.keras` in a backend-only deployment.
+- Label metadata must live next to the model as `labels.json`.
+- Cloud startup downloads the latest model from `https://huggingface.co/biranchikulesika/lipy`.
+- To restore backend runtime artifacts locally, run `python backend/download_model.py` from the repository root.
 
-## How it Works
-
-1. **Dynamic Model Auto-Discovery**: When the server boots up, `config.py` scans the `models/` directory for any `.keras` files. If there are multiple model files (e.g. from repeated training runs with timestamped names), it automatically sorts them by modification time and loads the newest one into memory. You do not need to update filenames in the code!
-2. **Model Caching**: Upon startup, the backend pre-loads this discovered `.keras` model utilizing Python's `lru_cache`. This guarantees rapid inference without disk I/O on every request.
-3. **Preprocessing Pipeline**: Uploaded images are passed through a strict preprocessing pipeline that mirrors the model's training:
-   - EXIF orientation correction.
-   - RGB color conversion (3 channels).
-   - Area-interpolation resizing to exactly `64x64`.
-   - Pixel normalization into the `[0, 1]` range.
-3. **Inference**: The model returns raw probabilities across all Odia classes.
-4. **Post-processing**: The top 3 (`TOP_K`) classes and their confidence scores are extracted using a statically defined label map (`labels.py`).
-
-## API Endpoints
+## Endpoints
 
 ### `GET /health`
-A simple health-check endpoint.
-**Response**: `{"status": "ok"}`
+
+Returns:
+
+```json
+{ "status": "ok" }
+```
 
 ### `POST /predict`
-The primary inference endpoint.
 
-**Request**:
+Request:
+
 ```http
 Content-Type: multipart/form-data
 image=<uploaded file>
 ```
 
-**Response Payload**:
+Response:
+
 ```json
 {
   "prediction": "CONS_KA",
   "confidence": 0.9452,
+  "character": "କ",
   "top_predictions": [
-    { "label": "CONS_KA", "confidence": 0.9452 },
-    { "label": "CONS_KHA", "confidence": 0.0311 },
-    { "label": "CONS_GA", "confidence": 0.0101 }
+    { "label": "CONS_KA", "confidence": 0.9452, "character": "କ" }
   ]
 }
 ```
 
-## Environment Variables
+## Environment
 
 | Variable | Purpose | Default |
-| -------- | ------- | ------- |
-| `CORS_ORIGINS` | Comma-separated list of allowed frontend domains. | `*` (All origins) |
-| `LIPY_MODEL_PATH` | Absolute path overriding the location of the `.keras` model file. | `models/odia_ocr_cnn.keras` |
+| --- | --- | --- |
+| `CORS_ORIGINS` | Comma-separated list of allowed frontend origins. | `*` |
+| `LIPY_MODEL_PATH` | Optional absolute override for the model path. | `../models/model.keras` from full repo |
+| `HF_MODEL_REPO_ID` | Hugging Face model repo used by deployment bootstrap scripts. | `biranchikulesika/lipy` |
+| `HF_TOKEN` | Hugging Face token for private repos. | Optional |
+| `PORT` | HTTP port. | Provider-defined, `8000` locally |
 
-## Local Development
+## Local Run
 
-1. Ensure the virtual environment is active and dependencies are installed (`pip install -r requirements.txt`).
-2. Run the server using Uvicorn:
+From the repository root:
+
 ```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+pip install -r backend/requirements.txt
+python backend/download_model.py
+uvicorn backend.main:app --host 0.0.0.0 --port 8000
 ```
-3. Visit `http://localhost:8000/docs` to test the API directly using FastAPI's auto-generated Swagger UI.
+
+## Railway Deployment
+
+Railway is configured with `/backend` as the service root. The backend folder contains every file needed to run there:
+
+- `requirements.txt`
+- `runtime.txt`
+- `Procfile`
+- `download_model.py`
+- FastAPI app code
+
+Railway runs:
+
+```bash
+python download_model.py && uvicorn main:app --host 0.0.0.0 --port $PORT
+```
+
+## Docker
+
+Build from the `backend/` directory:
+
+```bash
+docker build -t lipy-backend .
+docker run --rm -p 8000:8000 --env-file .env lipy-backend
+```

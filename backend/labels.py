@@ -57,8 +57,3 @@ odia_ml_labels = {
     "୮": "DIGIT_8",
     "୯": "DIGIT_9",
 }
-
-reverse_label_map = {value: key for key, value in odia_ml_labels.items()}
-class_names = list(odia_ml_labels.values())
-class_to_id = {label: idx for idx, label in enumerate(class_names)}
-id_to_class = {idx: label for label, idx in class_to_id.items()}

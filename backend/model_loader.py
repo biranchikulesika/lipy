@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 from functools import lru_cache
-from typing import Dict, List
 
 from tensorflow.keras.models import load_model
 
@@ -14,25 +13,6 @@ except ImportError:
     from labels import odia_ml_labels
 
 
-def get_label_map() -> Dict[str, str]:
-    return dict(odia_ml_labels)
-
-
-def get_class_names() -> List[str]:
-    model_path = get_model_path()
-    labels_path = model_path.with_suffix(".labels.json")
-    classes_path = model_path.with_suffix(".classes.txt")
-
-    if labels_path.exists():
-        with open(labels_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            return [item["id"] for item in data]
-    elif classes_path.exists():
-        with open(classes_path, "r", encoding="utf-8") as f:
-            return [line.strip() for line in f if line.strip()]
-    return list(odia_ml_labels.values())
-
-
 @lru_cache(maxsize=1)
 def load_prediction_bundle() -> tuple:
     model_path = get_model_path()
@@ -40,15 +20,17 @@ def load_prediction_bundle() -> tuple:
     if not model_path.exists():
         raise FileNotFoundError(
             f"TensorFlow model not found at {model_path}. "
-            f"Place the trained model there or set LIPY_MODEL_PATH."
+            f"Run 'python backend/download_model.py' from the project root or set LIPY_MODEL_PATH."
         )
 
     model = load_model(str(model_path), compile=False)
 
-    labels_path = model_path.with_suffix(".labels.json")
+    labels_path = model_path.parent / "labels.json"
+    legacy_labels_path = model_path.with_suffix(".labels.json")
     classes_path = model_path.with_suffix(".classes.txt")
 
-    if labels_path.exists():
+    if labels_path.exists() or legacy_labels_path.exists():
+        labels_path = labels_path if labels_path.exists() else legacy_labels_path
         with open(labels_path, "r", encoding="utf-8") as f:
             labels_data = json.load(f)
         class_names = [item["id"] for item in labels_data]
@@ -58,7 +40,7 @@ def load_prediction_bundle() -> tuple:
         with open(classes_path, "r", encoding="utf-8") as f:
             class_names = [line.strip() for line in f if line.strip()]
         # Fall back to hardcoded label map
-        label_map = get_label_map()
+        label_map = dict(odia_ml_labels)
     else:
         raise FileNotFoundError(
             f"Label metadata file not found. "
@@ -75,5 +57,3 @@ def load_prediction_bundle() -> tuple:
         )
 
     return model, class_names, label_map
-
-

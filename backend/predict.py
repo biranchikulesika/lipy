@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any
 
 import numpy as np
 import tensorflow as tf
@@ -28,7 +28,7 @@ def _normalize_probabilities(values: np.ndarray) -> np.ndarray:
     return probabilities
 
 
-def predict_upload(upload: UploadFile) -> Dict[str, Any]:
+def predict_upload(upload: UploadFile) -> dict[str, Any]:
     if not upload.content_type or not upload.content_type.startswith("image/"):
         raise ValueError("Please upload a PNG or JPEG image.")
 
@@ -47,7 +47,7 @@ def predict_upload(upload: UploadFile) -> Dict[str, Any]:
     class_to_char = {v: k for k, v in label_map.items()}
 
     top_indices = np.argsort(scores)[::-1][:TOP_K]
-    top_predictions: List[Dict[str, Any]] = [
+    top_predictions: list[dict[str, Any]] = [
         {
             "label": class_names[index],
             "confidence": round(float(scores[index]), 4),
