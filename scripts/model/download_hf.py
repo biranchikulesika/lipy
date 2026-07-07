@@ -24,11 +24,17 @@ def main() -> None:
         help="Hugging Face model repo id.",
     )
     parser.add_argument("--revision", default=os.getenv("HF_MODEL_REVISION"), help="Branch, tag, or commit to download.")
+    parser.add_argument(
+        "--sync-strategy",
+        choices=("ff-only", "rebase", "merge"),
+        default="ff-only",
+        help="How to reconcile local nested-repo commits with Hugging Face.",
+    )
     parser.add_argument("--output-dir", default=str(PROJECT_ROOT / "models"), help="Local model directory.")
     args = parser.parse_args()
 
     output_dir = Path(args.output_dir).resolve()
-    ensure_nested_repo(output_dir, args.repo_id, "model", args.revision)
+    ensure_nested_repo(output_dir, args.repo_id, "model", args.revision, args.sync_strategy)
     print(f"Model repo ready at {output_dir}")
 
 
