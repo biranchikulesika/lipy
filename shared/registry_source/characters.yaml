@@ -1,0 +1,366 @@
+version: 1
+characters:
+- key: oriya_sign_candrabindu
+  character: ଁ
+  unicode: U+0B01
+  unicode_name: ORIYA SIGN CANDRABINDU
+- key: oriya_sign_anusvara
+  character: ଂ
+  unicode: U+0B02
+  unicode_name: ORIYA SIGN ANUSVARA
+- key: oriya_sign_visarga
+  character: ଃ
+  unicode: U+0B03
+  unicode_name: ORIYA SIGN VISARGA
+- key: oriya_letter_a
+  character: ଅ
+  unicode: U+0B05
+  unicode_name: ORIYA LETTER A
+- key: oriya_letter_aa
+  character: ଆ
+  unicode: U+0B06
+  unicode_name: ORIYA LETTER AA
+- key: oriya_letter_i
+  character: ଇ
+  unicode: U+0B07
+  unicode_name: ORIYA LETTER I
+- key: oriya_letter_ii
+  character: ଈ
+  unicode: U+0B08
+  unicode_name: ORIYA LETTER II
+- key: oriya_letter_u
+  character: ଉ
+  unicode: U+0B09
+  unicode_name: ORIYA LETTER U
+- key: oriya_letter_uu
+  character: ଊ
+  unicode: U+0B0A
+  unicode_name: ORIYA LETTER UU
+- key: oriya_letter_vocalic_r
+  character: ଋ
+  unicode: U+0B0B
+  unicode_name: ORIYA LETTER VOCALIC R
+- key: oriya_letter_vocalic_l
+  character: ଌ
+  unicode: U+0B0C
+  unicode_name: ORIYA LETTER VOCALIC L
+- key: oriya_letter_e
+  character: ଏ
+  unicode: U+0B0F
+  unicode_name: ORIYA LETTER E
+- key: oriya_letter_ai
+  character: ଐ
+  unicode: U+0B10
+  unicode_name: ORIYA LETTER AI
+- key: oriya_letter_o
+  character: ଓ
+  unicode: U+0B13
+  unicode_name: ORIYA LETTER O
+- key: oriya_letter_au
+  character: ଔ
+  unicode: U+0B14
+  unicode_name: ORIYA LETTER AU
+- key: oriya_letter_ka
+  character: କ
+  unicode: U+0B15
+  unicode_name: ORIYA LETTER KA
+- key: oriya_letter_kha
+  character: ଖ
+  unicode: U+0B16
+  unicode_name: ORIYA LETTER KHA
+- key: oriya_letter_ga
+  character: ଗ
+  unicode: U+0B17
+  unicode_name: ORIYA LETTER GA
+- key: oriya_letter_gha
+  character: ଘ
+  unicode: U+0B18
+  unicode_name: ORIYA LETTER GHA
+- key: oriya_letter_nga
+  character: ଙ
+  unicode: U+0B19
+  unicode_name: ORIYA LETTER NGA
+- key: oriya_letter_ca
+  character: ଚ
+  unicode: U+0B1A
+  unicode_name: ORIYA LETTER CA
+- key: oriya_letter_cha
+  character: ଛ
+  unicode: U+0B1B
+  unicode_name: ORIYA LETTER CHA
+- key: oriya_letter_ja
+  character: ଜ
+  unicode: U+0B1C
+  unicode_name: ORIYA LETTER JA
+- key: oriya_letter_jha
+  character: ଝ
+  unicode: U+0B1D
+  unicode_name: ORIYA LETTER JHA
+- key: oriya_letter_nya
+  character: ଞ
+  unicode: U+0B1E
+  unicode_name: ORIYA LETTER NYA
+- key: oriya_letter_tta
+  character: ଟ
+  unicode: U+0B1F
+  unicode_name: ORIYA LETTER TTA
+- key: oriya_letter_ttha
+  character: ଠ
+  unicode: U+0B20
+  unicode_name: ORIYA LETTER TTHA
+- key: oriya_letter_dda
+  character: ଡ
+  unicode: U+0B21
+  unicode_name: ORIYA LETTER DDA
+- key: oriya_letter_ddha
+  character: ଢ
+  unicode: U+0B22
+  unicode_name: ORIYA LETTER DDHA
+- key: oriya_letter_nna
+  character: ଣ
+  unicode: U+0B23
+  unicode_name: ORIYA LETTER NNA
+- key: oriya_letter_ta
+  character: ତ
+  unicode: U+0B24
+  unicode_name: ORIYA LETTER TA
+- key: oriya_letter_tha
+  character: ଥ
+  unicode: U+0B25
+  unicode_name: ORIYA LETTER THA
+- key: oriya_letter_da
+  character: ଦ
+  unicode: U+0B26
+  unicode_name: ORIYA LETTER DA
+- key: oriya_letter_dha
+  character: ଧ
+  unicode: U+0B27
+  unicode_name: ORIYA LETTER DHA
+- key: oriya_letter_na
+  character: ନ
+  unicode: U+0B28
+  unicode_name: ORIYA LETTER NA
+- key: oriya_letter_pa
+  character: ପ
+  unicode: U+0B2A
+  unicode_name: ORIYA LETTER PA
+- key: oriya_letter_pha
+  character: ଫ
+  unicode: U+0B2B
+  unicode_name: ORIYA LETTER PHA
+- key: oriya_letter_ba
+  character: ବ
+  unicode: U+0B2C
+  unicode_name: ORIYA LETTER BA
+- key: oriya_letter_bha
+  character: ଭ
+  unicode: U+0B2D
+  unicode_name: ORIYA LETTER BHA
+- key: oriya_letter_ma
+  character: ମ
+  unicode: U+0B2E
+  unicode_name: ORIYA LETTER MA
+- key: oriya_letter_ya
+  character: ଯ
+  unicode: U+0B2F
+  unicode_name: ORIYA LETTER YA
+- key: oriya_letter_ra
+  character: ର
+  unicode: U+0B30
+  unicode_name: ORIYA LETTER RA
+- key: oriya_letter_la
+  character: ଲ
+  unicode: U+0B32
+  unicode_name: ORIYA LETTER LA
+- key: oriya_letter_lla
+  character: ଳ
+  unicode: U+0B33
+  unicode_name: ORIYA LETTER LLA
+- key: oriya_letter_va
+  character: ଵ
+  unicode: U+0B35
+  unicode_name: ORIYA LETTER VA
+- key: oriya_letter_sha
+  character: ଶ
+  unicode: U+0B36
+  unicode_name: ORIYA LETTER SHA
+- key: oriya_letter_ssa
+  character: ଷ
+  unicode: U+0B37
+  unicode_name: ORIYA LETTER SSA
+- key: oriya_letter_sa
+  character: ସ
+  unicode: U+0B38
+  unicode_name: ORIYA LETTER SA
+- key: oriya_letter_ha
+  character: ହ
+  unicode: U+0B39
+  unicode_name: ORIYA LETTER HA
+- key: oriya_sign_nukta
+  character: ଼
+  unicode: U+0B3C
+  unicode_name: ORIYA SIGN NUKTA
+- key: oriya_sign_avagraha
+  character: ଽ
+  unicode: U+0B3D
+  unicode_name: ORIYA SIGN AVAGRAHA
+- key: oriya_vowel_sign_aa
+  character: ା
+  unicode: U+0B3E
+  unicode_name: ORIYA VOWEL SIGN AA
+- key: oriya_vowel_sign_i
+  character: ି
+  unicode: U+0B3F
+  unicode_name: ORIYA VOWEL SIGN I
+- key: oriya_vowel_sign_ii
+  character: ୀ
+  unicode: U+0B40
+  unicode_name: ORIYA VOWEL SIGN II
+- key: oriya_vowel_sign_u
+  character: ୁ
+  unicode: U+0B41
+  unicode_name: ORIYA VOWEL SIGN U
+- key: oriya_vowel_sign_uu
+  character: ୂ
+  unicode: U+0B42
+  unicode_name: ORIYA VOWEL SIGN UU
+- key: oriya_vowel_sign_vocalic_r
+  character: ୃ
+  unicode: U+0B43
+  unicode_name: ORIYA VOWEL SIGN VOCALIC R
+- key: oriya_vowel_sign_vocalic_rr
+  character: ୄ
+  unicode: U+0B44
+  unicode_name: ORIYA VOWEL SIGN VOCALIC RR
+- key: oriya_vowel_sign_e
+  character: େ
+  unicode: U+0B47
+  unicode_name: ORIYA VOWEL SIGN E
+- key: oriya_vowel_sign_ai
+  character: ୈ
+  unicode: U+0B48
+  unicode_name: ORIYA VOWEL SIGN AI
+- key: oriya_vowel_sign_o
+  character: ୋ
+  unicode: U+0B4B
+  unicode_name: ORIYA VOWEL SIGN O
+- key: oriya_vowel_sign_au
+  character: ୌ
+  unicode: U+0B4C
+  unicode_name: ORIYA VOWEL SIGN AU
+- key: oriya_sign_virama
+  character: ୍
+  unicode: U+0B4D
+  unicode_name: ORIYA SIGN VIRAMA
+- key: oriya_sign_overline
+  character: ୕
+  unicode: U+0B55
+  unicode_name: ORIYA SIGN OVERLINE
+- key: oriya_ai_length_mark
+  character: ୖ
+  unicode: U+0B56
+  unicode_name: ORIYA AI LENGTH MARK
+- key: oriya_au_length_mark
+  character: ୗ
+  unicode: U+0B57
+  unicode_name: ORIYA AU LENGTH MARK
+- key: oriya_letter_rra
+  character: ଡ଼
+  unicode: U+0B5C
+  unicode_name: ORIYA LETTER RRA
+- key: oriya_letter_rha
+  character: ଢ଼
+  unicode: U+0B5D
+  unicode_name: ORIYA LETTER RHA
+- key: oriya_letter_yya
+  character: ୟ
+  unicode: U+0B5F
+  unicode_name: ORIYA LETTER YYA
+- key: oriya_letter_vocalic_rr
+  character: ୠ
+  unicode: U+0B60
+  unicode_name: ORIYA LETTER VOCALIC RR
+- key: oriya_letter_vocalic_ll
+  character: ୡ
+  unicode: U+0B61
+  unicode_name: ORIYA LETTER VOCALIC LL
+- key: oriya_vowel_sign_vocalic_l
+  character: ୢ
+  unicode: U+0B62
+  unicode_name: ORIYA VOWEL SIGN VOCALIC L
+- key: oriya_vowel_sign_vocalic_ll
+  character: ୣ
+  unicode: U+0B63
+  unicode_name: ORIYA VOWEL SIGN VOCALIC LL
+- key: oriya_digit_zero
+  character: ୦
+  unicode: U+0B66
+  unicode_name: ORIYA DIGIT ZERO
+- key: oriya_digit_one
+  character: ୧
+  unicode: U+0B67
+  unicode_name: ORIYA DIGIT ONE
+- key: oriya_digit_two
+  character: ୨
+  unicode: U+0B68
+  unicode_name: ORIYA DIGIT TWO
+- key: oriya_digit_three
+  character: ୩
+  unicode: U+0B69
+  unicode_name: ORIYA DIGIT THREE
+- key: oriya_digit_four
+  character: ୪
+  unicode: U+0B6A
+  unicode_name: ORIYA DIGIT FOUR
+- key: oriya_digit_five
+  character: ୫
+  unicode: U+0B6B
+  unicode_name: ORIYA DIGIT FIVE
+- key: oriya_digit_six
+  character: ୬
+  unicode: U+0B6C
+  unicode_name: ORIYA DIGIT SIX
+- key: oriya_digit_seven
+  character: ୭
+  unicode: U+0B6D
+  unicode_name: ORIYA DIGIT SEVEN
+- key: oriya_digit_eight
+  character: ୮
+  unicode: U+0B6E
+  unicode_name: ORIYA DIGIT EIGHT
+- key: oriya_digit_nine
+  character: ୯
+  unicode: U+0B6F
+  unicode_name: ORIYA DIGIT NINE
+- key: oriya_isshar
+  character: ୰
+  unicode: U+0B70
+  unicode_name: ORIYA ISSHAR
+- key: oriya_letter_wa
+  character: ୱ
+  unicode: U+0B71
+  unicode_name: ORIYA LETTER WA
+- key: oriya_fraction_one_quarter
+  character: ୲
+  unicode: U+0B72
+  unicode_name: ORIYA FRACTION ONE QUARTER
+- key: oriya_fraction_one_half
+  character: ୳
+  unicode: U+0B73
+  unicode_name: ORIYA FRACTION ONE HALF
+- key: oriya_fraction_three_quarters
+  character: ୴
+  unicode: U+0B74
+  unicode_name: ORIYA FRACTION THREE QUARTERS
+- key: oriya_fraction_one_sixteenth
+  character: ୵
+  unicode: U+0B75
+  unicode_name: ORIYA FRACTION ONE SIXTEENTH
+- key: oriya_fraction_one_eighth
+  character: ୶
+  unicode: U+0B76
+  unicode_name: ORIYA FRACTION ONE EIGHTH
+- key: oriya_fraction_three_sixteenths
+  character: ୷
+  unicode: U+0B77
+  unicode_name: ORIYA FRACTION THREE SIXTEENTHS

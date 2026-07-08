@@ -1,0 +1,3 @@
+"""
+LiPy Character Registry.
+"""
