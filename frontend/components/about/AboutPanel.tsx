@@ -2,29 +2,23 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { motion } from "motion/react";
 import { Logo } from "@/components/ui/logo";
 import {
-	GraduationCap,
-	Users2,
 	ChevronRight,
 	Layers,
 	Cpu,
 	Server,
 	Scan,
-	PenLine,
 	PenTool,
 	Database,
 	Sparkles,
 	Target,
-	ArrowRight,
 	ArrowUpRight,
 	ArrowDownRight,
 	Cloud,
 	Route,
 	Github
 } from "lucide-react";
-import { STATS, CHALLENGES, STACK } from "@/constants/about";
 import { PredictionCard } from "@/components/ocr/results/PredictionCard";
 import type { PredictionResponse } from "@/types/ocr";
 
