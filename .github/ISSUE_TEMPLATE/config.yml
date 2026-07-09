@@ -1,0 +1,10 @@
+blank_issues_enabled: false
+
+contact_links:
+  - name: 💬 Discussions
+    url: https://github.com/biranchikulesika/lipy/discussions
+    about: Ask questions, share ideas, or discuss features.
+
+  - name: 📖 Documentation
+    url: https://github.com/biranchikulesika/lipy#readme
+    about: Read the project documentation before opening an issue.
