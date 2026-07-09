@@ -1,7 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans, Space_Grotesk } from "next/font/google";
 import { Navbar } from "@/components/navigation/Navbar";
 import "./globals.css";
+
+const baseUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 const bodyFont = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -21,43 +24,95 @@ const monoFont = IBM_Plex_Mono({
   weight: ["400", "500", "600"],
 });
 
+export const viewport: Viewport = {
+  themeColor: "#0b1917",
+};
+
 export const metadata: Metadata = {
+  metadataBase: new URL(baseUrl),
+
   title: {
+    default: "LiPy",
     template: "%s | LiPy",
-    default: "LiPy | Odia Handwriting Recognition Workspace",
   },
-  description: "A polished academic OCR and dataset contributor workspace for Odia handwritten character recognition. Contribute to the LiPy dataset and use advanced OCR tools.",
-  keywords: ["Odia", "Handwriting", "OCR", "LiPyD", "Machine Learning", "Dataset", "AI", "Utkal University", "NIELET Bhubaneswar", "Odia Handwriting Recognition", "Odia OCR", "Odia Character Recognition", "Odia Handwritten Character Recognition", "Odia Handwritten Character Dataset"],
+
+  applicationName: "LiPy",
+
+  description:
+    "LiPy is an academic project for Odia handwritten character recognition, OCR, dataset creation, and machine learning research.",
+
+  keywords: [
+    "LiPy",
+    "Odia",
+    "Odia OCR",
+    "Odia Handwriting",
+    "Odia Character Recognition",
+    "Odia Handwritten Character Recognition",
+    "Odia Handwritten Character Dataset",
+    "OCR",
+    "Machine Learning",
+    "Deep Learning",
+    "Computer Vision",
+    "Dataset",
+    "AI",
+    "Utkal University",
+    "NIELIT Bhubaneswar",
+  ],
+
   authors: [{ name: "LiPy Team" }],
   creator: "LiPy Team",
+  category: "technology",
+
   icons: {
-    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✍️</text></svg>",
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
   },
+
+  manifest: "/site.webmanifest",
+
+  alternates: {
+    canonical: "/",
+  },
+
   openGraph: {
-    title: "LiPy | Odia Handwriting Recognition",
-    description: "An open workspace for Odia handwritten character recognition OCR and dataset contribution.",
-    url: "https://lipy.vercel.app",
-    siteName: "LiPy Workspace",
+    title: "LiPy",
+    description:
+      "An open platform for Odia handwritten character recognition, OCR, and dataset contribution.",
+    url: "/",
+    siteName: "LiPy",
     images: [
       {
-        url: "https://ais-pre-mafgx3ewiu2bx2hkktxswe-428062342307.asia-southeast1.run.app/og-image.png",
+        url: "/og-ocr.png",
         width: 1200,
         height: 630,
-        alt: "LiPy Odia Handwriting Recognition Workspace Preview",
+        alt: "LiPy Odia Handwriting Recognition Workspace",
       },
     ],
     locale: "en_US",
     type: "website",
   },
+
   twitter: {
     card: "summary_large_image",
-    title: "LiPy | Odia Handwriting Recognition",
-    description: "An open workspace for Odia handwritten character recognition OCR and dataset contribution.",
-    images: ["https://ais-pre-mafgx3ewiu2bx2hkktxswe-428062342307.asia-southeast1.run.app/og-image.png"],
+    title: "LiPy",
+    description:
+      "An open platform for Odia handwritten character recognition, OCR, and dataset contribution.",
+    images: ["/og-ocr.png"],
   },
+
   robots: {
     index: true,
     follow: true,
+  },
+
+  formatDetection: {
+    telephone: false,
+    email: false,
+    address: false,
   },
 };
 
@@ -68,7 +123,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${bodyFont.variable} ${displayFont.variable} ${monoFont.variable} font-sans antialiased`}>
+      <body
+        className={`${bodyFont.variable} ${displayFont.variable} ${monoFont.variable} font-sans antialiased`}
+      >
         <Navbar />
         {children}
       </body>

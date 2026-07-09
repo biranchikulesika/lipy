@@ -16,12 +16,8 @@ import { authenticateUser } from './actions';
 
 const SOCIAL_LINKS = {
   github: "https://github.com/biranchikulesika/lipy",
-  linkedin: "https://linkedin.com/in/biranchikulesika",
-  twitter: "https://twitter.com/biranchikulesika",
-  instagram: "https://instagram.com/biranchikulesika"
 };
 
-// Instantiate supabase browser client (uses PKCE flow for OAuth, sending ?code= instead of #access_token=)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const supabase = (supabaseUrl && supabaseAnonKey) ? createClient() : null;
@@ -66,8 +62,6 @@ function LoginContent() {
   const router = useRouter();
 
   const {
-    authStatus,
-    statusMessage,
     runVerificationSequence,
     showFailureMessage,
     runSuccessSequence,

@@ -1,0 +1,22 @@
+{
+  "name": "LiPy",
+  "short_name": "LiPy",
+  "description": "Odia Handwriting Recognition and Dataset Platform",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0b1917",
+  "theme_color": "#0b1917",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
