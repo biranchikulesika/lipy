@@ -180,9 +180,3 @@ Each major component contains its own documentation.
 - Supabase
 - Railway
 - Docker
-
----
-
-# License
-
-This project is licensed under the MIT License.
