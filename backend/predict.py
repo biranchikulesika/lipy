@@ -7,13 +7,55 @@ import tensorflow as tf
 from fastapi import UploadFile
 
 try:
-    from .config import TOP_K
+    from .config import (
+        AMBIGUOUS_MARGIN,
+        LOW_CONFIDENCE_THRESHOLD,
+        TOP_K,
+    )
     from .model_loader import load_prediction_bundle
     from .preprocess import preprocess_image
 except ImportError:
-    from config import TOP_K
+    from config import (
+        AMBIGUOUS_MARGIN,
+        LOW_CONFIDENCE_THRESHOLD,
+        TOP_K,
+    )
     from model_loader import load_prediction_bundle
     from preprocess import preprocess_image
+
+
+def evaluate_prediction(
+    top_predictions: list[dict[str, Any]],
+) -> tuple[str, str | None]:
+    """
+    Determine the prediction status based on confidence thresholds.
+
+    Parameters
+    ----------
+    top_predictions : list[dict]
+        List of top predictions sorted by confidence descending.
+        Each dict must include "confidence" and optionally "label" and "character".
+
+    Returns
+    -------
+    tuple[str, str | None]
+        (status, reason) where status is one of
+        "success", "low_confidence", or "ambiguous".
+    """
+
+    top_confidence = top_predictions[0]["confidence"]
+
+    # Low confidence: the model is not confident enough.
+    if top_confidence < LOW_CONFIDENCE_THRESHOLD:
+        return "low_confidence", "confidence_below_threshold"
+
+    # Ambiguous: top two predictions are too close.
+    if len(top_predictions) >= 2:
+        margin = top_predictions[0]["confidence"] - top_predictions[1]["confidence"]
+        if margin < AMBIGUOUS_MARGIN:
+            return "ambiguous", "top_predictions_too_close"
+
+    return "success", None
 
 
 def normalize_probabilities(values: np.ndarray) -> np.ndarray:
@@ -87,9 +129,26 @@ def predict_upload(upload: UploadFile) -> dict[str, Any]:
             }
         )
 
+    # Determine prediction status from confidence values.
+    status, reason = evaluate_prediction(top_predictions)
+
+    if status == "success":
+        return {
+            "status": status,
+            "prediction": top_predictions[0]["label"],
+            "character": top_predictions[0]["character"],
+            "confidence": top_predictions[0]["confidence"],
+            "reason": reason,
+            "top_predictions": top_predictions,
+        }
+
+    # Non-successful predictions: return null prediction/character
+    # but preserve top_predictions for optional frontend display.
     return {
-        "prediction": top_predictions[0]["label"],
+        "status": status,
+        "prediction": None,
+        "character": None,
         "confidence": top_predictions[0]["confidence"],
-        "character": top_predictions[0]["character"],
+        "reason": reason,
         "top_predictions": top_predictions,
     }

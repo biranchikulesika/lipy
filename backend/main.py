@@ -35,9 +35,11 @@ class TopPrediction(BaseModel):
 
 
 class PredictionResponse(BaseModel):
-    prediction: str
+    status: str
+    prediction: str | None = None
     confidence: float
     character: str | None = None
+    reason: str | None = None
     top_predictions: list[TopPrediction]
 
 
@@ -99,6 +101,7 @@ def health() -> dict[str, str]:
 @app.post(
     "/predict",
     response_model=PredictionResponse,
+    response_model_exclude_none=True,
 )
 async def predict(
     image: UploadFile = File(...)

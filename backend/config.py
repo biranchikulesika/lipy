@@ -30,9 +30,6 @@ DEFAULT_MODEL_REPO_ID = "biranchikulesika/lipy"
 
 IMAGE_SIZE = 64
 
-# Number of predictions returned by the API.
-TOP_K = 3
-
 # =============================================================================
 # API Configuration
 # =============================================================================
@@ -53,8 +50,15 @@ API_VERSION = "1.0.0"
 # Number of highest-confidence predictions returned by the API.
 TOP_K = 3
 
-# Minimum confidence considered a reliable prediction.
-CONFIDENCE_THRESHOLD = 0.60
+# Minimum confidence for a prediction to be considered reliable.
+# If the top prediction's confidence is below this threshold,
+# the API returns a "low_confidence" status.
+LOW_CONFIDENCE_THRESHOLD = 0.60
+
+# Minimum margin between the top two predictions for the result
+# to be considered unambiguous. If the difference is smaller,
+# the API returns an "ambiguous" status.
+AMBIGUOUS_MARGIN = 0.10
 
 
 # =============================================================================

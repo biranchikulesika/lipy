@@ -35,12 +35,15 @@ const SLIDES = [
 ];
 
 const MOCK_PREDICTION: PredictionResponse = {
+	status: "success",
 	prediction: "CONS_KHA",
 	confidence: 0.912,
+	character: "ଖ",
+	reason: null,
 	top_predictions: [
-		{ label: "CONS_KHA", confidence: 0.912 },
-		{ label: "CONS_SHA", confidence: 0.054 },
-		{ label: "CONS_GA", confidence: 0.021 }
+		{ label: "CONS_KHA", confidence: 0.912, character: "ଖ" },
+		{ label: "CONS_SHA", confidence: 0.054, character: "ଶ" },
+		{ label: "CONS_GA", confidence: 0.021, character: "ଗ" }
 	]
 };
 
