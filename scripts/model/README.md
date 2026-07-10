@@ -22,5 +22,5 @@ Validate model
 Upload model to Hugging Face
       │
       ▼
-Railway downloads latest model automatically
+Azure downloads latest model automatically
 ```

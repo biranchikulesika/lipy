@@ -107,7 +107,7 @@ lipy/
                    │
          ┌─────────┴─────────┐
          ▼                   ▼
-   Docker / Railway       Local Dev
+   Docker / Azure       Local Dev
    Backend Deployment    uvicorn main:app
    (auto-downloads       --reload
     model from HF)
@@ -168,7 +168,7 @@ Each major component contains its own documentation.
 
 | Directory | Description |
 |-----------|-------------|
-| `backend/README.md` | Backend API (endpoints, response models, status-based predictions), inference pipeline, Docker deployment, and Railway setup |
+| `backend/README.md` | Backend API (endpoints, response models, status-based predictions), inference pipeline, Docker deployment, and Azure setup |
 | `frontend/README.md` | Frontend setup and development |
 | `scripts/README.md` | Dataset and model management utilities |
 | `notebooks/L.ipynb` | Complete training workflow from dataset download to model export |
@@ -187,5 +187,5 @@ Each major component contains its own documentation.
 - Next.js
 - Hugging Face Hub
 - Supabase
-- Railway
+- Azure
 - Docker
