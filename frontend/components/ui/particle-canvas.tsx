@@ -286,7 +286,7 @@ export function ParticleCanvas({ text = "See everyday moments from your digital 
       }
 
       draw(ctx: CanvasRenderingContext2D, isDark: boolean) {
-        ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.45)' : 'rgba(0, 0, 0, 0.3)';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
         ctx.font = `500 ${this.size * 2}px system-ui, -apple-system, sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -326,8 +326,7 @@ export function ParticleCanvas({ text = "See everyday moments from your digital 
       ctx.clearRect(-100, -100, width + 200, height + 200);
       time += 16; 
       
-      const isDark = document.documentElement.classList.contains('dark') || 
-                     (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      const isDark = true;
 
       if (textRef.current && textRef.current !== currentRenderedText) {
         createObstacleMap(textRef.current);
@@ -354,7 +353,7 @@ export function ParticleCanvas({ text = "See everyday moments from your digital 
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 w-full h-full pointer-events-none opacity-80 dark:opacity-80"
+      className="absolute inset-0 w-full h-full pointer-events-none opacity-80"
       style={{ mixBlendMode: 'normal' }}
     />
   );

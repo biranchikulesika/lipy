@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
   --verdigris-50: #edf7f6;
   --verdigris-100: #dbf0ed;
   --verdigris-200: #b7e1db;
@@ -16,30 +16,15 @@
   --verdigris-900: #0f2421;
   --verdigris-950: #0b1917;
 
-  --background: var(--verdigris-50);
-  --background-deep: var(--verdigris-100);
-  --foreground: var(--verdigris-950);
-  --muted: var(--verdigris-700);
-  --panel: rgba(255, 255, 255, 0.74);
-  --panel-strong: rgba(255, 255, 255, 0.95);
-  --border: rgba(15, 36, 33, 0.08);
-  --accent: var(--verdigris-600);
-  --accent-soft: var(--verdigris-400);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
-    --background: var(--verdigris-950);
-    --background-deep: var(--verdigris-900);
-    --foreground: var(--verdigris-50);
-    --muted: var(--verdigris-300);
-    --panel: rgba(11, 25, 23, 0.76);
-    --panel-strong: rgba(11, 25, 23, 0.96);
-    --border: rgba(255, 255, 255, 0.1);
-    --accent: var(--verdigris-400);
-    --accent-soft: var(--verdigris-600);
-  }
+  --background: var(--verdigris-950);
+  --background-deep: var(--verdigris-900);
+  --foreground: var(--verdigris-50);
+  --muted: var(--verdigris-300);
+  --panel: rgba(11, 25, 23, 0.76);
+  --panel-strong: rgba(11, 25, 23, 0.96);
+  --border: rgba(255, 255, 255, 0.1);
+  --accent: var(--verdigris-400);
+  --accent-soft: var(--verdigris-600);
 }
 
 html {
@@ -88,7 +73,7 @@ body {
 
 @layer components {
   .panel {
-    @apply border border-white/30 bg-white/70 backdrop-blur-xl dark:border-verdigris-700/50 dark:bg-verdigris-950/60;
+    @apply border border-verdigris-700/50 bg-verdigris-950/60 backdrop-blur-xl;
     box-shadow: 0 14px 30px -26px rgba(11, 25, 23, 0.34);
     isolation: isolate;
     box-sizing: border-box;
@@ -99,19 +84,19 @@ body {
   }
 
   .tab-button-active {
-    @apply border-verdigris-900/15 bg-verdigris-900 text-white dark:border-verdigris-200/20 dark:bg-verdigris-200 dark:text-slate-950;
+    @apply border-verdigris-200/20 bg-verdigris-200 text-slate-950;
   }
 
   .tab-button-inactive {
-    @apply border-verdigris-900/10 bg-transparent text-slate-600 hover:bg-verdigris-900/5 dark:border-verdigris-200/10 dark:text-slate-300 dark:hover:bg-white/5;
+    @apply border-verdigris-200/10 bg-transparent text-slate-300 hover:bg-white/5;
   }
 
   .primary-button {
-    @apply inline-flex items-center justify-center rounded-md bg-verdigris-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-verdigris-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-verdigris-200 dark:text-slate-950 dark:hover:bg-verdigris-300;
+    @apply inline-flex items-center justify-center rounded-md bg-verdigris-200 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-verdigris-300 disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .secondary-button {
-    @apply inline-flex items-center justify-center rounded-md border border-verdigris-900/10 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 transition hover:bg-verdigris-900/5 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:bg-verdigris-950 dark:text-slate-200 dark:hover:bg-white/5;
+    @apply inline-flex items-center justify-center rounded-md border border-white/10 bg-verdigris-950 px-3.5 py-2 text-sm font-medium text-slate-200 transition hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-50;
   }
 }
 

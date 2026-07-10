@@ -20,6 +20,26 @@ async function readErrorMessage(response: Response): Promise<string> {
   }
 }
 
+let _connectionWarmed = false;
+
+/**
+ * Pre-warms the HTTPS connection to the API by making a lightweight
+ * GET /health request. This ensures DNS resolution, TCP handshake,
+ * and TLS negotiation happen early, so the first prediction request
+ * doesn't pay the connection-setup penalty.
+ */
+export function prewarmApiConnection(): void {
+  if (_connectionWarmed || !API_BASE_URL) return;
+  _connectionWarmed = true;
+
+  // Fire-and-forget: we don't care about the response.
+  fetch(`${API_BASE_URL}/health`, { method: "GET", mode: "cors" })
+    .catch(() => {
+      // Silently ignore — this is just a connection warm-up.
+      _connectionWarmed = false; // Allow retry on next call
+    });
+}
+
 export async function predictOdiaCharacter(image: File | Blob): Promise<PredictionResponse> {
   if (!API_BASE_URL) {
     throw new Error("NEXT_PUBLIC_API_URL is not configured.");

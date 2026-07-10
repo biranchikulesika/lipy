@@ -54,14 +54,14 @@ function StatCard({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.35, ease: 'easeOut' }}
-      className="bg-white dark:bg-[#0F0F0F] border border-stone-200 dark:border-stone-900 rounded-xl p-4 sm:p-5 hover:shadow-md dark:hover:shadow-stone-950/50 transition-shadow select-none"
+      className="bg-white bg-[#0F0F0F] border border-stone-200 border-stone-900 rounded-xl p-4 sm:p-5 hover:shadow-md hover:shadow-stone-950/50 transition-shadow select-none"
     >
       <div className="flex items-start justify-between">
         <div className="space-y-2">
-          <p className="hidden sm:block text-[11px] font-bold uppercase tracking-widest text-stone-400 dark:text-stone-500">{label}</p>
+          <p className="hidden sm:block text-[11px] font-bold uppercase tracking-widest text-stone-400 text-stone-500">{label}</p>
           <p className="text-2xl sm:text-3xl font-extrabold tracking-tight">{value}</p>
           {trend && (
-            <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
+            <p className="text-[11px] text-emerald-400 font-medium flex items-center gap-1">
               <TrendingUp className="w-3 h-3" />
               {trend}
             </p>
@@ -87,7 +87,7 @@ function QuickAction({
   delay: number;
   external?: boolean;
 }) {
-  const sharedClassName = "group block bg-white dark:bg-[#0F0F0F] border border-stone-200 dark:border-stone-900 rounded-xl p-4 sm:p-5 hover:shadow-md dark:hover:shadow-stone-950/50 transition-all hover:border-amber-500/50 dark:hover:border-amber-400/50 active:scale-[0.98] hover:-translate-y-[1px] duration-200 ease-out";
+  const sharedClassName = "group block bg-white bg-[#0F0F0F] border border-stone-200 border-stone-900 rounded-xl p-4 sm:p-5 hover:shadow-md hover:shadow-stone-950/50 transition-all hover:border-amber-500/50 hover:border-amber-400/50 active:scale-[0.98] hover:-translate-y-[1px] duration-200 ease-out";
 
   return (
     <motion.div
@@ -102,11 +102,11 @@ function QuickAction({
               <Icon className="w-5 h-5" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-sm font-bold flex items-center gap-1.5 text-stone-850 dark:text-stone-200">
+              <h3 className="text-sm font-bold flex items-center gap-1.5 text-stone-850 text-stone-200">
                 {title}
                 <ChevronRight className="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-0.5 transition-transform" />
               </h3>
-              <p className="hidden sm:block text-xs text-stone-500 dark:text-stone-400 mt-1 leading-relaxed">{description}</p>
+              <p className="hidden sm:block text-xs text-stone-500 text-stone-400 mt-1 leading-relaxed">{description}</p>
             </div>
           </div>
         </a>
@@ -117,11 +117,11 @@ function QuickAction({
               <Icon className="w-5 h-5" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-sm font-bold flex items-center gap-1.5 text-stone-850 dark:text-stone-200">
+              <h3 className="text-sm font-bold flex items-center gap-1.5 text-stone-850 text-stone-200">
                 {title}
                 <ChevronRight className="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-0.5 transition-transform" />
               </h3>
-              <p className="hidden sm:block text-xs text-stone-500 dark:text-stone-400 mt-1 leading-relaxed">{description}</p>
+              <p className="hidden sm:block text-xs text-stone-500 text-stone-400 mt-1 leading-relaxed">{description}</p>
             </div>
           </div>
         </Link>
@@ -300,14 +300,14 @@ export default function AdminDashboardPage() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="relative overflow-hidden px-1 py-2 text-stone-900 dark:text-stone-100 shrink-0"
+          className="relative overflow-hidden px-1 py-2 text-stone-900 text-stone-100 shrink-0"
         >
           <div className="flex items-center gap-3">
             {userAvatar ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={userAvatar} alt="" className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover" />
             ) : (
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-stone-200/80 dark:bg-stone-800/70 flex items-center justify-center text-base sm:text-lg font-bold">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-stone-200/80 bg-stone-800/70 flex items-center justify-center text-base sm:text-lg font-bold">
                 {(userName || userEmail || 'A').charAt(0).toUpperCase()}
               </div>
             )}
@@ -324,20 +324,20 @@ export default function AdminDashboardPage() {
 
         {/* Stats Grid */}
         <div ref={overviewRef} className="shrink-0">
-          <h3 className="mb-2 px-0.5 font-display select-none text-xs font-semibold uppercase tracking-[0.24em] text-stone-400 dark:text-stone-600 flex items-center gap-2">
+          <h3 className="mb-2 px-0.5 font-display select-none text-xs font-semibold uppercase tracking-[0.24em] text-stone-400 text-stone-600 flex items-center gap-2">
             <BarChart3 className="w-4 h-4 sm:hidden" />
             <span className="sm:hidden">Overview</span>
             <span className="hidden sm:inline">Overview</span>
           </h3>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
             <div className="hidden sm:block">
-              <StatCard label="Total Samples" value={String(totalSamples)} icon={FileText} color="bg-amber-50 dark:bg-amber-950/30 text-amber-500" delay={0.05} />
+              <StatCard label="Total Samples" value={String(totalSamples)} icon={FileText} color="bg-amber-50 bg-amber-950/30 text-amber-500" delay={0.05} />
             </div>
-            <StatCard label="Verified Samples" value={String(verifiedSamples)} icon={CheckCircle2} color="bg-emerald-50 dark:bg-emerald-950/30 text-emerald-500" delay={0.1} />
+            <StatCard label="Verified Samples" value={String(verifiedSamples)} icon={CheckCircle2} color="bg-emerald-50 bg-emerald-950/30 text-emerald-500" delay={0.1} />
             <div className="hidden sm:block">
-              <StatCard label="Pending Audit" value={String(pendingSamples)} icon={Clock} color="bg-rose-50 dark:bg-rose-950/30 text-rose-500" delay={0.15} />
+              <StatCard label="Pending Audit" value={String(pendingSamples)} icon={Clock} color="bg-rose-50 bg-rose-950/30 text-rose-500" delay={0.15} />
             </div>
-            <StatCard label="Total Contributors" value={String(totalContributors)} icon={Users} color="bg-blue-50 dark:bg-blue-950/30 text-blue-500" delay={0.2} />
+            <StatCard label="Total Contributors" value={String(totalContributors)} icon={Users} color="bg-blue-50 bg-blue-950/30 text-blue-500" delay={0.2} />
           </div>
         </div>
 
@@ -349,14 +349,14 @@ export default function AdminDashboardPage() {
           
           {/* Left Area (2/3 width) - Recent Activity */}
           <div className="lg:col-span-2 flex h-full overflow-hidden">
-            <div className="bg-white dark:bg-[#0F0F0F] border border-stone-200 dark:border-stone-900 rounded-xl p-4 shadow-sm flex flex-col h-full w-full overflow-hidden">
+            <div className="bg-white bg-[#0F0F0F] border border-stone-200 border-stone-900 rounded-xl p-4 shadow-sm flex flex-col h-full w-full overflow-hidden">
               <div className="flex items-center justify-between mb-3 shrink-0">
                 <div>
-                  <h3 className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-400 dark:text-stone-600 select-none font-display">Recent Activity</h3>
+                  <h3 className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-400 text-stone-600 select-none font-display">Recent Activity</h3>
                 </div>
                 <Link
                   href="/admin/dataset"
-                  className="text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1 transition-all"
+                  className="text-xs font-bold text-amber-400 hover:underline flex items-center gap-1 transition-all"
                 >
                   View All
                   <ArrowUpRight className="w-3.5 h-3.5" />
@@ -364,14 +364,14 @@ export default function AdminDashboardPage() {
               </div>
 
               {recentSessions.length === 0 ? (
-                <div className="text-center py-8 text-stone-400 dark:text-stone-600 text-xs flex-1 flex items-center justify-center">
+                <div className="text-center py-8 text-stone-400 text-stone-600 text-xs flex-1 flex items-center justify-center">
                   No recent activity found.
                 </div>
               ) : (
                 <div className="overflow-auto flex-1 min-h-0">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="border-b border-stone-100 dark:border-stone-900/50 text-[10px] uppercase font-bold tracking-widest text-stone-400 select-none">
+                      <tr className="border-b border-stone-100 border-stone-900/50 text-[10px] uppercase font-bold tracking-widest text-stone-400 select-none">
                         <th className="py-2.5 px-1 w-[52%] sm:w-auto">
                           <span className="sm:hidden inline-flex items-center justify-start w-full">
                             <Fingerprint className="w-4 h-4" />
@@ -392,18 +392,18 @@ export default function AdminDashboardPage() {
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-stone-100/50 dark:divide-stone-900/30 text-xs">
+                    <tbody className="divide-y divide-stone-100/50 divide-stone-900/30 text-xs">
                       {recentSessions.map((session) => (
                         <tr key={`${session.contributor_name}-${session.session_id}-${session.created_at}`} className="transition-colors">
                           <td className="py-2.5 px-1">
-                            <span className="block text-sm font-bold text-stone-850 dark:text-stone-200 truncate max-w-[220px]">
+                            <span className="block text-sm font-bold text-stone-850 text-stone-200 truncate max-w-[220px]">
                               {session.contributor_name || 'Anonymous'}
                             </span>
                           </td>
-                          <td className="py-2.5 px-3 text-stone-600 dark:text-stone-400 font-medium">
+                          <td className="py-2.5 px-3 text-stone-600 text-stone-400 font-medium">
                             {session.total_chars}
                           </td>
-                          <td className="py-2.5 px-3 text-stone-400 dark:text-stone-500 whitespace-nowrap w-[30%] sm:w-auto">
+                          <td className="py-2.5 px-3 text-stone-400 text-stone-500 whitespace-nowrap w-[30%] sm:w-auto">
                             {formatRecentActivityDate(session.created_at)}
                           </td>
                         </tr>
@@ -418,15 +418,15 @@ export default function AdminDashboardPage() {
           {/* Right Area (1/3 width) - Operations */}
           <div className="flex flex-col h-full overflow-hidden">
             {/* Quick Actions Card */}
-            <div className="bg-white dark:bg-[#0F0F0F] border border-stone-200 dark:border-stone-900 rounded-xl p-4 shadow-sm space-y-3 flex flex-col h-full overflow-hidden">
-              <h3 className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-400 dark:text-stone-600 font-display shrink-0">Quick Operations</h3>
+            <div className="bg-white bg-[#0F0F0F] border border-stone-200 border-stone-900 rounded-xl p-4 shadow-sm space-y-3 flex flex-col h-full overflow-hidden">
+              <h3 className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-400 text-stone-600 font-display shrink-0">Quick Operations</h3>
               <div className="space-y-2.5 flex-1 overflow-auto pr-0.5">
                 <QuickAction
                   title="Dataset Viewer"
                   description="Browse, audit, and clean handwritten sample images"
                   icon={Database}
                   href="/admin/dataset"
-                  color="bg-amber-50 dark:bg-amber-950/30 text-amber-500"
+                  color="bg-amber-50 bg-amber-950/30 text-amber-500"
                   delay={0.05}
                 />
                 <QuickAction
@@ -434,7 +434,7 @@ export default function AdminDashboardPage() {
                   description="Manage password, linked accounts, and passkeys"
                   icon={Settings}
                   href="/admin/settings"
-                  color="bg-blue-50 dark:bg-blue-950/30 text-blue-500"
+                  color="bg-blue-50 bg-blue-950/30 text-blue-500"
                   delay={0.1}
                 />
                 <QuickAction
@@ -442,7 +442,7 @@ export default function AdminDashboardPage() {
                   description="Open the source repository for the project"
                   icon={Github}
                   href="https://github.com/biranchikulesika/lipy"
-                  color="bg-emerald-50 dark:bg-emerald-950/30 text-emerald-500"
+                  color="bg-emerald-50 bg-emerald-950/30 text-emerald-500"
                   delay={0.15}
                   external
                 />

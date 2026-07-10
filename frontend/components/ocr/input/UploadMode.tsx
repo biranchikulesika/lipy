@@ -83,7 +83,7 @@ export const UploadContent = forwardRef<InputModeRef, UploadContentProps>(
 				<div
 					className={`flex h-full w-full cursor-pointer items-center justify-center overflow-hidden transition ${
 						isDragActive
-							? "bg-verdigris-900/10 dark:bg-white/10"
+							? "bg-white/10"
 							: ""
 					}`}
 					onClick={() => inputRef.current?.click()}
@@ -105,13 +105,13 @@ export const UploadContent = forwardRef<InputModeRef, UploadContentProps>(
 						/>
 					) : (
 						<div className="px-6 text-center">
-							<p className="font-mono text-xs uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">
+							<p className="font-mono text-xs uppercase tracking-[0.24em] text-slate-400">
 								Upload mode
 							</p>
-							<p className="mt-3 text-sm text-slate-700 dark:text-slate-200">
+							<p className="mt-3 text-sm text-slate-200">
 								Click to upload or drag an image
 							</p>
-							<p className="mt-2 text-xs uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
+							<p className="mt-2 text-xs uppercase tracking-[0.22em] text-slate-400">
 								PNG JPG JPEG
 							</p>
 						</div>

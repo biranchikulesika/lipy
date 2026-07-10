@@ -165,8 +165,8 @@ export const CameraContent = forwardRef<InputModeRef, CameraContentProps>(
 			return (
 				<div className="flex h-full w-full items-center justify-center p-6 text-center">
 					<div className="max-w-sm">
-						<p className="text-sm font-medium text-amber-800 dark:text-amber-300 mb-1">Camera Access Required</p>
-						<p className="text-xs text-amber-700/80 dark:text-amber-400/80 leading-relaxed">
+						<p className="text-sm font-medium text-amber-300 mb-1">Camera Access Required</p>
+						<p className="text-xs text-amber-400/80 leading-relaxed">
 							{cameraError}
 						</p>
 					</div>

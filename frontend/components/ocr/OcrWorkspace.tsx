@@ -6,7 +6,7 @@ import { motion } from "motion/react";
 import { PenLine, FileImage, Camera, MoreVertical } from "lucide-react";
 
 import { PredictionCard } from "@/components/ocr/results/PredictionCard";
-import { predictOdiaCharacter } from "@/lib/api";
+import { predictOdiaCharacter, prewarmApiConnection } from "@/lib/api";
 import type { PredictionResponse } from "@/types/ocr";
 
 import { InputWorkspace } from "@/components/ocr/input/InputWorkspace";
@@ -36,7 +36,13 @@ export function OcrWorkspace() {
 	const [isPredicting, setIsPredicting] = useState(false);
 	const [helperVisible, setHelperVisible] = useState(true);
 	const [canPredict, setCanPredict] = useState(false);
+	const [mounted, setMounted] = useState(false);
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+	useEffect(() => {
+		setMounted(true);
+		prewarmApiConnection();
+	}, []);
 
 	const menuRef = useRef<HTMLDivElement>(null);
 	useEffect(() => {
@@ -172,22 +178,19 @@ export function OcrWorkspace() {
 		<main className="relative mx-auto flex h-[calc(100dvh-4.5rem)] max-w-[1500px] flex-col gap-3 box-border overflow-hidden px-3 pb-3 pt-3 sm:px-4 lg:gap-4 lg:px-8 lg:py-6 lg:p-8 lg:justify-center">
 			{/* Desktop Mode Switcher */}
 			<div className="hidden lg:flex w-full justify-center shrink-0 mb-2">
-				<div className="inline-flex rounded-full bg-verdigris-900/5 p-1 dark:bg-white/5 border border-verdigris-900/5 dark:border-white/5 shadow-inner">
+				<div className="inline-flex rounded-full bg-white/5 p-1 border border-white/5 shadow-inner">
 					{INPUT_MODES.map((mode) => (
 						<button
 							key={mode.key}
 							type="button"
 							onClick={() => setActiveMode(mode.key)}
-							className={`relative flex items-center gap-2 rounded-full px-6 py-2 text-sm font-bold transition-colors duration-200 ${
-								activeMode === mode.key
-									? "text-slate-900 dark:text-white"
-									: "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+							className={`relative flex items-center gap-2 rounded-full px-6 py-2 text-sm font-bold transition-colors duration-200 ${activeMode === mode.key ? "text-white" : "text-slate-400 hover:text-slate-200"
 							}`}
 						>
 							{activeMode === mode.key && (
 								<motion.div
 									layoutId="desktop-mode-bg"
-									className="absolute inset-0 rounded-full bg-white shadow-sm ring-1 ring-verdigris-900/5 dark:bg-verdigris-800 dark:ring-white/10"
+									className="absolute inset-0 rounded-full bg-verdigris-800 shadow-sm ring-1 ring-white/10"
 									transition={{ type: "tween", ease: "easeInOut", duration: 0.2 }}
 								/>
 							)}
@@ -213,7 +216,7 @@ export function OcrWorkspace() {
 							onClear={handleClear}
 							onPredict={handlePredict}
 							isPredicting={isPredicting}
-							canPredict={canPredict}
+							canPredict={mounted && canPredict}
 						>
 							{activeMode === "draw" && (
 								<DrawContent
@@ -253,21 +256,18 @@ export function OcrWorkspace() {
 			</section>
 
 			<div className="flex items-center justify-center lg:hidden mt-0 mb-1">
-				<div className="inline-flex rounded-full bg-verdigris-900/5 p-1 dark:bg-white/5 border border-verdigris-900/5 dark:border-white/5 shadow-inner">
+				<div className="inline-flex rounded-full bg-white/5 p-1 border border-white/5 shadow-inner">
 					<button
 						type="button"
 						aria-label="Show input section"
 						onClick={() => scrollToPage(0)}
-						className={`relative rounded-full px-5 py-1.5 text-xs font-bold transition-colors duration-200 ${
-							activePage === 0 
-								? "text-slate-900 dark:text-white" 
-								: "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+						className={`relative rounded-full px-5 py-1.5 text-xs font-bold transition-colors duration-200 ${activePage === 0 ? "text-white" : "text-slate-400 hover:text-slate-200"
 						}`}
 					>
 						{activePage === 0 && (
 							<motion.div
 								layoutId="active-pill-bg"
-								className="absolute inset-0 rounded-full bg-white shadow-sm ring-1 ring-verdigris-900/5 dark:bg-verdigris-800 dark:ring-white/10"
+								className="absolute inset-0 rounded-full bg-verdigris-800 shadow-sm ring-1 ring-white/10"
 								transition={{ type: "tween", ease: "easeInOut", duration: 0.2 }}
 							/>
 						)}
@@ -277,16 +277,13 @@ export function OcrWorkspace() {
 						type="button"
 						aria-label="Show results section"
 						onClick={() => scrollToPage(1)}
-						className={`relative rounded-full px-5 py-1.5 text-xs font-bold transition-colors duration-200 ${
-							activePage === 1 
-								? "text-slate-900 dark:text-white" 
-								: "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+						className={`relative rounded-full px-5 py-1.5 text-xs font-bold transition-colors duration-200 ${activePage === 1 ? "text-white" : "text-slate-400 hover:text-slate-200"
 						}`}
 					>
 						{activePage === 1 && (
 							<motion.div
 								layoutId="active-pill-bg"
-								className="absolute inset-0 rounded-full bg-white shadow-sm ring-1 ring-verdigris-900/5 dark:bg-verdigris-800 dark:ring-white/10"
+								className="absolute inset-0 rounded-full bg-verdigris-800 shadow-sm ring-1 ring-white/10"
 								transition={{ type: "tween", ease: "easeInOut", duration: 0.2 }}
 							/>
 						)}
@@ -298,7 +295,7 @@ export function OcrWorkspace() {
 			{/* Bottom Right Floating Menu */}
 			<div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 lg:hidden z-50 flex flex-col items-end" ref={menuRef}>
 				{isMenuOpen && (
-					<div className="mb-2 w-40 overflow-hidden rounded-2xl border border-verdigris-900/10 bg-white/90 p-1 shadow-lg backdrop-blur-md dark:border-white/10 dark:bg-verdigris-950/90 animate-in fade-in slide-in-from-bottom-2">
+					<div className="mb-2 w-40 overflow-hidden rounded-2xl border border-white/10 bg-verdigris-950/90 p-1 shadow-lg backdrop-blur-md animate-in fade-in slide-in-from-bottom-2">
 						{INPUT_MODES.map((mode) => (
 							<button
 								key={mode.key}
@@ -307,10 +304,7 @@ export function OcrWorkspace() {
 									setActiveMode(mode.key);
 									setIsMenuOpen(false);
 								}}
-								className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
-									activeMode === mode.key
-										? "bg-verdigris-100 text-verdigris-900 dark:bg-verdigris-800 dark:text-white"
-										: "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-verdigris-900/50 dark:hover:text-white"
+								className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${activeMode === mode.key ? "bg-verdigris-800 text-white" : "text-slate-300 hover:bg-verdigris-900/50 hover:text-white"
 								}`}
 							>
 								{mode.icon}
@@ -323,7 +317,7 @@ export function OcrWorkspace() {
 					type="button"
 					onClick={() => setIsMenuOpen(!isMenuOpen)}
 					aria-label="Input Options"
-					className="flex items-center justify-center p-2 text-slate-500 transition-colors hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+					className="flex items-center justify-center p-2 text-slate-400 transition-colors hover:text-white"
 				>
 					<MoreVertical className="h-5 w-5 sm:h-6 sm:w-6" />
 				</button>

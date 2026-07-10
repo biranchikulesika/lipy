@@ -72,8 +72,8 @@ function getBrowserAndOS() {
 function SettingsSkeleton() {
   return (
     <div className="p-3 sm:p-6 max-w-2xl mx-auto space-y-2.5 sm:space-y-3 animate-pulse">
-      <div className="h-14 rounded-xl bg-stone-200/70 dark:bg-stone-800/60" />
-      <div className="h-52 rounded-xl bg-stone-200/70 dark:bg-stone-800/60" />
+      <div className="h-14 rounded-xl bg-stone-800/60" />
+      <div className="h-52 rounded-xl bg-stone-800/60" />
     </div>
   );
 }
@@ -98,8 +98,8 @@ function AlertBanner({
     >
       <div className={`p-3 sm:p-4 rounded-xl text-[13px] flex items-start gap-2 border ${
         isError
-          ? 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-900/40 text-red-600 dark:text-red-400'
-          : 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/40 text-emerald-600 dark:text-emerald-400'
+          ? 'bg-red-950/20 border-red-900/40 text-red-400'
+          : 'bg-emerald-950/20 border-emerald-900/40 text-emerald-400'
       }`}>
         {isError ? <CircleAlert className="w-4 h-4 shrink-0 mt-0.5" /> : <CircleCheck className="w-4 h-4 shrink-0 mt-0.5" />}
         <span className="flex-1 leading-relaxed">{message}</span>
@@ -107,7 +107,7 @@ function AlertBanner({
           onClick={onDismiss}
           aria-label="Dismiss"
           className={`shrink-0 p-1 rounded-lg transition-colors ${
-            isError ? 'hover:bg-red-100 dark:hover:bg-red-900/30' : 'hover:bg-emerald-100 dark:hover:bg-emerald-900/30'
+            isError ? 'hover:bg-red-900/30' : 'hover:bg-emerald-900/30'
           }`}
         >
           <X className="w-3.5 h-3.5" />
@@ -131,7 +131,7 @@ function SettingsCard({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.25, ease: 'easeOut' }}
-      className={`sm:bg-white sm:dark:bg-[#0F0F0F] sm:border sm:border-stone-200/80 sm:dark:border-stone-800/80 sm:rounded-xl overflow-hidden ${className}`}
+      className={`sm:bg-[#0F0F0F] sm:border sm:border-stone-800/80 sm:rounded-xl overflow-hidden ${className}`}
     >
       {children}
     </motion.div>
@@ -151,19 +151,19 @@ function MethodStatusTile({
   return (
     <div className={`flex items-center gap-2 p-3 rounded-xl border text-sm font-semibold ${
       active
-        ? 'bg-emerald-50/40 dark:bg-emerald-950/15 border-emerald-250 dark:border-emerald-900/40 text-emerald-700 dark:text-emerald-400'
-        : 'bg-stone-50 dark:bg-stone-900/30 border-stone-200 dark:border-stone-850 text-stone-505 dark:text-stone-500'
+        ? 'bg-emerald-950/15 border-emerald-900/40 text-emerald-400'
+        : 'bg-stone-900/30 border-stone-850 text-stone-500'
     }`}>
       <div className="shrink-0">{icon}</div>
       <span className="truncate flex-1 text-left">{label}</span>
-      <span className={`w-2 h-2 rounded-full shrink-0 ${active ? 'bg-emerald-500' : 'bg-stone-300 dark:bg-stone-600'}`} />
+      <span className={`w-2 h-2 rounded-full shrink-0 ${active ? 'bg-emerald-500' : 'bg-stone-600'}`} />
     </div>
   );
 }
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="text-[10px] sm:text-xs md:text-sm font-bold uppercase tracking-wider text-stone-400 dark:text-stone-500 px-0.5">
+    <h3 className="text-[10px] sm:text-xs md:text-sm font-bold uppercase tracking-wider text-stone-500 px-0.5">
       {children}
     </h3>
   );
@@ -200,27 +200,27 @@ function SocialRow({
         <div className="shrink-0">{icon}</div>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-base font-semibold text-stone-900 dark:text-stone-100">{name}</span>
+            <span className="text-base font-semibold text-stone-100">{name}</span>
             {linked ? (
-              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-250 dark:border-emerald-900/40 text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">
+              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded bg-emerald-950/20 border border-emerald-900/40 text-xs font-semibold text-emerald-400 uppercase tracking-wide">
                 Connected
               </span>
             ) : (
-              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded bg-stone-100 dark:bg-stone-800/80 border border-stone-200/25 dark:border-stone-750 text-xs font-semibold text-stone-500 dark:text-stone-500 uppercase tracking-wide">
+              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded bg-stone-800/80 border border-stone-750 text-xs font-semibold text-stone-500 uppercase tracking-wide">
                 Disconnected
               </span>
             )}
           </div>
           {linked && email && (
-            <p className="text-sm text-stone-500 dark:text-stone-400 truncate mt-0.5">{email}</p>
+            <p className="text-sm text-stone-400 truncate mt-0.5">{email}</p>
           )}
         </div>
       </div>
 
       <div className="w-full sm:w-48 shrink-0 text-right">
         {pendingUnlink ? (
-          <div className="bg-red-50 dark:bg-red-950/20 border border-red-200/60 dark:border-red-900/45 rounded-lg p-2.5 text-left">
-            <p className="text-xs text-red-700 dark:text-red-300 font-semibold leading-tight">
+          <div className="bg-red-950/20 border border-red-900/45 rounded-lg p-2.5 text-left">
+            <p className="text-xs text-red-300 font-semibold leading-tight">
               Unlink this provider? You won&apos;t be able to sign in using {name} anymore.
             </p>
             <div className="flex gap-1.5 mt-2">
@@ -233,7 +233,7 @@ function SocialRow({
               </button>
               <button
                 onClick={onCancelUnlink}
-                className="px-2.5 py-1 border border-stone-250 dark:border-stone-850 hover:bg-stone-50 dark:hover:bg-stone-900 rounded text-xs font-semibold transition-all"
+                className="px-2.5 py-1 border border-stone-850 hover:bg-stone-900 rounded text-xs font-semibold transition-all"
               >
                 Cancel
               </button>
@@ -246,7 +246,7 @@ function SocialRow({
                 onClick={onDisconnect}
                 disabled={loading || !canUnlink}
                 title={!canUnlink ? "At least one social account is mandatory to prevent lockout." : undefined}
-                className="w-full sm:w-48 h-9 sm:h-10 border border-red-200/40 hover:bg-red-50/70 dark:hover:bg-red-950/15 text-red-600 dark:text-red-400 text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl transition-all duration-200 ease-out active:scale-97 hover:-translate-y-[1px] shadow-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none flex items-center justify-center gap-1.5"
+                className="w-full sm:w-48 h-9 sm:h-10 border border-red-200/40 hover:bg-red-950/15 text-red-400 text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl transition-all duration-200 ease-out active:scale-97 hover:-translate-y-[1px] shadow-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none flex items-center justify-center gap-1.5"
               >
                 {icon}
                 <span className="hidden sm:inline">Disconnect</span>
@@ -256,7 +256,7 @@ function SocialRow({
               <button
                 onClick={onConnect}
                 disabled={loading}
-                className="w-full sm:w-48 h-9 sm:h-10 bg-stone-900 hover:bg-stone-850 dark:bg-stone-100 dark:hover:bg-stone-50 text-white dark:text-stone-900 text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl transition-all duration-200 ease-out active:scale-97 hover:-translate-y-[1px] shadow-md dark:shadow-sm disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-1.5"
+                className="w-full sm:w-48 h-9 sm:h-10 bg-stone-100 hover:bg-stone-50 text-stone-900 text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl transition-all duration-200 ease-out active:scale-97 hover:-translate-y-[1px] shadow-sm disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-1.5"
               >
                 {icon}
                 <span className="hidden sm:inline">Connect</span>
@@ -434,10 +434,10 @@ function PasswordChangeModal({
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 40, scale: 0.98 }}
           transition={{ type: 'spring', duration: 0.35, bounce: 0.1 }}
-          className="bg-white dark:bg-[#0F0F0F] border border-stone-200 dark:border-stone-800 rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-md max-h-[92vh] sm:max-h-[90vh] overflow-hidden flex flex-col"
+          className="bg-[#0F0F0F] border border-stone-800 rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-md max-h-[92vh] sm:max-h-[90vh] overflow-hidden flex flex-col"
         >
           <div className="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
-            <div className="w-10 h-1 rounded-full bg-stone-300 dark:bg-stone-700" />
+            <div className="w-10 h-1 rounded-full bg-stone-700" />
           </div>
 
           <div className="flex items-center justify-between px-5 pt-3 sm:pt-5 pb-0 shrink-0">
@@ -448,7 +448,7 @@ function PasswordChangeModal({
             <button
               onClick={onClose}
               aria-label="Close"
-              className="p-2 rounded-xl hover:bg-stone-100 dark:hover:bg-stone-900 transition-colors"
+              className="p-2 rounded-xl hover:bg-stone-900 transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -463,7 +463,7 @@ function PasswordChangeModal({
                   exit={{ opacity: 0, height: 0 }}
                   className="overflow-hidden px-5 pt-3"
                 >
-                  <div className="p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/40 rounded-xl text-xs text-red-600 dark:text-red-400 flex items-start gap-2">
+                  <div className="p-3 bg-red-950/20 border border-red-200 border-red-900/40 rounded-xl text-xs text-red-400 flex items-start gap-2">
                     <CircleAlert className="w-3.5 h-3.5 shrink-0 mt-0.5" />
                     <span>{modalError}</span>
                   </div>
@@ -484,14 +484,14 @@ function PasswordChangeModal({
                           onChange={e => setNewPassword(e.target.value)}
                           placeholder="New Password (minimum 8 characters)"
                           disabled={loading}
-                          className="w-full px-4 py-3 sm:py-2.5 pr-10 text-sm rounded-xl bg-stone-50 dark:bg-stone-900/50 border border-stone-200 dark:border-stone-800 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all disabled:opacity-50"
+                          className="w-full px-4 py-3 sm:py-2.5 pr-10 text-sm rounded-xl bg-stone-900/50 border border-stone-800 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all disabled:opacity-50"
                         />
                         <button
                           type="button"
                           onClick={() => setShowNew(v => !v)}
                           tabIndex={-1}
                           aria-label={showNew ? 'Hide password' : 'Show password'}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 transition-colors p-1"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-300 transition-colors p-1"
                         >
                           {showNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
@@ -509,12 +509,12 @@ function PasswordChangeModal({
                                       : strength.score <= 4
                                         ? 'bg-amber-500'
                                         : 'bg-emerald-500'
-                                    : 'bg-stone-200 dark:bg-stone-800'
+                                    : 'bg-stone-800'
                                 }`}
                               />
                             ))}
                           </div>
-                          <p className="text-[10px] text-stone-500 dark:text-stone-400 text-left">
+                          <p className="text-[10px] text-stone-400 text-left">
                             Password strength: <span className="font-bold">{strength.label}</span>
                           </p>
                         </div>
@@ -529,12 +529,12 @@ function PasswordChangeModal({
                           onChange={e => setConfirmPassword(e.target.value)}
                           placeholder="Confirm New Password"
                           disabled={loading}
-                          className={`w-full px-4 py-3 sm:py-2.5 pr-10 text-sm rounded-xl bg-stone-50 dark:bg-stone-900/50 border transition-all disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500/30 ${
+                          className={`w-full px-4 py-3 sm:py-2.5 pr-10 text-sm rounded-xl bg-stone-900/50 border transition-all disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500/30 ${
                             passwordsMismatch
-                              ? 'border-red-300 dark:border-red-800'
+                              ? 'border-red-800'
                               : passwordsMatch
-                                ? 'border-emerald-300 dark:border-emerald-800'
-                                : 'border-stone-200 dark:border-stone-800'
+                                ? 'border-emerald-800'
+                                : 'border-stone-800'
                           }`}
                         />
                         <button
@@ -542,7 +542,7 @@ function PasswordChangeModal({
                           onClick={() => setShowConfirm(v => !v)}
                           tabIndex={-1}
                           aria-label={showConfirm ? 'Hide password' : 'Show password'}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 transition-colors p-1"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-300 transition-colors p-1"
                         >
                           {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
@@ -567,14 +567,14 @@ function PasswordChangeModal({
                           onChange={e => setCurrentPassword(e.target.value)}
                           placeholder="Current Password"
                           disabled={loading}
-                          className="w-full px-4 py-3 sm:py-2.5 pr-10 text-sm rounded-xl bg-stone-50 dark:bg-stone-900/50 border border-stone-200 dark:border-stone-800 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all disabled:opacity-50"
+                          className="w-full px-4 py-3 sm:py-2.5 pr-10 text-sm rounded-xl bg-stone-900/50 border border-stone-800 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all disabled:opacity-50"
                         />
                         <button
                           type="button"
                           onClick={() => setShowCurrent(v => !v)}
                           tabIndex={-1}
                           aria-label={showCurrent ? 'Hide password' : 'Show password'}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 transition-colors p-1"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-300 transition-colors p-1"
                         >
                           {showCurrent ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
@@ -593,10 +593,10 @@ function PasswordChangeModal({
 
                   <div className="relative py-2">
                     <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-stone-200 dark:border-stone-850" />
+                      <div className="w-full border-t border-stone-850" />
                     </div>
                     <div className="relative flex justify-center">
-                      <span className="bg-white dark:bg-[#0F0F0F] px-3 text-[10px] font-bold uppercase tracking-wider text-stone-450 dark:text-stone-500">
+                      <span className="bg-[#0F0F0F] px-3 text-[10px] font-bold uppercase tracking-wider text-stone-500">
                         OR
                       </span>
                     </div>
@@ -606,7 +606,7 @@ function PasswordChangeModal({
                     <button
                       onClick={handleSendMagicLink}
                       disabled={loading}
-                      className="w-full py-2.5 border border-stone-250 dark:border-stone-800 hover:bg-stone-55 dark:hover:bg-stone-900 rounded-xl text-xs font-semibold transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-sm"
+                      className="w-full py-2.5 border border-stone-800 hover:bg-stone-900 rounded-xl text-xs font-semibold transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-sm"
                     >
                       {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Mail className="w-3.5 h-3.5" />}
                       Send me the password reset link
@@ -615,36 +615,36 @@ function PasswordChangeModal({
                 </div>
               ) : magicLinkSent ? (
                 <div className="flex flex-col items-center gap-3 py-4 text-center">
-                  <div className="p-3 bg-emerald-50 dark:bg-emerald-950/30 rounded-xl animate-pulse">
+                  <div className="p-3 bg-emerald-950/30 rounded-xl animate-pulse">
                     <Mail className="w-6 h-6 text-emerald-500" />
                   </div>
                   <div className="space-y-1">
-                    <p className="text-sm font-semibold text-stone-900 dark:text-stone-100">Reset Link Sent!</p>
-                    <p className="text-xs text-stone-500 dark:text-stone-400 max-w-xs mx-auto leading-relaxed">
-                      Check your inbox at <span className="font-semibold text-stone-800 dark:text-stone-200">{userEmail}</span> to set your new password directly.
+                    <p className="text-sm font-semibold text-stone-100">Reset Link Sent!</p>
+                    <p className="text-xs text-stone-400 max-w-xs mx-auto leading-relaxed">
+                      Check your inbox at <span className="font-semibold text-stone-200">{userEmail}</span> to set your new password directly.
                     </p>
                   </div>
                   <button
                     onClick={onClose}
-                    className="mt-3 w-full sm:w-auto px-6 py-2 border border-stone-250 dark:border-stone-800 rounded-xl text-xs font-semibold hover:bg-stone-55 dark:hover:bg-stone-900 transition-colors shadow-sm"
+                    className="mt-3 w-full sm:w-auto px-6 py-2 border border-stone-800 rounded-xl text-xs font-semibold hover:bg-stone-900 transition-colors shadow-sm"
                   >
                     Done
                   </button>
                 </div>
               ) : (
                 <div className="flex flex-col items-center gap-3 py-4 text-center">
-                  <div className="p-3 bg-emerald-50 dark:bg-emerald-950/30 rounded-xl">
+                  <div className="p-3 bg-emerald-950/30 rounded-xl">
                     <Check className="w-6 h-6 text-emerald-500" />
                   </div>
                   <div className="space-y-1">
-                    <p className="text-sm font-semibold text-stone-900 dark:text-stone-100">Password Changed!</p>
-                    <p className="text-xs text-stone-500 dark:text-stone-400 max-w-xs mx-auto leading-relaxed">
+                    <p className="text-sm font-semibold text-stone-100">Password Changed!</p>
+                    <p className="text-xs text-stone-400 max-w-xs mx-auto leading-relaxed">
                       Your password has been updated successfully. You can now use your new password.
                     </p>
                   </div>
                   <button
                     onClick={onClose}
-                    className="mt-3 w-full sm:w-auto px-6 py-2 border border-stone-250 dark:border-stone-800 rounded-xl text-xs font-semibold hover:bg-stone-55 dark:hover:bg-stone-900 transition-colors shadow-sm"
+                    className="mt-3 w-full sm:w-auto px-6 py-2 border border-stone-800 rounded-xl text-xs font-semibold hover:bg-stone-900 transition-colors shadow-sm"
                   >
                     Done
                   </button>
@@ -930,10 +930,10 @@ export function AuthSettings() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35, ease: 'easeOut' }}
-              className="relative overflow-hidden sm:rounded-2xl sm:border sm:border-stone-200/80 sm:dark:border-stone-800/80 sm:bg-white sm:dark:bg-[#0F0F0F] sm:shadow-sm sm:dark:shadow-none p-3 sm:p-5 space-y-2.5 sm:space-y-4 lg:h-full"
+              className="relative overflow-hidden sm:rounded-2xl sm:border sm:sm:border-stone-800/80 sm:bg-[#0F0F0F] sm:shadow-sm shadow-none p-3 sm:p-5 space-y-2.5 sm:space-y-4 lg:h-full"
             >
               {/* Decorative Gradient Background */}
-              <div className="hidden sm:block absolute inset-x-0 top-0 h-28 bg-gradient-to-br from-blue-500/[0.08] via-indigo-500/[0.06] to-transparent dark:from-blue-500/[0.04] dark:via-indigo-500/[0.03] pointer-events-none" />
+              <div className="hidden sm:block absolute inset-x-0 top-0 h-28 bg-gradient-to-br from-blue-500/[0.04] via-indigo-500/[0.03] to-transparent pointer-events-none" />
 
               {/* Profile details */}
               <div className="relative flex flex-col items-center text-center space-y-1.5 pt-1">
@@ -941,65 +941,65 @@ export function AuthSettings() {
                   <img
                     src={userAvatar}
                     alt="Admin Avatar"
-                    className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl ring-2 sm:ring-4 ring-white dark:ring-stone-900 shadow-md object-cover"
+                    className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl ring-2 sm:ring-4 ring-stone-900 shadow-md object-cover"
                   />
                 ) : (
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-lg sm:text-xl font-bold shadow-md ring-2 sm:ring-4 ring-white dark:ring-stone-900">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-lg sm:text-xl font-bold shadow-md ring-2 sm:ring-4 ring-stone-900">
                     {(userName || userEmail).charAt(0).toUpperCase()}
                   </div>
                 )}
                 <div className="space-y-0.5 w-full max-w-full overflow-hidden">
-                  <h2 className="text-base sm:text-lg md:text-xl font-bold tracking-tight text-stone-900 dark:text-stone-100 flex items-center justify-center gap-1.5 shrink-0 flex-wrap break-all">
+                  <h2 className="text-base sm:text-lg md:text-xl font-bold tracking-tight text-stone-100 flex items-center justify-center gap-1.5 shrink-0 flex-wrap break-all">
                     {userName || 'Administrator'}
-                    <Shield className="w-4 h-4 text-emerald-550 dark:text-emerald-400 shrink-0" />
+                    <Shield className="w-4 h-4 text-emerald-400 shrink-0" />
                   </h2>
-                  <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400 break-all">{userEmail}</p>
+                  <p className="text-xs sm:text-sm text-stone-400 break-all">{userEmail}</p>
                 </div>
               </div>
 
 
               {/* Security Checklist */}
               <div className="hidden sm:block space-y-2.5">
-                <span className="text-xs font-bold text-stone-400 dark:text-stone-500 uppercase tracking-wider block">Security Checklist</span>
+                <span className="text-xs font-bold text-stone-500 uppercase tracking-wider block">Security Checklist</span>
                 <div className="space-y-2.5 text-sm">
                   <div className="flex items-center gap-2.5">
                     <span className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 border ${
                       hasEmailPassword 
-                        ? 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-250 dark:border-emerald-900/40 text-emerald-600 dark:text-emerald-400' 
-                        : 'bg-stone-50 dark:bg-stone-900/30 border-stone-200 dark:border-stone-800 text-stone-400'
+                        ? 'bg-emerald-950/20 border-emerald-900/40 text-emerald-400' 
+                        : 'bg-stone-900/30 border-stone-800 text-stone-400'
                     }`}>
                       {hasEmailPassword ? <Check className="w-3.5 h-3.5" /> : <X className="w-3.5 h-3.5" />}
                     </span>
-                    <span className={hasEmailPassword ? 'text-stone-700 dark:text-stone-300 font-medium' : 'text-stone-400 line-through decoration-stone-200/50'}>
+                    <span className={hasEmailPassword ? 'text-stone-300 font-medium' : 'text-stone-400 line-through decoration-stone-800/50'}>
                       Password Login Setup
                     </span>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <span className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 border ${
                       isProviderLinked('google') 
-                        ? 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-250 dark:border-emerald-900/40 text-emerald-600 dark:text-emerald-400' 
-                        : 'bg-stone-50 dark:bg-stone-900/30 border-stone-200 dark:border-stone-800 text-stone-400'
+                        ? 'bg-emerald-950/20 border-emerald-900/40 text-emerald-400' 
+                        : 'bg-stone-900/30 border-stone-800 text-stone-400'
                     }`}>
                       {isProviderLinked('google') ? <Check className="w-3.5 h-3.5" /> : <X className="w-3.5 h-3.5" />}
                     </span>
-                    <span className={isProviderLinked('google') ? 'text-stone-700 dark:text-stone-300 font-medium' : 'text-stone-400'}>
+                    <span className={isProviderLinked('google') ? 'text-stone-300 font-medium' : 'text-stone-400'}>
                       Google Account Linked
                     </span>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <span className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 border ${
                       isProviderLinked('github') 
-                        ? 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-250 dark:border-emerald-900/40 text-emerald-600 dark:text-emerald-400' 
-                        : 'bg-stone-50 dark:bg-stone-900/30 border-stone-200 dark:border-stone-800 text-stone-400'
+                        ? 'bg-emerald-950/20 border-emerald-900/40 text-emerald-400' 
+                        : 'bg-stone-900/30 border-stone-800 text-stone-400'
                     }`}>
                       {isProviderLinked('github') ? <Check className="w-3.5 h-3.5" /> : <X className="w-3.5 h-3.5" />}
                     </span>
-                    <span className={isProviderLinked('github') ? 'text-stone-700 dark:text-stone-300 font-medium' : 'text-stone-400'}>
+                    <span className={isProviderLinked('github') ? 'text-stone-300 font-medium' : 'text-stone-400'}>
                       GitHub Account Linked
                     </span>
                   </div>
                   <div className="flex items-center gap-2.5">
-                    <span className="w-5 h-5 rounded-md flex items-center justify-center shrink-0 border bg-stone-50 dark:bg-stone-900/30 border-stone-200 dark:border-stone-800 text-stone-400">
+                    <span className="w-5 h-5 rounded-md flex items-center justify-center shrink-0 border bg-stone-900/30 border-stone-800 text-stone-400">
                       <X className="w-3.5 h-3.5" />
                     </span>
                     <span className="text-stone-400 font-medium">
@@ -1022,12 +1022,12 @@ export function AuthSettings() {
                   {/* Password Login */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-1.5 sm:py-2.5 first:pt-0">
                     <div className="hidden sm:flex items-start gap-3 min-w-0">
-                      <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/30 text-blue-500 shrink-0">
+                      <div className="p-2.5 rounded-xl bg-blue-50 bg-blue-950/30 text-blue-500 shrink-0">
                         <KeyRound className="w-5 h-5" />
                       </div>
                       <div className="min-w-0">
-                        <h4 className="text-base font-semibold text-stone-900 dark:text-stone-100">Password Login</h4>
-                        <p className="hidden sm:block text-sm text-stone-500 dark:text-stone-400 mt-0.5 leading-relaxed">
+                        <h4 className="text-base font-semibold text-stone-100">Password Login</h4>
+                        <p className="hidden sm:block text-sm text-stone-400 mt-0.5 leading-relaxed">
                           Manage your account password.
                         </p>
                       </div>
@@ -1044,12 +1044,12 @@ export function AuthSettings() {
                   {/* Passkeys */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-2 sm:py-2.5 last:pb-0">
                     <div className="hidden sm:flex items-start gap-3 min-w-0">
-                      <div className="p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 text-indigo-500 shrink-0">
+                      <div className="p-2.5 rounded-xl bg-indigo-50 bg-indigo-950/30 text-indigo-500 shrink-0">
                         <Fingerprint className="w-5 h-5" />
                       </div>
                       <div className="min-w-0">
-                        <h4 className="text-base font-semibold text-stone-900 dark:text-stone-100">Passkeys Setup</h4>
-                        <p className="hidden sm:block text-sm text-stone-500 dark:text-stone-400 mt-0.5 leading-relaxed">
+                        <h4 className="text-base font-semibold text-stone-100">Passkeys Setup</h4>
+                        <p className="hidden sm:block text-sm text-stone-400 mt-0.5 leading-relaxed">
                           Biometric and hardware key access.
                         </p>
                       </div>
@@ -1127,7 +1127,7 @@ export function AuthSettings() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.35, ease: 'easeOut' }}
               style={isDesktop ? { maxHeight: `${maxCardHeight}px` } : undefined}
-              className="sm:rounded-2xl sm:border sm:border-stone-200/80 sm:dark:border-stone-800/80 sm:bg-white sm:dark:bg-[#0F0F0F] sm:shadow-sm sm:dark:shadow-none px-0 py-4 sm:p-6 space-y-3 sm:space-y-4 flex flex-col overflow-hidden w-full h-auto"
+              className="sm:rounded-2xl sm:border sm:sm:border-stone-800/80 sm:bg-[#0F0F0F] sm:shadow-sm shadow-none px-0 py-4 sm:p-6 space-y-3 sm:space-y-4 flex flex-col overflow-hidden w-full h-auto"
             >
               <div className="flex items-center justify-between shrink-0">
                 <SectionLabel>Security & Login Activity</SectionLabel>
@@ -1139,19 +1139,19 @@ export function AuthSettings() {
                       type="button"
                       onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                       disabled={effectiveCurrentPage === 1}
-                      className="p-1 rounded-lg border border-stone-200 dark:border-stone-850 hover:bg-stone-50 dark:hover:bg-stone-900/60 transition-colors disabled:opacity-40 disabled:cursor-not-allowed text-stone-500 dark:text-stone-400"
+                      className="p-1 rounded-lg border border-stone-850 hover:bg-stone-900/60 transition-colors disabled:opacity-40 disabled:cursor-not-allowed text-stone-400"
                       aria-label="Previous Page"
                     >
                       <ChevronLeft className="w-4 h-4" />
                     </button>
-                    <span className="text-xs font-semibold text-stone-500 dark:text-stone-400 px-1 select-none">
+                    <span className="text-xs font-semibold text-stone-400 px-1 select-none">
                       Page {effectiveCurrentPage} of {totalPages}
                     </span>
                     <button
                       type="button"
                       onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                       disabled={effectiveCurrentPage === totalPages}
-                      className="p-1 rounded-lg border border-stone-200 dark:border-stone-850 hover:bg-stone-50 dark:hover:bg-stone-900/60 transition-colors disabled:opacity-40 disabled:cursor-not-allowed text-stone-500 dark:text-stone-400"
+                      className="p-1 rounded-lg border border-stone-850 hover:bg-stone-900/60 transition-colors disabled:opacity-40 disabled:cursor-not-allowed text-stone-400"
                       aria-label="Next Page"
                     >
                       <ChevronRight className="w-4 h-4" />
@@ -1163,7 +1163,7 @@ export function AuthSettings() {
               <div className="overflow-auto flex-1 min-h-0 w-full">
                 <table className="w-full text-left border-collapse text-sm min-w-[600px]">
                   <thead>
-                    <tr className="border-b border-stone-100 dark:border-stone-850 text-xs font-bold uppercase tracking-wider text-stone-400 dark:text-stone-500">
+                    <tr className="border-b border-stone-850 text-xs font-bold uppercase tracking-wider text-stone-500">
                       <th className="pb-3 pr-4">Event Type</th>
                       <th className="pb-3 px-4">Status</th>
                       <th className="pb-3 px-4">Device & OS</th>
@@ -1171,50 +1171,50 @@ export function AuthSettings() {
                       <th className="pb-3 pl-4">Date & Time</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-stone-100/60 dark:divide-stone-850/60">
+                  <tbody className="divide-y divide-stone-100/60 divide-stone-850/60">
                     {paginatedEvents.length > 0 ? (
                       paginatedEvents.map((event) => {
                         const isSuccess = event.status.toLowerCase() === 'success';
                         const isFailed = event.status.toLowerCase().startsWith('failed');
                         const isCurrentSession = event.event_type === 'Active Login Session' && (Date.now() - new Date(event.created_at).getTime()) < 10 * 60 * 1000;
                         
-                        let badgeBg = 'bg-stone-50 dark:bg-stone-850 border-stone-200 dark:border-stone-750 text-stone-600 dark:text-stone-400';
+                        let badgeBg = 'bg-stone-850 border-stone-750 text-stone-400';
                         if (isCurrentSession) {
-                          badgeBg = 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-250 dark:border-emerald-900/40 text-emerald-700 dark:text-emerald-400';
+                          badgeBg = 'bg-emerald-950/20 border-emerald-900/40 text-emerald-400';
                         } else if (isSuccess) {
-                          badgeBg = 'bg-blue-50 dark:bg-blue-950/20 border-blue-250 dark:border-blue-900/40 text-blue-700 dark:text-blue-400';
+                          badgeBg = 'bg-blue-950/20 border-blue-900/40 text-blue-400';
                         } else if (isFailed) {
-                          badgeBg = 'bg-red-50 dark:bg-red-950/20 border-red-200/60 dark:border-red-900/45 text-red-700 dark:text-red-400';
+                          badgeBg = 'bg-red-950/20 border-red-900/45 text-red-400';
                         }
 
                         return (
-                          <tr key={event.id} className="text-stone-900 dark:text-stone-100">
+                          <tr key={event.id} className="text-stone-100">
                             <td className="py-3 pr-4 flex items-center gap-2">
                               {event.event_type === 'Active Login Session' && (
                                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
                               )}
-                              <span className="font-semibold text-stone-900 dark:text-stone-100">{event.event_type}</span>
+                              <span className="font-semibold text-stone-100">{event.event_type}</span>
                             </td>
                             <td className="py-3 px-4">
                               <span className={`inline-flex items-center px-2 py-0.5 rounded border text-xs font-semibold ${badgeBg}`}>
                                 {isCurrentSession ? 'Current Session' : event.status}
                               </span>
                             </td>
-                            <td className="py-3 px-4 text-stone-600 dark:text-stone-300 font-medium">
+                            <td className="py-3 px-4 text-stone-300 font-medium">
                               {event.device_info || 'Unknown Device'}
                             </td>
-                            <td className="py-3 px-4 text-stone-550 dark:text-stone-400 font-mono text-xs">
+                            <td className="py-3 px-4 text-stone-400 font-mono text-xs">
                               {event.ip_address || 'Unknown IP'}
                             </td>
-                            <td className="py-3 pl-4 text-stone-500 dark:text-stone-500">
+                            <td className="py-3 pl-4 text-stone-500">
                               {new Date(event.created_at).toLocaleString()}
                             </td>
                           </tr>
                         );
                       })
                     ) : (
-                      <tr className="text-stone-550 dark:text-stone-450">
-                        <td colSpan={5} className="py-6 text-center text-stone-500 dark:text-stone-400 font-medium">
+                      <tr className="text-stone-450">
+                        <td colSpan={5} className="py-6 text-center text-stone-400 font-medium">
                           No security events recorded yet.
                         </td>
                       </tr>

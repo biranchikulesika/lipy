@@ -186,9 +186,9 @@ function LoginContent() {
   };
 
   return (
-    <div className="min-h-[100dvh] w-full dark:text-[#F5F5F5] text-[#262626] font-sans selection:bg-blue-200 dark:selection:bg-blue-900 selection:text-black dark:selection:text-white flex flex-col items-center justify-between p-6 sm:p-8 relative select-none bg-stone-50 dark:bg-[#070707] overflow-y-auto">
+    <div className="min-h-[100dvh] w-full text-[#F5F5F5] font-sans selection:bg-blue-900 selection:text-white flex flex-col items-center justify-between p-6 sm:p-8 relative select-none bg-[#070707] overflow-y-auto">
 
-      {/* Return & Theme Toggle */}
+      {/* Return */}
       <AnimatePresence>
         {!isInputFocused && (
           <motion.div
@@ -209,7 +209,7 @@ function LoginContent() {
       </AnimatePresence>
 
       {/* Fullscreen Particle Background (Hidden on Mobile) */}
-      <div id="particle-canvas-container" className="hidden md:block absolute inset-0 z-0 pointer-events-none bg-gradient-to-br from-[#FAFAFA] to-[#FFFFFF] dark:from-[#0A0A0A] dark:to-[#000000] opacity-100">
+      <div id="particle-canvas-container" className="hidden md:block absolute inset-0 z-0 pointer-events-none bg-gradient-to-br from-[#0A0A0A] to-[#000000] opacity-100">
         {isMounted && <ParticleCanvas text="" />}
       </div>
 
@@ -235,7 +235,7 @@ function LoginContent() {
               <div className="relative">
                 <label htmlFor="email" className="sr-only">Email ID</label>
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                  <AtSign className="h-5 w-5 text-stone-400 dark:text-stone-500" />
+                  <AtSign className="h-5 w-5 text-stone-500" />
                 </div>
                 <input
                   id="email"
@@ -260,7 +260,7 @@ function LoginContent() {
                     handleEmailBlur();
                     setIsInputFocused(false);
                   }}
-                  className={`block w-full rounded-md border dark:border-stone-700 border-stone-300 dark:bg-[#121212] bg-[#FAFAFA] pl-11 pr-3 py-2.5 text-[15px] focus:outline-none focus:border-stone-400 dark:focus:border-stone-500 transition-colors cursor-text read-only:focus:border-stone-300 ${emailError ? 'border-red-500' : ''}`}
+                  className={`block w-full rounded-md border border-stone-700 bg-[#121212] pl-11 pr-3 py-2.5 text-[15px] focus:outline-none focus:border-stone-500 transition-colors cursor-text read-only:focus:border-stone-300 ${emailError ? 'border-red-500' : ''}`}
                   placeholder={isFakeTyping ? "" : "Email ID"}
                 />
               </div>
@@ -268,7 +268,7 @@ function LoginContent() {
               <div className="relative">
                 <label htmlFor="password" className="sr-only">Password</label>
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                  <KeyRound className="h-5 w-5 text-stone-400 dark:text-stone-500" />
+                  <KeyRound className="h-5 w-5 text-stone-500" />
                 </div>
                 <input
                   id="password"
@@ -292,14 +292,14 @@ function LoginContent() {
                     handleInputBlur();
                     setIsInputFocused(false);
                   }}
-                  className="block w-full rounded-md border dark:border-stone-700 border-stone-300 dark:bg-[#121212] bg-[#FAFAFA] pl-11 pr-11 py-2.5 text-[15px] focus:outline-none focus:border-stone-400 dark:focus:border-stone-500 transition-colors cursor-text read-only:focus:border-stone-300"
+                  className="block w-full rounded-md border border-stone-700 bg-[#121212] pl-11 pr-11 py-2.5 text-[15px] focus:outline-none focus:border-stone-500 transition-colors cursor-text read-only:focus:border-stone-300"
                   placeholder={isFakeTyping ? "" : "Password"}
                 />
                 {currentPassword && !isFakeTyping && (
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 transition-colors"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-stone-500 hover:text-stone-300 transition-colors"
                     tabIndex={-1}
                   >
                     <div className="relative w-5 h-5">
@@ -349,7 +349,7 @@ function LoginContent() {
                         initial={{ opacity: 0, y: -4 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -4 }}
-                        className="text-stone-500 dark:text-stone-400 text-[12px] font-medium"
+                        className="text-stone-400 text-[12px] font-medium"
                       >
                         Invalid credentials entered
                       </motion.span>
@@ -359,9 +359,9 @@ function LoginContent() {
               </div>
 
               <div className="flex w-full items-center my-4 md:my-6">
-                <div className="flex-grow border-t border-stone-200 dark:border-stone-800"></div>
-                <span className="mx-4 text-[13px] text-[#737373] dark:text-[#A8A8A8]">or continue with</span>
-                <div className="flex-grow border-t border-stone-200 dark:border-stone-800"></div>
+                <div className="flex-grow border-t border-stone-800"></div>
+                <span className="mx-4 text-[13px] text-[#A8A8A8]">or continue with</span>
+                <div className="flex-grow border-t border-stone-800"></div>
               </div>
 
               <div className="grid grid-cols-3 gap-2 md:gap-3 w-full">
@@ -369,7 +369,7 @@ function LoginContent() {
                   type="button"
                   onClick={() => handleOAuthLogin('google')}
                   disabled={loading}
-                  className="flex flex-col items-center justify-center py-2 md:py-4 border border-stone-200 dark:border-stone-800 rounded-[8px] hover:bg-stone-50 dark:hover:bg-stone-900/50 transition-colors disabled:opacity-50"
+                  className="flex flex-col items-center justify-center py-2 md:py-4 border border-stone-800 rounded-[8px] hover:bg-stone-900/50 transition-colors disabled:opacity-50"
                 >
                   <svg viewBox="0 0 24 24" aria-hidden="true" className="h-[20px] w-[20px] md:h-[24px] md:w-[24px] mb-1 md:mb-2">
                     <path d="M12.0003 4.75C13.7703 4.75 15.3553 5.36002 16.6053 6.54998L20.0303 3.125C17.9502 1.19 15.2353 0 12.0003 0C7.31028 0 3.25527 2.69 1.28027 6.60998L5.27028 9.70498C6.21525 6.86002 8.87028 4.75 12.0003 4.75Z" fill="#EA4335" />
@@ -377,29 +377,29 @@ function LoginContent() {
                     <path d="M5.26498 14.2949C5.02498 13.5699 4.88501 12.7999 4.88501 11.9999C4.88501 11.1999 5.01998 10.4299 5.26498 9.7049L1.275 6.60986C0.46 8.22986 0 10.0599 0 11.9999C0 13.9399 0.46 15.7699 1.28 17.3899L5.26498 14.2949Z" fill="#FBBC05" />
                     <path d="M12.0004 24.0001C15.2404 24.0001 17.9654 22.935 19.9454 21.095L16.0804 18.095C15.0054 18.82 13.6204 19.245 12.0004 19.245C8.8704 19.245 6.21537 17.135 5.26538 14.29L1.27539 17.385C3.25539 21.31 7.3104 24.0001 12.0004 24.0001Z" fill="#34A853" />
                   </svg>
-                  <span className="text-[12px] md:text-[14px] font-medium text-[#262626] dark:text-[#F5F5F5]">Google</span>
+                  <span className="text-[12px] md:text-[14px] font-medium text-[#F5F5F5]">Google</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => handleOAuthLogin('github')}
                   disabled={loading}
-                  className="flex flex-col items-center justify-center py-2 md:py-4 border border-stone-200 dark:border-stone-800 rounded-[8px] hover:bg-stone-50 dark:hover:bg-stone-900/50 transition-colors disabled:opacity-50"
+                  className="flex flex-col items-center justify-center py-2 md:py-4 border border-stone-800 rounded-[8px] hover:bg-stone-900/50 transition-colors disabled:opacity-50"
                 >
-                  <svg viewBox="0 0 24 24" aria-hidden="true" className="h-[20px] w-[20px] md:h-[24px] md:w-[24px] mb-1 md:mb-2 fill-[#24292F] dark:fill-[#FFFFFF]">
+                  <svg viewBox="0 0 24 24" aria-hidden="true" className="h-[20px] w-[20px] md:h-[24px] md:w-[24px] mb-1 md:mb-2 fill-[#FFFFFF]">
                     <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
                   </svg>
-                  <span className="text-[12px] md:text-[14px] font-medium text-[#262626] dark:text-[#F5F5F5]">GitHub</span>
+                  <span className="text-[12px] md:text-[14px] font-medium text-[#F5F5F5]">GitHub</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={handlePasskeyLogin}
                   disabled={loading}
-                  className="flex flex-col items-center justify-center py-2 md:py-4 border border-stone-200 dark:border-stone-800 rounded-[8px] hover:bg-stone-50 dark:hover:bg-stone-900/50 transition-colors disabled:opacity-50"
+                  className="flex flex-col items-center justify-center py-2 md:py-4 border border-stone-800 rounded-[8px] hover:bg-stone-900/50 transition-colors disabled:opacity-50"
                 >
-                  <KeyRound className="h-[20px] w-[20px] md:h-[24px] md:w-[24px] mb-1 md:mb-2 text-stone-700 dark:text-stone-300" />
-                  <span className="text-[12px] md:text-[14px] font-medium text-[#262626] dark:text-[#F5F5F5]">Passkey</span>
+                  <KeyRound className="h-[20px] w-[20px] md:h-[24px] md:w-[24px] mb-1 md:mb-2 text-stone-300" />
+                  <span className="text-[12px] md:text-[14px] font-medium text-[#F5F5F5]">Passkey</span>
                 </button>
               </div>
 
@@ -420,7 +420,7 @@ function LoginContent() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
               transition={{ duration: 0.2 }}
-              className="w-full mt-auto pt-8 pb-2 flex flex-wrap justify-center gap-x-3 gap-y-1 md:gap-x-4 md:gap-y-2 px-4 text-[10px] md:text-[12px] text-[#737373] dark:text-[#A8A8A8] z-10"
+              className="w-full mt-auto pt-8 pb-2 flex flex-wrap justify-center gap-x-3 gap-y-1 md:gap-x-4 md:gap-y-2 px-4 text-[10px] md:text-[12px] text-[#A8A8A8] z-10"
             >
               <Link href="/" className="hover:underline">Home</Link>
               <Link href="/about" className="hover:underline">About</Link>
@@ -443,7 +443,7 @@ function LoginContent() {
 export default function LoginPage() {
   return (
     <Suspense fallback={
-      <div className="h-screen w-screen flex items-center justify-center dark:bg-[#000000] bg-[#FFFFFF]">
+      <div className="h-screen w-screen flex items-center justify-center bg-[#000000]">
         <Loader2 className="w-8 h-8 animate-spin text-[#0095f6]" />
       </div>
     }>
