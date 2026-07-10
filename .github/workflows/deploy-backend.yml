@@ -14,6 +14,7 @@ permissions:
 
 env:
   REGISTRY: lipyacr.azurecr.io
+  REGISTRY_NAME: lipyacr
   IMAGE_NAME: lipy-backend
   CONTAINER_APP: lipy-api
   RESOURCE_GROUP: lipy-rg
@@ -39,7 +40,7 @@ jobs:
 
       - name: Login to Azure Container Registry
         run: |
-          az acr login --name lipyacr
+          az acr login --name $REGISTRY_NAME
 
       - name: Build Docker image
         run: |
@@ -59,3 +60,24 @@ jobs:
             --name $CONTAINER_APP \
             --resource-group $RESOURCE_GROUP \
             --image $REGISTRY/$IMAGE_NAME:${{ github.sha }}
+
+      - name: Wait for deployment
+        run: sleep 20
+
+      - name: Show latest revision
+        run: |
+          az containerapp revision list \
+            --name $CONTAINER_APP \
+            --resource-group $RESOURCE_GROUP \
+            --output table
+
+      - name: Verify application
+        run: |
+          APP_URL=$(az containerapp show \
+            --name $CONTAINER_APP \
+            --resource-group $RESOURCE_GROUP \
+            --query properties.configuration.ingress.fqdn \
+            -o tsv)
+
+          curl --fail --retry 10 --retry-delay 5 \
+            "https://$APP_URL/"
