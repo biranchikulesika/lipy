@@ -48,10 +48,9 @@ function LipyLogo({ collapsed }: { collapsed: boolean }) {
 function NavTooltip({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="relative group/tip">
-      {children}
-      <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-stone-100 text-stone-900 text-xs font-medium rounded-lg opacity-0 pointer-events-none group-hover/tip:opacity-100 transition-opacity whitespace-nowrap z-50 shadow-lg">
+      {children}              <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-stone-800 text-stone-200 text-xs font-medium rounded-lg opacity-0 pointer-events-none group-hover/tip:opacity-100 transition-opacity whitespace-nowrap z-50 shadow-lg">
         {label}
-        <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-stone-100" />
+        <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-stone-800" />
       </div>
     </div>
   );
@@ -155,7 +154,7 @@ export function AdminShell({
           const inner = (
             <div
               key={item.label}
-              className={`flex items-center gap-3 rounded-xl text-stone-700 font-semibold text-sm cursor-not-allowed select-none ${
+              className={`flex items-center gap-3 rounded-xl text-stone-500 font-semibold text-sm cursor-not-allowed select-none ${
                 collapsed && !isMobile ? 'justify-center px-0 py-2.5' : 'px-3.5 py-2.5'
               }`}
             >
@@ -264,7 +263,7 @@ export function AdminShell({
                 const inner = (
                   <button
                     onClick={handleSignOut}
-                    className={`flex items-center gap-3 w-full rounded-xl text-red-500 hover:text-red-655 text-red-400 hover:text-red-300 hover:bg-red-50/50 hover:bg-red-950/10 font-semibold text-sm transition-all duration-200 active:scale-95 ease-out ${
+                    className={`flex items-center gap-3 w-full rounded-xl text-red-400 hover:text-red-300 hover:bg-red-950/10 font-semibold text-sm transition-all duration-200 active:scale-95 ease-out ${
                       collapsed ? 'justify-center py-2.5 px-0' : 'px-3.5 py-2.5'
                     }`}
                   >
@@ -295,12 +294,12 @@ export function AdminShell({
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -8, scale: 0.98 }}
                   transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                  className="fixed right-3 top-[3.9rem] z-50 w-[15rem] max-w-[calc(100vw-1.5rem)] rounded-xl border border-stone-200 bg-white/95 p-2 shadow-2xl backdrop-blur-xl border-stone-900 bg-[#0A0A0A]/95 md:hidden"
+                  className="fixed right-3 top-[3.9rem] z-50 w-[15rem] max-w-[calc(100vw-1.5rem)] rounded-xl border border-stone-800 bg-[#0A0A0A]/95 p-2 shadow-2xl backdrop-blur-xl md:hidden"
                 >
                   <nav className="flex flex-col gap-1" aria-label="Mobile navigation">
                     {NAV_ITEMS.map((group) => (
                       <div key={group.section} className="space-y-1">
-                        <div className="px-2.5 py-1.5 pt-2 text-[10px] font-bold uppercase tracking-widest text-stone-400/80 text-stone-600/85 select-none">
+                        <div className="px-2.5 py-1.5 pt-2 text-[10px] font-bold uppercase tracking-widest text-stone-400/80 select-none">
                           {group.section}
                         </div>
 
@@ -327,7 +326,7 @@ export function AdminShell({
 
                     <button
                       onClick={handleSignOut}
-                      className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-semibold text-red-500 transition-colors hover:bg-red-50/70 hover:text-red-600 text-red-400 hover:bg-red-950/20 hover:text-red-300"
+                      className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-semibold text-red-400 transition-colors hover:bg-red-950/20 hover:text-red-300"
                     >
                       <LogOut className="w-3.5 h-3.5 shrink-0" />
                       <span>Sign Out</span>

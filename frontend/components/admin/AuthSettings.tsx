@@ -246,7 +246,7 @@ function SocialRow({
                 onClick={onDisconnect}
                 disabled={loading || !canUnlink}
                 title={!canUnlink ? "At least one social account is mandatory to prevent lockout." : undefined}
-                className="w-full sm:w-48 h-9 sm:h-10 border border-red-200/40 hover:bg-red-950/15 text-red-400 text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl transition-all duration-200 ease-out active:scale-97 hover:-translate-y-[1px] shadow-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none flex items-center justify-center gap-1.5"
+                className="w-full sm:w-48 h-9 sm:h-10 border border-red-900/50 hover:bg-red-950/15 text-red-400 text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl transition-all duration-200 ease-out active:scale-97 hover:-translate-y-[1px] shadow-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none flex items-center justify-center gap-1.5"
               >
                 {icon}
                 <span className="hidden sm:inline">Disconnect</span>
@@ -256,7 +256,7 @@ function SocialRow({
               <button
                 onClick={onConnect}
                 disabled={loading}
-                className="w-full sm:w-48 h-9 sm:h-10 bg-stone-100 hover:bg-stone-50 text-stone-900 text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl transition-all duration-200 ease-out active:scale-97 hover:-translate-y-[1px] shadow-sm disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-1.5"
+                className="w-full sm:w-48 h-9 sm:h-10 bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl transition-all duration-200 ease-out active:scale-97 hover:-translate-y-[1px] shadow-sm disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-1.5"
               >
                 {icon}
                 <span className="hidden sm:inline">Connect</span>
@@ -463,7 +463,7 @@ function PasswordChangeModal({
                   exit={{ opacity: 0, height: 0 }}
                   className="overflow-hidden px-5 pt-3"
                 >
-                  <div className="p-3 bg-red-950/20 border border-red-200 border-red-900/40 rounded-xl text-xs text-red-400 flex items-start gap-2">
+                  <div className="p-3 bg-red-950/20 border border-red-900/40 rounded-xl text-xs text-red-400 flex items-start gap-2">
                     <CircleAlert className="w-3.5 h-3.5 shrink-0 mt-0.5" />
                     <span>{modalError}</span>
                   </div>
@@ -930,7 +930,7 @@ export function AuthSettings() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35, ease: 'easeOut' }}
-              className="relative overflow-hidden sm:rounded-2xl sm:border sm:sm:border-stone-800/80 sm:bg-[#0F0F0F] sm:shadow-sm shadow-none p-3 sm:p-5 space-y-2.5 sm:space-y-4 lg:h-full"
+              className="relative overflow-hidden sm:rounded-2xl sm:border sm:border-stone-800/80 sm:bg-[#0F0F0F] sm:shadow-sm shadow-none p-3 sm:p-5 space-y-2.5 sm:space-y-4 lg:h-full"
             >
               {/* Decorative Gradient Background */}
               <div className="hidden sm:block absolute inset-x-0 top-0 h-28 bg-gradient-to-br from-blue-500/[0.04] via-indigo-500/[0.03] to-transparent pointer-events-none" />
@@ -1022,7 +1022,7 @@ export function AuthSettings() {
                   {/* Password Login */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-1.5 sm:py-2.5 first:pt-0">
                     <div className="hidden sm:flex items-start gap-3 min-w-0">
-                      <div className="p-2.5 rounded-xl bg-blue-50 bg-blue-950/30 text-blue-500 shrink-0">
+                      <div className="p-2.5 rounded-xl bg-blue-950/30 text-blue-500 shrink-0">
                         <KeyRound className="w-5 h-5" />
                       </div>
                       <div className="min-w-0">
@@ -1044,7 +1044,7 @@ export function AuthSettings() {
                   {/* Passkeys */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-2 sm:py-2.5 last:pb-0">
                     <div className="hidden sm:flex items-start gap-3 min-w-0">
-                      <div className="p-2.5 rounded-xl bg-indigo-50 bg-indigo-950/30 text-indigo-500 shrink-0">
+                      <div className="p-2.5 rounded-xl bg-indigo-950/30 text-indigo-500 shrink-0">
                         <Fingerprint className="w-5 h-5" />
                       </div>
                       <div className="min-w-0">
@@ -1127,7 +1127,7 @@ export function AuthSettings() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.35, ease: 'easeOut' }}
               style={isDesktop ? { maxHeight: `${maxCardHeight}px` } : undefined}
-              className="sm:rounded-2xl sm:border sm:sm:border-stone-800/80 sm:bg-[#0F0F0F] sm:shadow-sm shadow-none px-0 py-4 sm:p-6 space-y-3 sm:space-y-4 flex flex-col overflow-hidden w-full h-auto"
+              className="sm:rounded-2xl sm:border sm:border-stone-800/80 sm:bg-[#0F0F0F] sm:shadow-sm shadow-none px-0 py-4 sm:p-6 space-y-3 sm:space-y-4 flex flex-col overflow-hidden w-full h-auto"
             >
               <div className="flex items-center justify-between shrink-0">
                 <SectionLabel>Security & Login Activity</SectionLabel>
@@ -1171,7 +1171,7 @@ export function AuthSettings() {
                       <th className="pb-3 pl-4">Date & Time</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-stone-100/60 divide-stone-850/60">
+                  <tbody className="divide-y divide-stone-850/60">
                     {paginatedEvents.length > 0 ? (
                       paginatedEvents.map((event) => {
                         const isSuccess = event.status.toLowerCase() === 'success';
@@ -1213,7 +1213,7 @@ export function AuthSettings() {
                         );
                       })
                     ) : (
-                      <tr className="text-stone-450">
+                      <tr className="text-stone-400">
                         <td colSpan={5} className="py-6 text-center text-stone-400 font-medium">
                           No security events recorded yet.
                         </td>

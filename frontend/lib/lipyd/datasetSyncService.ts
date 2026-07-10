@@ -5,6 +5,7 @@ import { ensureValidSessionId, isValidContributorName, isValidMode } from './val
 
 const STORAGE_BUCKET = 'lipy-samples';
 const MAX_BLOB_BYTES = 4 * 1024 * 1024;
+const MAX_RETRY_ATTEMPTS = 10;
 const characterIds = new Set(odiaCharacters.map((item) => item.id));
 
 const listeners = new Set<Function>();
@@ -16,6 +17,8 @@ let state = {
   online: typeof navigator !== 'undefined' ? navigator.onLine : true,
   syncing: false,
   pendingCount: 0,
+  uploadedCount: 0,
+  failedCount: 0,
   lastError: '',
   configured: isSupabaseConfigured(),
 };
@@ -94,7 +97,17 @@ function scheduleProcessing(delay = 0) {
 }
 
 function getRetryDelayMs(attempts = 1) {
-  return Math.min(2000 * Math.max(1, attempts), 5 * 60 * 1000);
+  if (attempts >= MAX_RETRY_ATTEMPTS) return -1; // Stop retrying
+
+  // Exponential backoff with full jitter (AWS recommended strategy)
+  // baseDelay * 2^(attempt-1), capped at 5 min, then random(0, cap)
+  const BASE_DELAY = 1000; // 1 second
+  const MAX_DELAY = 5 * 60 * 1000; // 5 minutes
+
+  const exponential = Math.min(BASE_DELAY * Math.pow(2, attempts - 1), MAX_DELAY);
+
+  // Full jitter: random value between 0 and the exponential window
+  return Math.floor(Math.random() * exponential);
 }
 
 async function ensureListeners() {
@@ -276,14 +289,31 @@ async function markUploaded(item: any) {
 }
 
 async function markFailed(item: any, error: any) {
-  const message = error?.message || String(error || 'Upload failed');
+  const err = error as Error;
+  const message = err?.message || String(error || 'Upload failed');
   const attempts = (item.attempts || 0) + 1;
   const delay = getRetryDelayMs(attempts);
+
+  // Mark as dead if max retries exceeded, then remove from queue
+  if (delay === -1 || attempts >= MAX_RETRY_ATTEMPTS) {
+    await db.uploadQueue.delete(item.clientSampleId);
+    if (item.sampleId) {
+      await updateSampleSyncState(item.sampleId, {
+        syncStatus: 'pending',
+        uploadStatus: 'failed',
+        uploadAttempts: attempts,
+        uploadError: message,
+      });
+    }
+    return;
+  }
+
   const nextAttemptAt = new Date(Date.now() + delay).toISOString();
 
   await db.uploadQueue.update(item.clientSampleId, {
     attempts,
     lastError: message,
+    status: 'retrying',
     nextAttemptAt,
     updatedAt: nowIso(),
   });
@@ -298,6 +328,25 @@ async function markFailed(item: any, error: any) {
   }
 
   await refreshState({ lastError: message, syncing: false });
+}
+
+/**
+ * Schedule the next processing run based on the earliest pending item's retry time.
+ * Scans the upload queue for the minimum nextAttemptAt and sets a timer.
+ */
+async function scheduleNextProcessing() {
+  const items = await db.uploadQueue.toArray();
+  const eligible = items
+    .filter((item) => item.status !== 'dead')
+    .map((item) => new Date(item.nextAttemptAt || item.createdAt || 0).getTime())
+    .filter((t) => t > 0);
+
+  if (!eligible.length) return;
+
+  const now = Date.now();
+  const earliest = Math.min(...eligible);
+  const delay = Math.max(0, earliest - now);
+
   scheduleProcessing(delay);
 }
 
@@ -345,8 +394,15 @@ export async function processUploadQueue() {
 
     await refreshState({ syncing: true, lastError: '' });
 
+    let uploadedCount = 0;
+    let failedCount = 0;
+    let firstError = '';
+
     for (const item of queueItems) {
       if (!getCurrentOnlineState()) break;
+
+      // Skip dead items (exceeded max retries)
+      if (item.status === 'dead') continue;
 
       const nextAttempt = item.nextAttemptAt ? new Date(item.nextAttemptAt).getTime() : 0;
       if (nextAttempt && nextAttempt > Date.now()) continue;
@@ -354,13 +410,21 @@ export async function processUploadQueue() {
       try {
         await uploadSingleItem(client, item);
         await markUploaded(item);
+        uploadedCount++;
       } catch (error) {
+        failedCount++;
+        const err = error as Error;
+        const message = err?.message || String(error || 'Upload failed');
+        if (!firstError) firstError = message;
         await markFailed(item, error);
-        return;
+        // Continue with the next item instead of bailing out
       }
     }
 
-    await refreshState({ syncing: false, lastError: '' });
+    await refreshState({ syncing: false, lastError: firstError, uploadedCount, failedCount });
+
+    // Schedule next check based on the earliest remaining retry time
+    await scheduleNextProcessing();
   })().finally(async () => {
     processingPromise = null;
     await refreshState({ syncing: false });
