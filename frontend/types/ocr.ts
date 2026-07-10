@@ -1,13 +1,17 @@
 export interface PredictionItem {
   label: string;
   confidence: number;
-  character?: string;
+  character: string;
 }
 
+export type PredictionStatus = "success" | "low_confidence" | "ambiguous";
+
 export interface PredictionResponse {
-  prediction: string;
+  status: PredictionStatus;
+  prediction: string | null;
   confidence: number;
-  character?: string;
+  character: string | null;
+  reason: string | null;
   top_predictions: PredictionItem[];
 }
 
