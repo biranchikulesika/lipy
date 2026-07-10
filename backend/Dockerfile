@@ -40,6 +40,14 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # ============================================================================
+# Entrypoint
+# ============================================================================
+
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# ============================================================================
 # Network
 # ============================================================================
 
@@ -49,4 +57,4 @@ EXPOSE 8000
 # Startup
 # ============================================================================
 
-CMD ["sh", "-c", "python download_model.py && exec uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+ENTRYPOINT ["docker-entrypoint.sh"]

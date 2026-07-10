@@ -19,6 +19,7 @@ except ImportError:
 
 MODEL_FILE = "model.keras"
 LABELS_FILE = "labels.json"
+REVISION_FILE = ".hf_revision"
 
 
 def main() -> None:
@@ -32,25 +33,21 @@ def main() -> None:
             "HF_MODEL_REPO_ID",
             DEFAULT_MODEL_REPO_ID,
         ),
-        help="Hugging Face model repository.",
     )
 
     parser.add_argument(
         "--revision",
         default=os.getenv("HF_MODEL_REVISION"),
-        help="Repository branch, tag or commit.",
     )
 
     parser.add_argument(
         "--output-dir",
         default=str(MODEL_DIR),
-        help="Directory where model files will be stored.",
     )
 
     parser.add_argument(
         "--force",
         action="store_true",
-        help="Force download even if model already exists.",
     )
 
     args = parser.parse_args()
@@ -60,25 +57,42 @@ def main() -> None:
 
     model_dest = output_dir / MODEL_FILE
     labels_dest = output_dir / LABELS_FILE
-
-    # -------------------------------------------------------------
-    # Skip download if files already exist
-    # -------------------------------------------------------------
-    if (
-        not args.force
-        and model_dest.exists()
-        and labels_dest.exists()
-    ):
-        print("✓ Local model already exists.")
-        print(f"Model  : {model_dest}")
-        print(f"Labels : {labels_dest}")
-        return
-
-    print("Downloading latest model from Hugging Face...")
+    revision_dest = output_dir / REVISION_FILE
 
     token = os.getenv("HF_TOKEN")
 
     api = HfApi(token=token)
+
+    try:
+        repo_info = api.model_info(
+            repo_id=args.repo_id,
+            revision=args.revision,
+        )
+        latest_revision = repo_info.sha
+
+    except Exception:
+        if model_dest.exists() and labels_dest.exists():
+            print("Unable to check Hugging Face. Using cached model.")
+            return
+        raise
+
+    local_revision = (
+        revision_dest.read_text().strip()
+        if revision_dest.exists()
+        else None
+    )
+
+    if (
+        not args.force
+        and model_dest.exists()
+        and labels_dest.exists()
+        and local_revision == latest_revision
+    ):
+        print("✓ Model already up to date.")
+        print(f"Revision: {latest_revision}")
+        return
+
+    print("Downloading latest model...")
 
     files = api.list_repo_files(
         repo_id=args.repo_id,
@@ -97,7 +111,7 @@ def main() -> None:
 
     if not keras_files:
         print(
-            f"Error: No .keras model found in '{args.repo_id}'.",
+            "No .keras model found.",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -127,7 +141,7 @@ def main() -> None:
 
     if labels_name is None:
         print(
-            "Error: labels.json not found.",
+            "labels.json not found.",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -151,8 +165,10 @@ def main() -> None:
     shutil.copy2(model_path, model_dest)
     shutil.copy2(labels_path, labels_dest)
 
-    print()
-    print("✓ LiPy model downloaded successfully.\n")
+    revision_dest.write_text(latest_revision)
+
+    print("✓ Model updated.")
+    print(f"Revision: {latest_revision}")
     print(f"Model  : {model_dest}")
     print(f"Labels : {labels_dest}")
 
