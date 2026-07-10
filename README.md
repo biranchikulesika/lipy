@@ -65,7 +65,7 @@ lipy/
 
 | Directory | Description |
 |-----------|-------------|
-| `backend/` | FastAPI backend responsible for OCR inference |
+| `backend/` | FastAPI inference backend with Docker support. Provides a REST API for OCR — see [backend/README.md](backend/README.md) for endpoints, response formats, and deployment |
 | `frontend/` | Web interface for handwriting recognition |
 | `dataset/` | Local nested Git repository containing datasets |
 | `models/` | Local nested Git repository containing trained models |
@@ -104,9 +104,13 @@ lipy/
  to Hugging Face     to Hugging Face
          │                   │
          └─────────┬─────────┘
-                   ▼
-          Backend Deployment
-              (Railway)
+                   │
+         ┌─────────┴─────────┐
+         ▼                   ▼
+   Docker / Railway       Local Dev
+   Backend Deployment    uvicorn main:app
+   (auto-downloads       --reload
+    model from HF)
 ```
 
 ---
@@ -164,10 +168,15 @@ Each major component contains its own documentation.
 
 | Directory | Description |
 |-----------|-------------|
-| `backend/README.md` | Backend API, inference pipeline, deployment, and Railway setup |
+| `backend/README.md` | Backend API (endpoints, response models, status-based predictions), inference pipeline, Docker deployment, and Railway setup |
 | `frontend/README.md` | Frontend setup and development |
 | `scripts/README.md` | Dataset and model management utilities |
 | `notebooks/L.ipynb` | Complete training workflow from dataset download to model export |
+
+### Key Features
+
+- **Status-based predictions** — Responses include a `status` field (`success`, `low_confidence`, `ambiguous`) with clear `reason` codes, so the frontend can display meaningful feedback instead of showing unreliable results.
+- **Docker-first deployment** — The backend includes a production-ready `Dockerfile` and `docker-entrypoint.sh` that automatically downloads the latest model from Hugging Face on startup. See [backend/README.md](backend/README.md#docker) for Docker usage.
 
 ---
 
