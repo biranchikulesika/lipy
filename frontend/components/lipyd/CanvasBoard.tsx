@@ -360,17 +360,47 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
             <span className="opacity-40">•</span>
             <span>Skipped: <span className="text-white">{skipped}</span></span>
 
-            {syncState.lastError ? (
-              <>
-                <span className="opacity-40">•</span>
-                <span className="text-red-500" title={syncState.lastError}>Sync error</span>
-              </>
-            ) : (!syncState.online && !syncState.syncing) ? (
-              <>
-                <span className="opacity-40">•</span>
-                <span className="text-amber-600">Offline</span>
-              </>
-            ) : null}
+            {(() => {
+              const dot = <span className="opacity-40">•</span>;
+              if (syncState.lastError) {
+                return (
+                  <>
+                    {dot}
+                    <span
+                      className="text-rose-400 cursor-help underline decoration-dotted underline-offset-2"
+                      title={syncState.lastError}
+                    >
+                      Sync failed
+                    </span>
+                    {syncState.pendingCount > 0 && (
+                      <span className="text-slate-400">, {syncState.pendingCount} pending</span>
+                    )}
+                  </>
+                );
+              }
+              if (syncState.syncing) {
+                return (
+                  <>
+                    {dot}
+                    <span className="text-verdigris-400 animate-pulse">Syncing</span>
+                  </>
+                );
+              }
+              if (!syncState.online) {
+                return (
+                  <>
+                    {dot}
+                    <span className="text-amber-500">Offline</span>
+                  </>
+                );
+              }
+              return (
+                <>
+                  {dot}
+                  <span className="text-slate-500">Synced</span>
+                </>
+              );
+            })()}
           </div>
         </div>
 

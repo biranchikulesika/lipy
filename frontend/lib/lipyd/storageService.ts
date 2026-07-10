@@ -16,7 +16,7 @@ export interface SampleRecord {
   createdAt?: string;
   updatedAt?: string;
   syncStatus?: 'pending' | 'uploaded';
-  uploadStatus?: 'pending' | 'retrying' | 'uploaded';
+  uploadStatus?: 'pending' | 'retrying' | 'uploaded' | 'failed';
   uploadAttempts?: number;
   uploadError?: string;
   uploadedAt?: string | null;
@@ -72,6 +72,11 @@ export class LiPyDatabase extends Dexie {
     this.version(3).stores({
       samples: '++id,clientSampleId,characterId,contributorId,sessionId,filename,timestamp,syncStatus,uploadedAt',
       contributors: '++id,contributorId,sessionId',
+      uploadQueue: 'clientSampleId,contributorId,sessionId,characterId,status,nextAttemptAt,updatedAt',
+    });
+    this.version(4).stores({
+      samples: '++id,clientSampleId,characterId,contributorId,sessionId,filename,timestamp,syncStatus,uploadedAt,[characterId+contributorId+sessionId]',
+      contributors: '++id,contributorId,sessionId,[contributorId+sessionId]',
       uploadQueue: 'clientSampleId,contributorId,sessionId,characterId,status,nextAttemptAt,updatedAt',
     });
   }
