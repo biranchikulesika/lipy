@@ -337,9 +337,9 @@ On container startup, `docker-entrypoint.sh` runs:
 
 ---
 
-# Railway Deployment
+# Azure Deployment
 
-Railway deploys the `backend/` directory as an independent service.
+Azure deploys the `backend/` directory as an independent service.
 
 Startup command:
 

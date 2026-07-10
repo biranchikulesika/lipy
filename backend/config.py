@@ -53,7 +53,7 @@ TOP_K = 3
 # Minimum confidence for a prediction to be considered reliable.
 # If the top prediction's confidence is below this threshold,
 # the API returns a "low_confidence" status.
-LOW_CONFIDENCE_THRESHOLD = 0.95
+LOW_CONFIDENCE_THRESHOLD = 0.90
 
 # Minimum margin between the top two predictions for the result
 # to be considered unambiguous. If the difference is smaller,
