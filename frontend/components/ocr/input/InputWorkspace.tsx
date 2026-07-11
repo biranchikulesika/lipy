@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { RotateCcw, Wand2, AlertCircle, Loader2 } from "lucide-react";
+import { Eraser, Sparkles, AlertCircle, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 interface InputWorkspaceProps {
@@ -71,7 +71,7 @@ export function InputWorkspace({
 					aria-label="Clear Input"
 					title="Clear Input"
 				>
-					<RotateCcw className="h-6 w-6 text-slate-400 transition-transform group-hover:-rotate-90" />
+					<Eraser className="h-6 w-6 text-slate-400 transition-transform group-hover:scale-110" />
 				</button>
 
 				<button
@@ -86,7 +86,7 @@ export function InputWorkspace({
 					{isPredicting ? (
 						<Loader2 className="h-6 w-6 text-slate-950 animate-spin" />
 					) : (
-						<Wand2 className="h-6 w-6 text-slate-950 transition-transform group-hover:scale-125" />
+						<Sparkles className="h-6 w-6 text-slate-950 transition-transform group-hover:scale-125" />
 					)}
 				</button>
 			</div>

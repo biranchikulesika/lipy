@@ -1,24 +1,39 @@
 "use client";
 
-import { useEffect, useRef, useImperativeHandle, forwardRef } from "react";
+import { useEffect, useRef, useImperativeHandle, forwardRef, useCallback } from "react";
 import type { InputModeRef } from "@/types/ocr";
 
 interface DrawContentProps {
 	onReadyChange: (isReady: boolean) => void;
 	disabled?: boolean;
+	onStrokeEnd?: () => void;
 }
 
 type Point = { x: number; y: number };
 
 const CANVAS_SIZE = 336;
 const STROKE_WIDTH = 18;
+const STROKE_DEBOUNCE_MS = 400;
 
 export const DrawContent = forwardRef<InputModeRef, DrawContentProps>(
-	({ onReadyChange, disabled = false }, ref) => {
+	({ onReadyChange, disabled = false, onStrokeEnd }, ref) => {
 		const canvasRef = useRef<HTMLCanvasElement | null>(null);
 		const isDrawingRef = useRef(false);
 		const previousPointRef = useRef<Point | null>(null);
 		const hasDrawingRef = useRef(false);
+
+		const onStrokeEndRef = useRef(onStrokeEnd);
+		onStrokeEndRef.current = onStrokeEnd;
+
+		const strokeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+		const drawingVersionRef = useRef(0);
+
+		const clearStrokeTimer = useCallback(() => {
+			if (strokeTimerRef.current !== null) {
+				clearTimeout(strokeTimerRef.current);
+				strokeTimerRef.current = null;
+			}
+		}, []);
 
 		const paintCanvasBackground = () => {
 			const canvas = canvasRef.current;
@@ -48,8 +63,13 @@ export const DrawContent = forwardRef<InputModeRef, DrawContentProps>(
 			paintCanvasBackground();
 		}, []);
 
+		useEffect(() => {
+			return () => clearStrokeTimer();
+		}, [clearStrokeTimer]);
+
 		useImperativeHandle(ref, () => ({
 			clear: () => {
+				clearStrokeTimer();
 				paintCanvasBackground();
 				hasDrawingRef.current = false;
 				onReadyChange(false);
@@ -137,6 +157,19 @@ export const DrawContent = forwardRef<InputModeRef, DrawContentProps>(
 
 			isDrawingRef.current = false;
 			previousPointRef.current = null;
+
+			if (hasDrawingRef.current && onStrokeEndRef.current) {
+				drawingVersionRef.current += 1;
+				const thisVersion = drawingVersionRef.current;
+
+				clearStrokeTimer();
+				strokeTimerRef.current = setTimeout(() => {
+					strokeTimerRef.current = null;
+					if (drawingVersionRef.current === thisVersion) {
+						onStrokeEndRef.current?.();
+					}
+				}, STROKE_DEBOUNCE_MS);
+			}
 		};
 
 		return (
@@ -146,7 +179,6 @@ export const DrawContent = forwardRef<InputModeRef, DrawContentProps>(
 				onPointerDown={beginStroke}
 				onPointerMove={continueStroke}
 				onPointerUp={endStroke}
-				onPointerLeave={endStroke}
 				aria-label="Drawing canvas"
 			/>
 		);

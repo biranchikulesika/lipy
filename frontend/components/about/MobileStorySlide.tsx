@@ -35,17 +35,17 @@ export function MobileStorySlide({ heading, body, image, isActive }: MobileStory
         <div className="z-10 flex flex-col items-center text-center px-6 gap-6 w-full">
             {heading && (
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                    transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.1 }} 
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+                    transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1], delay: 0.05 }}
                     className="font-display text-3xl font-extrabold tracking-tight text-white/90"
                     dangerouslySetInnerHTML={{ __html: formatText(heading) }}
                 />
             )}
             <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: heading ? 0.4 : 0.1 }} 
+                initial={{ opacity: 0, y: 16 }}
+                animate={isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+                transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1], delay: heading ? 0.2 : 0.05 }}
                 className="font-sans text-xl font-medium text-white/80 leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: formatText(body) }}
             />

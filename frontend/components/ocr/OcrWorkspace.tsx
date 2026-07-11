@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { motion } from "motion/react";
 
 import { PenLine, FileImage, Camera, MoreVertical } from "lucide-react";
 
 import { PredictionCard } from "@/components/ocr/results/PredictionCard";
-import { predictOdiaCharacter, prewarmApiConnection } from "@/lib/api";
+import { predictOdiaCharacter } from "@/lib/api";
 import type { PredictionResponse } from "@/types/ocr";
 
 import { InputWorkspace } from "@/components/ocr/input/InputWorkspace";
@@ -39,9 +39,13 @@ export function OcrWorkspace() {
 	const [mounted, setMounted] = useState(false);
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+	const [autoLoading, setAutoLoading] = useState(false);
+	const [autoResult, setAutoResult] = useState<PredictionResponse | null>(null);
+	const hasAutoResultRef = useRef(false);
+	const autoFetchAbortRef = useRef<AbortController | null>(null);
+
 	useEffect(() => {
 		setMounted(true);
-		prewarmApiConnection();
 	}, []);
 
 	const menuRef = useRef<HTMLDivElement>(null);
@@ -54,7 +58,7 @@ export function OcrWorkspace() {
 		document.addEventListener("mousedown", handleClickOutside);
 		return () => document.removeEventListener("mousedown", handleClickOutside);
 	}, []);
-	
+
 	const inputModeRef = useRef<InputModeRef>(null);
 	const inputSectionRef = useRef<HTMLDivElement | null>(null);
 	const resultSectionRef = useRef<HTMLDivElement | null>(null);
@@ -67,6 +71,11 @@ export function OcrWorkspace() {
 		setInputError(null);
 		setPredictionError(null);
 		setCanPredict(false);
+		setAutoLoading(false);
+		setAutoResult(null);
+		hasAutoResultRef.current = false;
+		autoFetchAbortRef.current?.abort();
+		autoFetchAbortRef.current = null;
 	}, [activeMode]);
 
 	useEffect(() => {
@@ -76,19 +85,6 @@ export function OcrWorkspace() {
 	}, [activeMode]);
 
 	useEffect(() => {
-		const isMobile = window.matchMedia("(max-width: 1023px)").matches;
-		const becameVisible = hasResults && !previousHasResultsRef.current;
-
-		if (isMobile && becameVisible) {
-			window.requestAnimationFrame(() => {
-				resultSectionRef.current?.scrollIntoView({
-					behavior: "smooth",
-					block: "nearest",
-					inline: "start",
-				});
-			});
-		}
-
 		previousHasResultsRef.current = hasResults;
 	}, [hasResults]);
 
@@ -128,6 +124,12 @@ export function OcrWorkspace() {
 		return () => pager.removeEventListener("scroll", onScroll);
 	}, []);
 
+	useEffect(() => {
+		if (activePage === 0) {
+			hasAutoResultRef.current = false;
+		}
+	}, [activePage]);
+
 	const scrollToPage = (pageIndex: 0 | 1) => {
 		const pager = pagerRef.current;
 		if (!pager) {
@@ -141,7 +143,43 @@ export function OcrWorkspace() {
 		setActivePage(pageIndex);
 	};
 
+	const handleStrokeEnd = useCallback(async () => {
+		if (isPredicting) return;
+
+		autoFetchAbortRef.current?.abort();
+		const controller = new AbortController();
+		autoFetchAbortRef.current = controller;
+
+		setAutoLoading(true);
+
+		try {
+			const blob = await inputModeRef.current?.predict();
+			if (!blob || controller.signal.aborted) return;
+
+			const result = await predictOdiaCharacter(blob);
+			if (!controller.signal.aborted) {
+				setAutoResult(result);
+				hasAutoResultRef.current = true;
+			}
+		} catch {
+			if (!controller.signal.aborted) {
+				setAutoResult(null);
+				hasAutoResultRef.current = false;
+			}
+		} finally {
+			if (!controller.signal.aborted) {
+				setAutoLoading(false);
+			}
+		}
+	}, [isPredicting]);
+
 	const handleClear = () => {
+		autoFetchAbortRef.current?.abort();
+		autoFetchAbortRef.current = null;
+		setAutoLoading(false);
+		setAutoResult(null);
+		hasAutoResultRef.current = false;
+
 		inputModeRef.current?.clear();
 		setPrediction(null);
 		setInputError(null);
@@ -150,6 +188,27 @@ export function OcrWorkspace() {
 	};
 
 	const handlePredict = async () => {
+		const isMobile = window.matchMedia("(max-width: 1023px)").matches;
+
+		if (isMobile && hasAutoResultRef.current) {
+			hasAutoResultRef.current = false;
+			setAutoResult(null);
+			setPrediction(autoResult);
+			setPredictionError(null);
+			window.requestAnimationFrame(() => {
+				resultSectionRef.current?.scrollIntoView({
+					behavior: "smooth",
+					block: "nearest",
+					inline: "start",
+				});
+			});
+			return;
+		}
+
+		autoFetchAbortRef.current?.abort();
+		autoFetchAbortRef.current = null;
+		setAutoLoading(false);
+
 		setIsPredicting(true);
 		setHelperVisible(false);
 		setInputError(null);
@@ -157,7 +216,7 @@ export function OcrWorkspace() {
 
 		try {
 			const file = await inputModeRef.current?.predict();
-			
+
 			if (!file) {
 				setInputError("Choose, capture, or draw a handwritten character first.");
 				setIsPredicting(false);
@@ -166,13 +225,38 @@ export function OcrWorkspace() {
 
 			const result = await predictOdiaCharacter(file);
 			setPrediction(result);
+
+			if (isMobile) {
+				window.requestAnimationFrame(() => {
+					resultSectionRef.current?.scrollIntoView({
+						behavior: "smooth",
+						block: "nearest",
+						inline: "start",
+					});
+				});
+			}
 		} catch (error) {
 			const message = error instanceof Error ? error.message : "Prediction failed.";
 			setPredictionError(message);
+
+			if (isMobile) {
+				window.requestAnimationFrame(() => {
+					resultSectionRef.current?.scrollIntoView({
+						behavior: "smooth",
+						block: "nearest",
+						inline: "start",
+					});
+				});
+			}
 		} finally {
 			setIsPredicting(false);
+			setHelperVisible(true);
 		}
 	};
+
+	const displayPrediction = prediction ?? autoResult;
+	const displayLoading = isPredicting || autoLoading;
+	const displayError = isPredicting ? predictionError : (prediction ? predictionError : null);
 
 	return (
 		<main className="relative mx-auto flex h-[calc(100dvh-4.5rem)] max-w-[1500px] flex-col gap-3 box-border overflow-hidden px-3 pb-3 pt-3 sm:px-4 lg:gap-4 lg:px-8 lg:py-6 lg:p-8 lg:justify-center">
@@ -223,6 +307,7 @@ export function OcrWorkspace() {
 									ref={inputModeRef}
 									onReadyChange={setCanPredict}
 									disabled={isPredicting}
+									onStrokeEnd={handleStrokeEnd}
 								/>
 							)}
 							{activeMode === "upload" && (
@@ -250,7 +335,7 @@ export function OcrWorkspace() {
 					className="lg:panel relative flex h-full min-h-0 w-full shrink-0 snap-start flex-col rounded-xl p-3 sm:p-4 lg:h-auto lg:min-h-0 lg:w-auto lg:shrink lg:p-6"
 				>
 					<div className="mt-0 flex min-h-0 h-full w-full flex-col justify-center">
-					    <PredictionCard prediction={prediction} loading={isPredicting} error={predictionError} />
+					    <PredictionCard prediction={displayPrediction} loading={displayLoading} error={displayError} />
 					</div>
 				</div>
 			</section>
