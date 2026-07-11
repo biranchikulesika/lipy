@@ -27,6 +27,8 @@ function TeamMemberAvatar({ name, photoFilename, validPhotos, className = "h-16 
 				src={`/team/${photoFilename}`}
 				alt={name}
 				fill
+				loading="eager"
+				priority
 				sizes="(max-width: 640px) 80px, 96px"
 				className="object-cover"
 				onError={() => setError(true)}
@@ -37,10 +39,10 @@ function TeamMemberAvatar({ name, photoFilename, validPhotos, className = "h-16 
 
 function TeamMemberCard({ member, validPhotos, isFlipped, onFlip }: { member: TeamMember; validPhotos: string[]; isFlipped: boolean; onFlip: () => void }) {
 	return (
-		<div className="group flex flex-col h-[340px] w-[75vw] max-w-[260px] sm:h-[420px] sm:w-full sm:max-w-none shrink-0 snap-center rounded-[16px] border border-verdigris-700/20 bg-verdigris-950/40 backdrop-blur-md shadow-sm transition-all duration-300 ease-out hover:-translate-y-2 hover:scale-[1.02] hover:shadow-xl hover:border-verdigris-400/30 relative">
+		<div className="group flex flex-col h-85 w-[75vw] max-w-65 sm:h-105 sm:w-full sm:max-w-none shrink-0 snap-center rounded-2xl border border-verdigris-700/20 bg-verdigris-950/40 backdrop-blur-md shadow-sm transition-transform duration-300 ease-out hover:-translate-y-2 hover:scale-[1.02] hover:shadow-xl hover:border-verdigris-400/30 relative">
 			{/* Flippable Top Section */}
 			<div
-				className="relative flex-1 cursor-pointer [perspective:1200px]"
+				className="relative flex-1 cursor-pointer perspective-distant"
 				onClick={onFlip}
 			>
 				<div
@@ -56,7 +58,7 @@ function TeamMemberCard({ member, validPhotos, isFlipped, onFlip }: { member: Te
 					>
 						<div className="relative mb-4 sm:mb-5">
 							{/* Outer ring gradient glow */}
-							<div className="absolute -inset-1 bg-gradient-to-tr from-verdigris-500/20 to-[#d4a055]/30 rounded-full blur-sm opacity-60 group-hover:opacity-100 transition duration-300"></div>
+							<div className="absolute -inset-1 bg-linear-to-tr from-verdigris-500/20 to-[#d4a055]/30 rounded-full blur-sm opacity-60 group-hover:opacity-100 transition duration-300"></div>
 							<div className="relative ring-2 ring-verdigris-400/25 rounded-full p-1 bg-verdigris-950/50">
 								<TeamMemberAvatar name={member.name} photoFilename={member.photoFilename} validPhotos={validPhotos} className="h-20 w-20 sm:h-24 sm:w-24 transition-transform duration-300 group-hover:scale-[1.03]" />
 							</div>
@@ -96,7 +98,7 @@ function TeamMemberCard({ member, validPhotos, isFlipped, onFlip }: { member: Te
 			</div>
 
 			{/* Static Bottom Section (Social Links) */}				<div
-				className="relative z-20 flex h-[68px] shrink-0 items-center justify-center gap-4 border-t border-white/5 w-full bg-verdigris-950/60 backdrop-blur-md rounded-b-[15px]"
+				className="relative z-20 flex h-17 shrink-0 items-center justify-center gap-4 border-t border-white/5 w-full bg-verdigris-950/60 backdrop-blur-md rounded-b-[15px]"
 			>
 				{member.social?.github && (
 					<a
@@ -106,7 +108,7 @@ function TeamMemberCard({ member, validPhotos, isFlipped, onFlip }: { member: Te
 						className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 hover:text-white hover:bg-white/5 transition-all duration-200"
 						aria-label="GitHub"
 					>
-						<Github className="h-[18px] w-[18px]" />
+						<Github className="h-4.5 w-4.5" />
 					</a>
 				)}
 
@@ -118,7 +120,7 @@ function TeamMemberCard({ member, validPhotos, isFlipped, onFlip }: { member: Te
 						className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 hover:text-[#0A66C2] hover:bg-[#0A66C2]/5 transition-all duration-200"
 						aria-label="LinkedIn"
 					>
-						<Linkedin className="h-[18px] w-[18px]" />
+						<Linkedin className="h-4.5 w-4.5" />
 					</a>
 				)}
 
@@ -130,7 +132,7 @@ function TeamMemberCard({ member, validPhotos, isFlipped, onFlip }: { member: Te
 						className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 hover:text-emerald-400 hover:bg-emerald-500/5 transition-all duration-200"
 						aria-label="Website"
 					>
-						<Globe className="h-[18px] w-[18px]" />
+						<Globe className="h-4.5 w-4.5" />
 					</a>
 				)}
 
@@ -140,7 +142,7 @@ function TeamMemberCard({ member, validPhotos, isFlipped, onFlip }: { member: Te
 						className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 hover:text-amber-400 hover:bg-amber-500/5 transition-all duration-200"
 						aria-label="Email"
 					>
-						<Mail className="h-[18px] w-[18px]" />
+						<Mail className="h-4.5 w-4.5" />
 					</a>
 				)}
 
@@ -152,7 +154,7 @@ function TeamMemberCard({ member, validPhotos, isFlipped, onFlip }: { member: Te
 						className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 hover:text-pink-500 hover:bg-pink-500/5 transition-all duration-200"
 						aria-label="Instagram"
 					>
-						<Instagram className="h-[18px] w-[18px]" />
+						<Instagram className="h-4.5 w-4.5" />
 					</a>
 				)}
 			</div>
@@ -164,12 +166,12 @@ export function TeamPanel({ validPhotos = [], members = TEAM_MEMBERS }: { validP
 	const [flippedMemberName, setFlippedMemberName] = useState<string | null>(null);
 
 	return (
-		<main className="mx-auto w-full max-w-[1500px] h-[calc(100dvh-4.5rem)] overflow-y-auto px-4 py-8 sm:px-6 lg:px-8 xl:py-12">
+		<main className="mx-auto w-full max-w-375 h-[calc(100dvh-4.5rem)] overflow-y-auto px-4 py-8 sm:px-6 lg:px-8 xl:py-12">
 			<div className="space-y-12 xl:space-y-16">
 
 				<section className="flex flex-col items-center text-center">
 					<h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl flex flex-wrap items-center justify-center gap-3">
-						<span className="bg-clip-text text-transparent bg-gradient-to-r from-verdigris-400 to-[#d4a055]">
+						<span className="bg-clip-text text-transparent bg-linear-to-r from-verdigris-400 to-[#d4a055]">
 							People Behind
 						</span>
 						<Logo size="xl" />
@@ -198,28 +200,28 @@ export function TeamPanel({ validPhotos = [], members = TEAM_MEMBERS }: { validP
 
 				<section className="mt-12 pt-12 border-t border-white/10 w-full">
 					<div className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-6 w-full scrollbar-none sm:grid sm:grid-cols-3 sm:pb-0 justify-items-center">
-						<div className="flex flex-col items-center text-center p-4 sm:p-6 w-[70vw] max-w-[240px] sm:w-full sm:max-w-[320px] shrink-0 snap-center rounded-[16px] border border-verdigris-900/5 bg-verdigris-950/20 backdrop-blur-md shadow-sm hover:border-verdigris-500/20 transition-all duration-300">
+						<div className="flex flex-col items-center text-center p-4 sm:p-6 w-[70vw] max-w-60 sm:w-full sm:max-w-[320px] shrink-0 snap-center rounded-2xl border border-verdigris-900/5 bg-verdigris-950/20 backdrop-blur-md shadow-sm hover:border-verdigris-500/20 transition-all duration-300">
 							<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-verdigris-500/10 text-indigo-400 ring-1 ring-inset ring-verdigris-400/20">
 								<GraduationCap className="h-5 w-5" />
 							</div>
 							<h3 className="font-display text-base font-bold text-verdigris-50">Utkal University</h3>
-							<p className="mt-2 text-xs text-slate-400 leading-relaxed max-w-[220px]">Department of Computer Science & Applications</p>
+							<p className="mt-2 text-xs text-slate-400 leading-relaxed max-w-55">Department of Computer Science & Applications</p>
 						</div>
 
-						<div className="flex flex-col items-center text-center p-4 sm:p-6 w-[70vw] max-w-[240px] sm:w-full sm:max-w-[320px] shrink-0 snap-center rounded-[16px] border border-verdigris-900/5 bg-verdigris-950/20 backdrop-blur-md shadow-sm hover:border-verdigris-500/20 transition-all duration-300">
+						<div className="flex flex-col items-center text-center p-4 sm:p-6 w-[70vw] max-w-60 sm:w-full sm:max-w-[320px] shrink-0 snap-center rounded-2xl border border-verdigris-900/5 bg-verdigris-950/20 backdrop-blur-md shadow-sm hover:border-verdigris-500/20 transition-all duration-300">
 							<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-verdigris-500/10 text-[#d4a055] ring-1 ring-inset ring-verdigris-400/20">
 								<Building2 className="h-5 w-5" />
 							</div>
 							<h3 className="font-display text-base font-bold text-verdigris-50">NIELIT Bhubaneswar</h3>
-							<p className="mt-2 text-xs text-slate-400 leading-relaxed max-w-[220px]">Academic Industry Exposure & Internship Programme</p>
+							<p className="mt-2 text-xs text-slate-400 leading-relaxed max-w-55">Academic Industry Exposure & Internship Programme</p>
 						</div>
 
-						<div className="flex flex-col items-center text-center p-4 sm:p-6 w-[70vw] max-w-[240px] sm:w-full sm:max-w-[320px] shrink-0 snap-center rounded-[16px] border border-verdigris-900/5 bg-verdigris-950/20 backdrop-blur-md shadow-sm hover:border-verdigris-500/20 transition-all duration-300">
+						<div className="flex flex-col items-center text-center p-4 sm:p-6 w-[70vw] max-w-60 sm:w-full sm:max-w-[320px] shrink-0 snap-center rounded-2xl border border-verdigris-900/5 bg-verdigris-950/20 backdrop-blur-md shadow-sm hover:border-verdigris-500/20 transition-all duration-300">
 							<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-verdigris-500/10 text-verdigris-400 ring-1 ring-inset ring-verdigris-400/20">
 								<UserCheck className="h-5 w-5" />
 							</div>
 							<h3 className="font-display text-base font-bold text-verdigris-50">Academic Supervision</h3>
-							<p className="mt-2 text-xs text-slate-400 leading-relaxed max-w-[220px]">Mentored by Bijaylaxmi Behera</p>
+							<p className="mt-2 text-xs text-slate-400 leading-relaxed max-w-55">Mentored by Bijaylaxmi Behera</p>
 						</div>
 					</div>
 				</section>

@@ -38,7 +38,7 @@ export function MobileStorySlide({ heading, body, image, isActive }: MobileStory
     );
 
     return (
-        <div className="h-[100dvh] w-full snap-start snap-always flex flex-col items-center justify-center bg-black p-6 relative overflow-hidden">
+        <div className="h-dvh w-full snap-start snap-always flex flex-col items-center justify-center bg-black p-6 relative overflow-hidden">
             {/* Background image with gradient overlay — loaded eagerly so first story appears instantly */}
             {image && (
                 <div className="absolute inset-0 z-0">
@@ -49,11 +49,11 @@ export function MobileStorySlide({ heading, body, image, isActive }: MobileStory
                         decoding="async"
                         className="w-full h-full object-cover opacity-40 mix-blend-overlay"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-zinc-950/80 to-black/60" />
+                    <div className="absolute inset-0 bg-linear-to-t from-black via-zinc-950/80 to-black/60" />
                 </div>
             )}
             {/* Gradient fallback — always visible behind the image, prevents blank flash */}
-            <div className={`absolute inset-0 z-[-1] bg-gradient-to-br from-zinc-950 via-black to-verdigris-950/20`} />
+            <div className={`absolute inset-0 z-[-1] bg-linear-to-br from-zinc-950 via-black to-verdigris-950/20`} />
             
             <div className="flex-1 flex flex-col justify-center items-center w-full">
                 {renderText()}

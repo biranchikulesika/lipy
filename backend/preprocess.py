@@ -29,15 +29,9 @@ def preprocess_image(image_bytes: bytes) -> np.ndarray:
         raise ValueError("Empty image upload.")
 
     try:
-        image = (
-            Image.open(BytesIO(image_bytes))
-            .pipe(ImageOps.exif_transpose)
-            .convert("RGB")
-        )
-    except AttributeError:
-        # Pillow versions before Image.pipe()
         image = Image.open(BytesIO(image_bytes))
-        image = ImageOps.exif_transpose(image).convert("RGB")
+        image = ImageOps.exif_transpose(image)
+        image = image.convert("RGB")
     except UnidentifiedImageError as exc:
         raise ValueError("Invalid or corrupted image.") from exc
 

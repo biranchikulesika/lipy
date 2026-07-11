@@ -240,7 +240,7 @@ export function MobileStoryCarousel() {
     };
 
     return (
-        <div className="fixed inset-0 z-[100] w-full h-[100dvh] bg-transparent pointer-events-none overflow-hidden">
+        <div className="fixed inset-0 z-100 w-full h-dvh bg-transparent pointer-events-none overflow-hidden">
             <motion.div
                 className="w-full h-full pointer-events-auto bg-black relative"
                 drag="y"

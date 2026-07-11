@@ -1,30 +1,35 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-verdigris-50: #edf7f6;
+  --color-verdigris-100: #dbf0ed;
+  --color-verdigris-200: #b7e1db;
+  --color-verdigris-300: #93d2c8;
+  --color-verdigris-400: #6fc3b6;
+  --color-verdigris-500: #4bb4a4;
+  --color-verdigris-600: #3c9083;
+  --color-verdigris-700: #2d6c62;
+  --color-verdigris-800: #1e4842;
+  --color-verdigris-900: #0f2421;
+  --color-verdigris-950: #0b1917;
+
+  --font-family-sans: var(--font-body), sans-serif;
+  --font-family-display: var(--font-display), sans-serif;
+  --font-family-mono: var(--font-mono), monospace;
+}
 
 :root {
   color-scheme: dark;
-  --verdigris-50: #edf7f6;
-  --verdigris-100: #dbf0ed;
-  --verdigris-200: #b7e1db;
-  --verdigris-300: #93d2c8;
-  --verdigris-400: #6fc3b6;
-  --verdigris-500: #4bb4a4;
-  --verdigris-600: #3c9083;
-  --verdigris-700: #2d6c62;
-  --verdigris-800: #1e4842;
-  --verdigris-900: #0f2421;
-  --verdigris-950: #0b1917;
 
-  --background: var(--verdigris-950);
-  --background-deep: var(--verdigris-900);
-  --foreground: var(--verdigris-50);
-  --muted: var(--verdigris-300);
+  --background: var(--color-verdigris-950);
+  --background-deep: var(--color-verdigris-900);
+  --foreground: var(--color-verdigris-50);
+  --muted: var(--color-verdigris-300);
   --panel: rgba(11, 25, 23, 0.76);
   --panel-strong: rgba(11, 25, 23, 0.96);
   --border: rgba(255, 255, 255, 0.1);
-  --accent: var(--verdigris-400);
-  --accent-soft: var(--verdigris-600);
+  --accent: var(--color-verdigris-400);
+  --accent-soft: var(--color-verdigris-600);
 }
 
 html {
@@ -96,32 +101,98 @@ body::-webkit-scrollbar {
   background: rgba(60, 144, 131, 0.22);
 }
 
-@layer components {
-  .panel {
-    @apply border border-verdigris-700/50 bg-verdigris-950/60 backdrop-blur-xl;
-    box-shadow: 0 14px 30px -26px rgba(11, 25, 23, 0.34);
-    isolation: isolate;
-    box-sizing: border-box;
+@utility panel {
+  border: 1px solid rgb(45 108 98 / 0.5);
+  background-color: rgb(11 25 23 / 0.6);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 14px 30px -26px rgba(11, 25, 23, 0.34);
+  isolation: isolate;
+  box-sizing: border-box;
+}
+
+@utility tab-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 0.375rem;
+  border: 1px solid transparent;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 500;
+  transition-property: color, background-color, border-color;
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+
+  @media (width >= 640px) {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+}
+
+@utility tab-button-active {
+  border-color: rgb(183 225 219 / 0.2);
+  background: var(--color-verdigris-200);
+  color: var(--color-slate-950);
+}
+
+@utility tab-button-inactive {
+  border-color: rgb(183 225 219 / 0.1);
+  background: transparent;
+  color: var(--color-slate-300);
+
+  &:hover {
+    background: rgb(255 255 255 / 0.05);
+  }
+}
+
+@utility primary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  background: var(--color-verdigris-200);
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+  color: var(--color-slate-950);
+  transition-property: color, background-color, border-color;
+  transition-duration: 150ms;
+
+  &:hover {
+    background: var(--color-verdigris-300);
   }
 
-  .tab-button {
-    @apply inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-xs font-medium transition sm:text-sm;
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+@utility secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  background: var(--color-verdigris-950);
+  padding: 0.5rem 0.875rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  color: var(--color-slate-200);
+  transition-property: color, background-color, border-color;
+  transition-duration: 150ms;
+
+  &:hover {
+    background: rgb(255 255 255 / 0.05);
   }
 
-  .tab-button-active {
-    @apply border-verdigris-200/20 bg-verdigris-200 text-slate-950;
-  }
-
-  .tab-button-inactive {
-    @apply border-verdigris-200/10 bg-transparent text-slate-300 hover:bg-white/5;
-  }
-
-  .primary-button {
-    @apply inline-flex items-center justify-center rounded-md bg-verdigris-200 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-verdigris-300 disabled:cursor-not-allowed disabled:opacity-50;
-  }
-
-  .secondary-button {
-    @apply inline-flex items-center justify-center rounded-md border border-white/10 bg-verdigris-950 px-3.5 py-2 text-sm font-medium text-slate-200 transition hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-50;
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
   }
 }
 

@@ -265,7 +265,7 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
   }
 
   return (
-    <div className="flex flex-col items-center justify-center pt-0 lg:pt-4 w-full max-w-[340px] sm:max-w-[400px] lg:max-w-[480px] mx-auto flex-1 min-h-0">
+    <div className="flex flex-col items-center justify-center pt-0 lg:pt-4 w-full max-w-85 sm:max-w-100 lg:max-w-120 mx-auto flex-1 min-h-0">
       <div className="w-full flex flex-col my-auto">
         <div className="relative w-full aspect-square rounded-3xl border-2 border-verdigris-800 bg-verdigris-950 overflow-hidden shadow-sm flex items-center justify-center group touch-none mb-3 lg:mb-6">
           <canvas ref={canvasRef} className="block h-full w-full touch-none" />
@@ -307,7 +307,7 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
               </svg>
             </button>
             {showStrokePanel && (
-              <div className="absolute right-0 mt-2 lg:mt-3 w-[180px] lg:w-[220px] rounded-xl lg:rounded-2xl border border-verdigris-700 bg-verdigris-900 p-3 lg:p-5 shadow-2xl">
+              <div className="absolute right-0 mt-2 lg:mt-3 w-45 lg:w-55 rounded-xl lg:rounded-2xl border border-verdigris-700 bg-verdigris-900 p-3 lg:p-5 shadow-2xl">
                 <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2 lg:mb-4">Set Stroke Width</div>
                 <div className="flex items-center gap-3 lg:gap-4">
                   <input
@@ -354,7 +354,7 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
             </button>
           )}
 
-          <button id="save-next-btn" className="rounded-xl bg-gradient-to-r from-verdigris-500 to-verdigris-600 hover:from-verdigris-600 hover:to-verdigris-700 py-3 lg:py-3.5 text-xs lg:text-sm font-semibold text-white transition-all active:scale-95 flex items-center justify-center gap-1.5 disabled:opacity-50 shadow-sm border border-verdigris-600/10" onClick={handleSave} disabled={!currentChar || animating}>
+          <button id="save-next-btn" className="rounded-xl bg-linear-to-r from-verdigris-500 to-verdigris-600 hover:from-verdigris-600 hover:to-verdigris-700 py-3 lg:py-3.5 text-xs lg:text-sm font-semibold text-white transition-all active:scale-95 flex items-center justify-center gap-1.5 disabled:opacity-50 shadow-sm border border-verdigris-600/10" onClick={handleSave} disabled={!currentChar || animating}>
             <Check className="h-4 w-4 shrink-0" />
             <span>{sessionConfig && sessionConfig.mode === 'single-character' ? 'Save' : 'Save & Next'}</span>
           </button>
@@ -362,7 +362,7 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
 
         {/* Compact stats */}
         <div className="flex flex-col items-center justify-center pt-3 lg:pt-4 gap-2">
-          <div className="flex items-center gap-1 w-full max-w-[160px] h-1 bg-verdigris-800 rounded-full overflow-hidden">
+          <div className="flex items-center gap-1 w-full max-w-40 h-1 bg-verdigris-800 rounded-full overflow-hidden">
              <div className="h-full bg-verdigris-400 rounded-full" style={{ width: `${Math.min(100, completed % 100)}%` }} />
           </div>
           <div className="flex items-center justify-center gap-2 text-[11px] font-bold tracking-widest uppercase text-slate-400">

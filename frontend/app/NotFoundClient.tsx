@@ -13,7 +13,7 @@ export default function NotFoundClient() {
         transition={{ duration: 0.4, ease: "easeOut" }}
         className="relative z-10 mx-auto flex max-w-sm flex-col items-center p-6 text-center"
       >
-        <h1 className="mb-2 bg-gradient-to-r from-verdigris-400 to-[#d4a055] bg-clip-text text-7xl font-black tracking-tighter text-transparent">
+        <h1 className="mb-2 bg-linear-to-r from-verdigris-400 to-[#d4a055] bg-clip-text text-7xl font-black tracking-tighter text-transparent">
           404
         </h1>
 
@@ -21,7 +21,7 @@ export default function NotFoundClient() {
           Page Not Found
         </h2>
 
-        <p className="mb-6 max-w-[280px] text-sm text-slate-400">
+        <p className="mb-6 max-w-70 text-sm text-slate-400">
           The page you're looking for doesn't exist or may have been moved.
         </p>
 

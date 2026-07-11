@@ -84,7 +84,7 @@ export default function CharacterSearch({ onSelect, selected, onStart, startLabe
       )}
       {onStart && (
         <div className="mt-3">
-          <button className="w-full rounded-xl bg-gradient-to-r from-verdigris-500 to-verdigris-600 hover:from-verdigris-600 hover:to-verdigris-700 py-3 text-sm font-bold text-white transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none shadow-sm hover:shadow group border border-verdigris-600/10" onClick={() => onStart()} disabled={!selected}>
+          <button className="w-full rounded-xl bg-linear-to-r from-verdigris-500 to-verdigris-600 hover:from-verdigris-600 hover:to-verdigris-700 py-3 text-sm font-bold text-white transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none shadow-sm hover:shadow group border border-verdigris-600/10" onClick={() => onStart()} disabled={!selected}>
             <span>{startLabel}</span>
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="9 18 15 12 9 6" />

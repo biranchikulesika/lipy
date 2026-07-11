@@ -259,7 +259,7 @@ export function OcrWorkspace() {
 	const displayError = isPredicting ? predictionError : (prediction ? predictionError : null);
 
 	return (
-		<main className="relative mx-auto flex h-[calc(100dvh-4.5rem)] max-w-[1500px] flex-col gap-3 box-border overflow-hidden px-3 pb-3 pt-3 sm:px-4 lg:gap-4 lg:px-8 lg:py-6 lg:p-8 lg:justify-center">
+		<main className="relative mx-auto flex h-[calc(100dvh-4.5rem)] max-w-375 flex-col gap-3 box-border overflow-hidden px-3 pb-3 pt-3 sm:px-4 lg:gap-4 lg:px-8 lg:py-6 lg:p-8 lg:justify-center">
 			{/* Desktop Mode Switcher */}
 			<div className="hidden lg:flex w-full justify-center shrink-0 mb-2">
 				<div className="inline-flex rounded-full bg-white/5 p-1 border border-white/5 shadow-inner">

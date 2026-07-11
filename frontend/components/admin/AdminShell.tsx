@@ -66,7 +66,7 @@ function LipyLogo({ collapsed }: { collapsed: boolean }) {
       <span className="relative inline-flex flex-col items-center">
         <span className="text-transparent">i</span>
         <span className="absolute bottom-0 text-current">ı</span>
-        <span className="absolute top-[0.15em] left-[50%] -translate-x-[50%] w-[0.15em] h-[0.15em] rounded-full bg-amber-400" />
+        <span className="absolute top-[0.15em] left-[50%] translate-x-[-50%] w-[0.15em] h-[0.15em] rounded-full bg-amber-400" />
       </span>
       {!collapsed && <span>Py</span>}
     </span>
@@ -265,7 +265,7 @@ export function AdminShell({
               aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={mobileOpen}
               onClick={() => setMobileOpen((value) => !value)}
-              className={`relative z-[80] flex h-10 w-10 items-center justify-center rounded-xl transition-all active:scale-95 ${mobileOpen ? 'bg-white/10 text-white ring-1 ring-white/10' : 'text-stone-400 hover:bg-white/5 hover:text-white'}`}
+              className={`relative z-80 flex h-10 w-10 items-center justify-center rounded-xl transition-all active:scale-95 ${mobileOpen ? 'bg-white/10 text-white ring-1 ring-white/10' : 'text-stone-400 hover:bg-white/5 hover:text-white'}`}
             >
               <motion.div
                 initial={false}
@@ -350,7 +350,7 @@ export function AdminShell({
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -8, scale: 0.98 }}
                   transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                  className="fixed right-3 top-[3.9rem] z-50 w-[15rem] max-w-[calc(100vw-1.5rem)] rounded-xl border border-stone-800 bg-[#0A0A0A]/95 p-2 shadow-2xl backdrop-blur-xl md:hidden"
+                  className="fixed right-3 top-[3.9rem] z-50 w-60 max-w-[calc(100vw-1.5rem)] rounded-xl border border-stone-800 bg-[#0A0A0A]/95 p-2 shadow-2xl backdrop-blur-xl md:hidden"
                 >
                   <nav className="flex flex-col gap-1" aria-label="Mobile navigation">
                     {NAV_ITEMS.map((group) => (

@@ -271,7 +271,7 @@ function SocialRow({
                 onClick={onDisconnect}
                 disabled={loading || !canUnlink}
                 title={!canUnlink ? "At least one social account is mandatory to prevent lockout." : undefined}
-                className="w-full sm:w-48 h-9 sm:h-10 border border-red-900/50 hover:bg-red-950/15 text-red-400 text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl transition-all duration-200 ease-out active:scale-97 hover:-translate-y-[1px] shadow-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none flex items-center justify-center gap-1.5"
+                className="w-full sm:w-48 h-9 sm:h-10 border border-red-900/50 hover:bg-red-950/15 text-red-400 text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl transition-all duration-200 ease-out active:scale-97 hover:-translate-y-px shadow-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none flex items-center justify-center gap-1.5"
               >
                 {icon}
                 <span className="hidden sm:inline">Disconnect</span>
@@ -281,7 +281,7 @@ function SocialRow({
               <button
                 onClick={onConnect}
                 disabled={loading}
-                className="w-full sm:w-48 h-9 sm:h-10 bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl transition-all duration-200 ease-out active:scale-97 hover:-translate-y-[1px] shadow-sm disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-1.5"
+                className="w-full sm:w-48 h-9 sm:h-10 bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl transition-all duration-200 ease-out active:scale-97 hover:-translate-y-px shadow-sm disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-1.5"
               >
                 {icon}
                 <span className="hidden sm:inline">Connect</span>
@@ -616,7 +616,7 @@ function PasswordChangeModal({
                     <button
                       onClick={handlePasswordSubmit}
                       disabled={loading || newPassword.length < 8 || !passwordsMatch || !currentPassword}
-                      className="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 sm:py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ease-out active:scale-[0.98] hover:-translate-y-[1px] disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center gap-2 shadow-md hover:shadow-lg shadow-blue-500/15 hover:shadow-blue-500/25"
+                      className="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 sm:py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ease-out active:scale-[0.98] hover:-translate-y-px disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center gap-2 shadow-md hover:shadow-lg shadow-blue-500/15 hover:shadow-blue-500/25"
                     >
                       {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                       Update Password
@@ -1014,7 +1014,7 @@ export function AuthSettings() {
               className="relative overflow-hidden sm:rounded-2xl sm:border sm:border-stone-800/80 sm:bg-[#0F0F0F] sm:shadow-sm shadow-none p-3 sm:p-5 space-y-2.5 sm:space-y-4 lg:h-full"
             >
               {/* Decorative Gradient Background */}
-              <div className="hidden sm:block absolute inset-x-0 top-0 h-28 bg-gradient-to-br from-blue-500/[0.04] via-indigo-500/[0.03] to-transparent pointer-events-none" />
+              <div className="hidden sm:block absolute inset-x-0 top-0 h-28 bg-linear-to-br from-blue-500/4 via-indigo-500/3 to-transparent pointer-events-none" />
 
               {/* Profile details */}
               <div className="relative flex flex-col items-center text-center space-y-1.5 pt-1">
@@ -1025,7 +1025,7 @@ export function AuthSettings() {
                     className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl ring-2 sm:ring-4 ring-stone-900 shadow-md object-cover"
                   />
                 ) : (
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-lg sm:text-xl font-bold shadow-md ring-2 sm:ring-4 ring-stone-900">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-lg sm:text-xl font-bold shadow-md ring-2 sm:ring-4 ring-stone-900">
                     {(userName || userEmail).charAt(0).toUpperCase()}
                   </div>
                 )}
@@ -1119,7 +1119,7 @@ export function AuthSettings() {
                     </div>
                     <button
                       onClick={() => setPwModalOpen(true)}
-                      className="w-full sm:w-48 h-9 sm:h-10 bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl transition-all duration-200 ease-out active:scale-97 hover:-translate-y-[1px] shadow-md hover:shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20 flex items-center justify-center gap-1.5 shrink-0"
+                      className="w-full sm:w-48 h-9 sm:h-10 bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl transition-all duration-200 ease-out active:scale-97 hover:-translate-y-px shadow-md hover:shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20 flex items-center justify-center gap-1.5 shrink-0"
                     >
                       <KeyRound className="w-4 h-4" />
                       Change Password
@@ -1142,7 +1142,7 @@ export function AuthSettings() {
                     <button
                       onClick={handleAddPasskey}
                       disabled={loading}
-                      className="w-full sm:w-48 h-9 sm:h-10 bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl transition-all duration-200 ease-out active:scale-97 hover:-translate-y-[1px] shadow-md hover:shadow-lg shadow-indigo-500/10 hover:shadow-indigo-500/20 disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-1.5 shrink-0"
+                      className="w-full sm:w-48 h-9 sm:h-10 bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl transition-all duration-200 ease-out active:scale-97 hover:-translate-y-px shadow-md hover:shadow-lg shadow-indigo-500/10 hover:shadow-indigo-500/20 disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-1.5 shrink-0"
                     >
                       {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Fingerprint className="w-3.5 h-3.5" />}
                       Register Passkey
@@ -1322,7 +1322,7 @@ export function AuthSettings() {
               </div>
 
               <div className="flex-1 min-h-0 overflow-auto w-full">
-                <table className="w-full text-left border-collapse text-xs sm:text-sm min-w-[600px]">
+                <table className="w-full text-left border-collapse text-xs sm:text-sm min-w-150">
                   <thead className="sticky top-0 bg-[#0F0F0F] z-10">
                     <tr className="border-b border-stone-850 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-stone-500">
                       <th className="py-2.5 sm:py-3 pr-3 sm:pr-4 relative">
@@ -1395,14 +1395,14 @@ export function AuthSettings() {
                         const revokedCount = isRevoked ? (event.metadata?.revoked_count as number | undefined) : undefined;
 
                         return (
-                          <tr key={event.id} className="text-stone-100 hover:bg-white/[0.02] transition-colors">
+                          <tr key={event.id} className="text-stone-100 hover:bg-white/2 transition-colors">
                             <td className="py-2.5 sm:py-3 pr-3 sm:pr-4">
                               <div className="flex items-center gap-1.5 sm:gap-2">
                                 {isCurrentSession && (
                                   <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
                                 )}
                                 {getAuthMethodIcon(event)}
-                                <span className="font-semibold text-stone-100 truncate max-w-[120px] sm:max-w-none">{formatEventType(event.event_type)}</span>
+                                <span className="font-semibold text-stone-100 truncate max-w-30 sm:max-w-none">{formatEventType(event.event_type)}</span>
                               </div>
                             </td>
                             <td className="py-2.5 sm:py-3 px-3 sm:px-4">
@@ -1445,7 +1445,7 @@ export function AuthSettings() {
               {/* Filter Dropdowns (rendered inside motion.div so they're in the IIFE scope) */}
               {activeDropdown && dropdownPos && (
                 <div
-                  className="fixed z-50 bg-[#0A0A0A] border border-stone-800 rounded-xl shadow-xl py-1 min-w-[180px] max-h-[240px] overflow-auto"
+                  className="fixed z-50 bg-[#0A0A0A] border border-stone-800 rounded-xl shadow-xl py-1 min-w-45 max-h-60 overflow-auto"
                   style={{ top: dropdownPos.top, left: dropdownPos.left }}
                   onClick={(e) => e.stopPropagation()}
                 >

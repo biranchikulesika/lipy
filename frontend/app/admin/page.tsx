@@ -87,7 +87,7 @@ function QuickAction({
   delay: number;
   external?: boolean;
 }) {
-  const sharedClassName = "group block bg-[#0F0F0F] border border-stone-900 rounded-xl p-4 sm:p-5 hover:shadow-md hover:shadow-stone-950/50 transition-all hover:border-amber-400/50 active:scale-[0.98] hover:-translate-y-[1px] duration-200 ease-out";
+  const sharedClassName = "group block bg-[#0F0F0F] border border-stone-900 rounded-xl p-4 sm:p-5 hover:shadow-md hover:shadow-stone-950/50 transition-all hover:border-amber-400/50 active:scale-[0.98] hover:-translate-y-px duration-200 ease-out";
 
   return (
     <motion.div
@@ -404,7 +404,7 @@ export default function AdminDashboardPage() {
                       {recentSessions.map((session) => (
                         <tr key={`${session.contributor_name}-${session.session_id}-${session.created_at}`} className="transition-colors">
                           <td className="py-2.5 px-1">
-                            <span className="block text-sm font-bold text-stone-200 truncate max-w-[220px]">
+                            <span className="block text-sm font-bold text-stone-200 truncate max-w-55">
                               {session.contributor_name || 'Anonymous'}
                             </span>
                           </td>

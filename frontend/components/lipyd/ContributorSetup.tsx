@@ -201,7 +201,7 @@ export default function ContributorSetup({ onStart, isSearchFocused, onSearchFoc
   }
 
   return (
-    <div className={`text-center max-w-md mx-auto w-full rounded-[16px] border border-verdigris-700/20 bg-verdigris-950/40 backdrop-blur-md shadow-sm transition-all duration-200 ${
+    <div className={`text-center max-w-md mx-auto w-full rounded-2xl border border-verdigris-700/20 bg-verdigris-950/40 backdrop-blur-md shadow-sm transition-all duration-200 ${
       activeFocus ? 'py-3 px-4 sm:py-6 sm:px-8 space-y-3' : 'py-4 px-5 sm:py-6 sm:px-8 space-y-4'
     }`}>
       <div className="space-y-1">
@@ -326,7 +326,7 @@ export default function ContributorSetup({ onStart, isSearchFocused, onSearchFoc
 
       {mode !== 'single' && (
         <div className="pt-1">
-          <button suppressHydrationWarning className="w-full rounded-xl bg-gradient-to-r from-verdigris-500 to-verdigris-600 hover:from-verdigris-600 hover:to-verdigris-700 py-3 text-sm font-bold text-white transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none shadow-sm hover:shadow group border border-verdigris-600/10" onClick={handleStart} disabled={!name}>
+          <button suppressHydrationWarning className="w-full rounded-xl bg-linear-to-r from-verdigris-500 to-verdigris-600 hover:from-verdigris-600 hover:to-verdigris-700 py-3 text-sm font-bold text-white transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none shadow-sm hover:shadow group border border-verdigris-600/10" onClick={handleStart} disabled={!name}>
             <span>Start Contributing</span>
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="9 18 15 12 9 6" />

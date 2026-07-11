@@ -236,7 +236,7 @@ Interactive API documentation is available at:
 | Setting | Default | Description |
 |---------|---------|-------------|
 | `TOP_K` | `3` | Number of top predictions returned |
-| `LOW_CONFIDENCE_THRESHOLD` | `0.60` | Minimum confidence for a `success` status |
+| `LOW_CONFIDENCE_THRESHOLD` | `0.90` | Minimum confidence for a `success` status |
 | `AMBIGUOUS_MARGIN` | `0.10` | Minimum margin between top-2 predictions for a `success` status |
 | `IMAGE_SIZE` | `64` | Input image size (pixels) |
 

@@ -4,30 +4,35 @@ The frontend for the LiPy Odia OCR project is a modern, responsive web applicati
 
 ## Tech Stack
 
-- **Framework**: Next.js (App Router)
-- **Styling**: Tailwind CSS
-- **Language**: TypeScript
+- **Framework**: Next.js 16 (App Router)
+- **Styling**: Tailwind CSS v4
+- **Language**: TypeScript 6
+- **Animations**: Motion
 - **Deployment**: Vercel
+- **Database**: Supabase / Dexie (IndexedDB)
 
 ## Architecture
 
 The frontend is modularized into feature-based workspaces:
 
-- `components/ocr/`: Contains the OCR Workspace, handling character recognition.
+- **`components/ocr/`**: OCR Workspace for character recognition.
   - Features multiple input modes (Camera, Drawing, Upload) via modular tabs.
   - Sends image data to the FastAPI backend for real-time predictions.
-  - Displays beautiful, elastic prediction result cards displaying confidence metrics.
-- `components/lipyd/`: The Data Contributor Workspace, allowing users to draw and build robust character datasets directly from the browser.
-- `components/about/` and `components/team/`: Informational pages describing the mission and contributors behind the project.
+  - Displays elastic prediction result cards with confidence metrics.
+- **`components/lipyd/`**: Data Contributor Workspace (LiPyD), allowing users to draw and build character datasets directly from the browser.
+- **`components/about/`** and **`components/team/`**: Informational pages describing the mission and contributors.
+- **`components/navigation/`**: Responsive navbar with mobile support and legal links.
+- **`components/admin/`**: Admin dashboard shell and settings.
 
 ## Important Hooks
 
-- `useCanvasDrawing.ts`: A robust custom hook managing drawing states, brush logic, clearing, and canvas initialization for both the OCR module and the Dataset Contributor module.
-- `useDatasetSync.ts`: Controls the data payload state for user-generated Odia character contributions.
+- **`useCanvasDrawing.ts`**: Manages canvas drawing states, brush logic, clearing, and initialization for both OCR and Dataset Contributor modules.
+- **`useCharacterSelection.ts`**: Controls the character selection and navigation flow in the LiPyD contributor workspace.
+- **`useDatasetSync.ts`**: Manages data payload state and synchronization for user-generated Odia character contributions via IndexedDB, cookies, and localStorage.
 
 ## Admin Dashboard
 
-The admin dashboard (`/admin`) provides role-based access to manage the dataset and verify contributions.
+The admin dashboard (`/admin`) provides role-based access to manage the dataset, verify contributions, and configure security settings.
 
 ### Admin Roles
 
@@ -44,6 +49,15 @@ Users must be added to the `admins` table in Supabase to access the dashboard. R
 - **verifier** — Can verify and unverify dataset samples (sets `verified_by` and `verified_at` audit fields).
 - **admin** — Can verify samples and delete rejected samples from the dataset.
 - **owner** — Full access. Same as admin, reserved for the primary administrator.
+
+### Authentication & Security
+
+- **Passkey support** — Passwordless WebAuthn login.
+- **Email/password login** — Standard credentials with optional Google/GitHub OAuth.
+- **Forgot password** / **Reset password** flows.
+- **Session revocation** — Administrators can revoke active sessions.
+- **Security activity logging** — 12 event types tracked (login, logout, failed login, passkey registration, session revocation, etc.) with IP, browser, OS, and device metadata.
+- **Rate limiting** and **CSP headers** enforced via Next.js middleware proxy.
 
 ### Database Schema
 

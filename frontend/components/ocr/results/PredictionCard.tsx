@@ -134,7 +134,7 @@ export function PredictionCard({
 	return (
 		<section className="relative flex min-h-0 flex-1 flex-col justify-start gap-3 pt-2 sm:pt-4 pb-2">
 			{/* Unified Primary Prediction Card */}
-			<div className="relative flex flex-col justify-center min-h-[220px] sm:min-h-[260px] rounded-xl border border-white/10 bg-white/5 p-4 sm:p-5">
+			<div className="relative flex flex-col justify-center min-h-55 sm:min-h-65 rounded-xl border border-white/10 bg-white/5 p-4 sm:p-5">
 				{contentKey === "loading" && (
 					<div className="w-full">
 						<PredictionSkeleton />
@@ -145,7 +145,7 @@ export function PredictionCard({
 						<div className="relative flex h-24 w-24 shrink-0 items-center justify-center rounded-3xl bg-verdigris-400/10 text-amber-600 sm:h-28 sm:w-28">
 							<AlertCircle className="h-10 w-10 sm:h-12 sm:w-12" />
 						</div>
-						<div className="flex-1 text-sm text-amber-300 line-clamp-3 text-center max-w-[260px]">
+						<div className="flex-1 text-sm text-amber-300 line-clamp-3 text-center max-w-65">
 							<span className="font-bold block mb-1 text-base">Unable to Predict</span>
 							{displayError}
 						</div>
@@ -156,7 +156,7 @@ export function PredictionCard({
 						<div className={`relative flex h-24 w-24 shrink-0 items-center justify-center rounded-3xl ${statusDisplay?.iconBg} ${statusDisplay?.color} sm:h-28 sm:w-28`}>
 							{statusDisplay?.icon}
 						</div>
-						<div className="flex-1 text-sm text-center max-w-[260px]">
+						<div className="flex-1 text-sm text-center max-w-65">
 							<span className={`font-bold block mb-1 text-base ${statusDisplay?.color}`}>{statusDisplay?.title}</span>
 							<span className="text-slate-400">{statusDisplay?.message}</span>
 						</div>
@@ -164,11 +164,11 @@ export function PredictionCard({
 				)}
 				{contentKey === "result" && (
 					<div className="flex flex-col items-center justify-center gap-4 sm:gap-5 w-full">
-						<div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-3xl bg-gradient-to-br from-verdigris-200 to-verdigris-300 text-6xl font-semibold text-slate-950 shadow-inner sm:h-32 sm:w-32 sm:text-7xl">
+						<div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-3xl bg-linear-to-br from-verdigris-200 to-verdigris-300 text-6xl font-semibold text-slate-950 shadow-inner sm:h-32 sm:w-32 sm:text-7xl">
 							{predictedCharacter}
 						</div>
 						<div className="flex w-full flex-col items-center justify-center text-center">
-							<p className="mt-1 text-[10px] text-slate-500 max-w-[220px]">
+							<p className="mt-1 text-[10px] text-slate-500 max-w-55">
 								Our ML is trained on small dataset. It can make mistakes.
 							</p>
 						</div>
@@ -179,7 +179,7 @@ export function PredictionCard({
 						<div className="relative flex h-28 w-28 shrink-0 items-center justify-center rounded-3xl border border-dashed border-white/10 bg-white/5 overflow-hidden sm:h-32 sm:w-32">
 							<RandomSubtleCharacter />
 						</div>
-						<div className="flex-1 text-xs sm:text-sm text-center max-w-[240px]">
+						<div className="flex-1 text-xs sm:text-sm text-center max-w-60">
 							Draw, upload, or capture a character to see the detected result.
 						</div>
 					</div>
@@ -218,7 +218,7 @@ export function PredictionCard({
                     </div>
                   ) : (
                     <div className="flex items-center gap-2">
-                      <div className="flex h-6 w-6 items-center justify-center rounded-[4px] border border-dashed border-white/10 bg-white/5">
+                      <div className="flex h-6 w-6 items-center justify-center rounded-sm border border-dashed border-white/10 bg-white/5">
                         <span className="text-[10px] font-medium text-slate-500">?</span>
                       </div>
                       <span className="text-xs font-semibold text-slate-500">{item.label}</span>

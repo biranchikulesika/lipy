@@ -785,13 +785,13 @@ function DatasetViewerContent() {
           <form onSubmit={handleSearchSubmit} className="w-full">
             <div className="flex flex-wrap items-center gap-2.5 w-full">
               {/* Search text box */}
-              <div className="relative flex-1 min-w-[200px]">
+              <div className="relative flex-1 min-w-50">
                 <input
                   type="text"
                   placeholder="Search contributor name, ID, session or file..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-stone-50 dark:bg-stone-900/40 border border-stone-200 dark:border-stone-800 rounded-xl pl-4 pr-10 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-amber-500 dark:focus:ring-amber-400 focus:border-transparent h-[36px]"
+                  className="w-full bg-stone-50 dark:bg-stone-900/40 border border-stone-200 dark:border-stone-800 rounded-xl pl-4 pr-10 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-amber-500 dark:focus:ring-amber-400 focus:border-transparent h-9"
                 />
                 <button
                   type="submit"
@@ -803,7 +803,7 @@ function DatasetViewerContent() {
               </div>
 
               {/* Character Type Filter */}
-              <div className="relative min-w-[120px] flex-grow sm:flex-initial">
+              <div className="relative min-w-30 grow sm:flex-initial">
                 <Layers className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-stone-400 pointer-events-none" />
                 <select
                   value={selectedType}
@@ -818,7 +818,7 @@ function DatasetViewerContent() {
               </div>
 
               {/* Contributor Filter */}
-              <div className="relative min-w-[140px] flex-grow sm:flex-initial">
+              <div className="relative min-w-35 grow sm:flex-initial">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-stone-400 pointer-events-none" />
                 <select
                   value={selectedContributor}
@@ -848,7 +848,7 @@ function DatasetViewerContent() {
                   });
                   setCurrentPage(1);
                 }}
-                className={`relative p-2 flex items-center justify-center border rounded-xl transition-all h-[36px] flex-grow sm:flex-initial min-w-[40px] ${
+                className={`relative p-2 flex items-center justify-center border rounded-xl transition-all h-9 grow sm:flex-initial min-w-10 ${
                   selectedStatus === ''
                     ? 'bg-stone-50 dark:bg-stone-900/40 border-stone-200 dark:border-stone-800 text-stone-400 hover:text-stone-600 dark:hover:text-stone-300'
                     : selectedStatus === 'verified'
@@ -870,7 +870,7 @@ function DatasetViewerContent() {
               </button>
 
               {/* From Date */}
-              <div className="relative min-w-[130px] flex-grow sm:flex-initial">
+              <div className="relative min-w-32.5 grow sm:flex-initial">
                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-stone-400 pointer-events-none" />
                 <input
                   type="date"
@@ -879,12 +879,12 @@ function DatasetViewerContent() {
                     setStartDate(e.target.value);
                     setCurrentPage(1);
                   }}
-                  className="w-full bg-stone-50 dark:bg-stone-900/40 border border-stone-200 dark:border-stone-800 rounded-xl pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500/50 dark:focus:ring-amber-400/50 h-[36px]"
+                  className="w-full bg-stone-50 dark:bg-stone-900/40 border border-stone-200 dark:border-stone-800 rounded-xl pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500/50 dark:focus:ring-amber-400/50 h-9"
                 />
               </div>
 
               {/* To Date */}
-              <div className="relative min-w-[130px] flex-grow sm:flex-initial">
+              <div className="relative min-w-32.5 grow sm:flex-initial">
                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-stone-400 pointer-events-none" />
                 <input
                   type="date"
@@ -893,7 +893,7 @@ function DatasetViewerContent() {
                     setEndDate(e.target.value);
                     setCurrentPage(1);
                   }}
-                  className="w-full bg-stone-50 dark:bg-stone-900/40 border border-stone-200 dark:border-stone-800 rounded-xl pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500/50 dark:focus:ring-amber-400/50 h-[36px]"
+                  className="w-full bg-stone-50 dark:bg-stone-900/40 border border-stone-200 dark:border-stone-800 rounded-xl pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500/50 dark:focus:ring-amber-400/50 h-9"
                 />
               </div>
 
@@ -907,7 +907,7 @@ function DatasetViewerContent() {
                   });
                   setCurrentPage(1);
                 }}
-                className="relative p-2 flex items-center justify-center border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900/40 hover:bg-stone-100 dark:hover:bg-stone-850 rounded-xl transition-all h-[36px] flex-grow sm:flex-initial min-w-[40px] text-stone-700 dark:text-stone-300"
+                className="relative p-2 flex items-center justify-center border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900/40 hover:bg-stone-100 dark:hover:bg-stone-850 rounded-xl transition-all h-9 grow sm:flex-initial min-w-10 text-stone-700 dark:text-stone-300"
                 title={`Sort: ${SORT_OPTIONS[sortBy as keyof typeof SORT_OPTIONS]?.label || 'Newest First'} (Click to cycle)`}
               >
                 <ArrowUpDown className="w-4 h-4" />
@@ -920,7 +920,7 @@ function DatasetViewerContent() {
               <button
                 type="button"
                 onClick={handleResetFilters}
-                className="group px-3.5 py-2 border border-stone-200 dark:border-stone-850 bg-stone-50 dark:bg-stone-900/40 hover:bg-stone-100 dark:hover:bg-stone-850 text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 rounded-xl transition-all h-[36px] flex items-center justify-center min-w-[40px] flex-grow sm:flex-initial"
+                className="group px-3.5 py-2 border border-stone-200 dark:border-stone-850 bg-stone-50 dark:bg-stone-900/40 hover:bg-stone-100 dark:hover:bg-stone-850 text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 rounded-xl transition-all h-9 flex items-center justify-center min-w-10 grow sm:flex-initial"
                 title="Reset All Filters"
               >
                 <RefreshCw className="w-4 h-4 transition-transform duration-500 ease-out group-hover:rotate-180 group-active:scale-95" />
@@ -934,7 +934,7 @@ function DatasetViewerContent() {
 
         <AnimatePresence>
           {mobilePanel && (
-            <div className="fixed inset-0 z-[70] md:hidden" role="dialog" aria-modal="true">
+            <div className="fixed inset-0 z-70 md:hidden" role="dialog" aria-modal="true">
               <motion.button
                 type="button"
                 initial={{ opacity: 0 }}
@@ -951,7 +951,7 @@ function DatasetViewerContent() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 24 }}
                 transition={{ type: 'spring', damping: 28, stiffness: 260 }}
-                className="absolute inset-x-0 bottom-0 max-h-[86vh] overflow-y-auto rounded-t-[1.5rem] border-t border-stone-200 bg-white shadow-2xl dark:border-stone-900 dark:bg-[#0B0B0B]"
+                className="absolute inset-x-0 bottom-0 max-h-[86vh] overflow-y-auto rounded-t-3xl border-t border-stone-200 bg-white shadow-2xl dark:border-stone-900 dark:bg-[#0B0B0B]"
               >
                 <div className="sticky top-0 z-10 flex items-center justify-between border-b border-stone-200 bg-white/95 px-4 py-3 backdrop-blur dark:border-stone-900 dark:bg-[#0B0B0B]/95">
                   <div className="flex items-center gap-2">
@@ -1111,14 +1111,14 @@ function DatasetViewerContent() {
           <div className="flex items-center gap-2">
             {/* Bulk Action Controls */}
             {selectedIds.length > 0 && !isMobileView && (canVerify || canDelete) && (
-              <div className="flex items-center gap-1 border border-amber-500/30 rounded-xl px-1.5 py-0.5 bg-amber-500/5 h-[32px]">
+              <div className="flex items-center gap-1 border border-amber-500/30 rounded-xl px-1.5 py-0.5 bg-amber-500/5 h-8">
                 {canVerify && (
                 <>
                 <button
                   type="button"
                   onClick={() => handleBulkVerify(true)}
                   disabled={bulkActionLoading}
-                  className="px-2.5 py-0.5 text-[10px] sm:text-xs text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 active:scale-95 rounded-lg disabled:opacity-40 transition-all duration-150 flex items-center gap-1 h-[24px]"
+                  className="px-2.5 py-0.5 text-[10px] sm:text-xs text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 active:scale-95 rounded-lg disabled:opacity-40 transition-all duration-150 flex items-center gap-1 h-6"
                   title="Verify Selected"
                 >
                   <Check className="w-3.5 h-3.5" />
@@ -1128,7 +1128,7 @@ function DatasetViewerContent() {
                   type="button"
                   onClick={() => handleBulkVerify(false)}
                   disabled={bulkActionLoading}
-                  className="px-2.5 py-0.5 text-[10px] sm:text-xs text-stone-550 dark:text-stone-400 hover:bg-stone-500/10 active:scale-95 rounded-lg disabled:opacity-40 transition-all duration-150 flex items-center gap-1 h-[24px]"
+                  className="px-2.5 py-0.5 text-[10px] sm:text-xs text-stone-550 dark:text-stone-400 hover:bg-stone-500/10 active:scale-95 rounded-lg disabled:opacity-40 transition-all duration-150 flex items-center gap-1 h-6"
                   title="Unverify Selected"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -1141,7 +1141,7 @@ function DatasetViewerContent() {
                   type="button"
                   onClick={handleBulkDelete}
                   disabled={bulkActionLoading}
-                  className="px-2.5 py-0.5 text-[10px] sm:text-xs text-red-600 dark:text-red-400 hover:bg-red-500/10 active:scale-95 rounded-lg disabled:opacity-40 transition-all duration-150 flex items-center gap-1 h-[24px]"
+                  className="px-2.5 py-0.5 text-[10px] sm:text-xs text-red-600 dark:text-red-400 hover:bg-red-500/10 active:scale-95 rounded-lg disabled:opacity-40 transition-all duration-150 flex items-center gap-1 h-6"
                   title="Delete Selected"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -1151,7 +1151,7 @@ function DatasetViewerContent() {
                 <button
                   type="button"
                   onClick={() => setSelectedIds([])}
-                  className="px-2.5 py-0.5 text-[10px] sm:text-xs text-stone-500 hover:text-stone-850 dark:hover:text-stone-250 hover:bg-stone-500/10 active:scale-95 rounded-lg transition-all duration-150 flex items-center gap-1 h-[24px] border-l border-stone-250 dark:border-stone-850 pl-2 ml-1"
+                  className="px-2.5 py-0.5 text-[10px] sm:text-xs text-stone-500 hover:text-stone-850 dark:hover:text-stone-250 hover:bg-stone-500/10 active:scale-95 rounded-lg transition-all duration-150 flex items-center gap-1 h-6 border-l border-stone-250 dark:border-stone-850 pl-2 ml-1"
                   title="Clear Selection"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -1166,8 +1166,8 @@ function DatasetViewerContent() {
               onClick={() => {
                 setSelectionMode(prev => !prev);
               }}
-              className={`font-semibold transition-all duration-200 ease-out active:scale-95 hover:-translate-y-[1px] hover:shadow-sm border rounded-xl flex items-center justify-center select-none ${
-                isMobileView ? 'px-2 py-1.5 h-[28px] text-[10px]' : 'px-2.5 py-1.5 h-[32px] text-xs'
+              className={`font-semibold transition-all duration-200 ease-out active:scale-95 hover:-translate-y-px hover:shadow-sm border rounded-xl flex items-center justify-center select-none ${
+                isMobileView ? 'px-2 py-1.5 h-7 text-[10px]' : 'px-2.5 py-1.5 h-8 text-xs'
               } ${
                 selectionMode
                   ? 'bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400 font-bold shadow-sm'
@@ -1190,7 +1190,7 @@ function DatasetViewerContent() {
                     setSelectedIds(prev => Array.from(new Set([...prev, ...allLoadedIds])));
                   }
                 }}
-                className="text-xs font-semibold text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 transition-all duration-200 ease-out active:scale-95 hover:-translate-y-[1px] hover:shadow-sm border border-stone-250 dark:border-stone-850 px-2.5 py-1.5 rounded-xl h-[32px] flex items-center justify-center bg-white dark:bg-[#0F0F0F] select-none"
+                className="text-xs font-semibold text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 transition-all duration-200 ease-out active:scale-95 hover:-translate-y-px hover:shadow-sm border border-stone-250 dark:border-stone-850 px-2.5 py-1.5 rounded-xl h-8 flex items-center justify-center bg-white dark:bg-[#0F0F0F] select-none"
               >
                 {samples.map(s => s.id).every(id => selectedIds.includes(id)) ? 'Deselect Page' : 'Select Page'}
               </button>
@@ -1198,7 +1198,7 @@ function DatasetViewerContent() {
 
             {/* Pagination Controls */}
             {!isMobileView && totalPages > 1 && (
-              <div className="flex items-center gap-1.5 border border-stone-250 dark:border-stone-850 rounded-xl px-1.5 py-0.5 bg-white dark:bg-[#0F0F0F] h-[32px]">
+              <div className="flex items-center gap-1.5 border border-stone-250 dark:border-stone-850 rounded-xl px-1.5 py-0.5 bg-white dark:bg-[#0F0F0F] h-8">
                 <button
                   type="button"
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
@@ -1227,7 +1227,7 @@ function DatasetViewerContent() {
         </div>
 
         {isMobileView && selectedIds.length > 0 && (
-          <div className="fixed inset-x-0 bottom-0 z-[60] border-t border-stone-200 bg-white/95 px-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-3 shadow-[0_-10px_30px_rgba(0,0,0,0.08)] backdrop-blur dark:border-stone-900 dark:bg-[#0B0B0B]/95">
+          <div className="fixed inset-x-0 bottom-0 z-60 border-t border-stone-200 bg-white/95 px-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-3 shadow-[0_-10px_30px_rgba(0,0,0,0.08)] backdrop-blur dark:border-stone-900 dark:bg-[#0B0B0B]/95">
             <div className="mb-2 flex items-center justify-between gap-2 px-1">
               <p className="text-[11px] font-semibold text-stone-500 dark:text-stone-400">
                 {selectedIds.length} selected
@@ -1401,7 +1401,7 @@ function DatasetViewerContent() {
                 animate={{ x: 0 }}
                 exit={{ x: '100%' }}
                 transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-                className="fixed top-0 right-0 bottom-0 w-full sm:w-[450px] bg-white dark:bg-[#0D0D0D] border-l border-stone-200 dark:border-stone-900 z-50 p-6 flex flex-col shadow-2xl overflow-y-auto"
+                className="fixed top-0 right-0 bottom-0 w-full sm:w-112.5 bg-white dark:bg-[#0D0D0D] border-l border-stone-200 dark:border-stone-900 z-50 p-6 flex flex-col shadow-2xl overflow-y-auto"
               >
                 {/* Header */}
                 <div className="flex items-center justify-between pb-4 border-b border-stone-150 dark:border-stone-900">
@@ -1489,7 +1489,7 @@ function DatasetViewerContent() {
                         <User className="w-3.5 h-3.5" />
                         <span className="text-xs">Contributor</span>
                       </div>
-                      <span className="text-xs font-semibold truncate max-w-[200px]" title={selectedSample.contributor_name}>
+                      <span className="text-xs font-semibold truncate max-w-50" title={selectedSample.contributor_name}>
                         {selectedSample.contributor_name || '—'}
                       </span>
                     </div>
@@ -1588,7 +1588,7 @@ function DatasetViewerContent() {
                       {canVerify && (
                       <button
                         onClick={() => handleToggleVerify(selectedSample)}
-                        className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold border transition-all duration-200 ease-out active:scale-97 hover:-translate-y-[1px] shadow-sm ${
+                        className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold border transition-all duration-200 ease-out active:scale-97 hover:-translate-y-px shadow-sm ${
                           selectedSample.status === 'verified'
                             ? 'bg-stone-50 dark:bg-stone-900/40 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-stone-850 hover:bg-stone-100 dark:hover:bg-stone-900'
                             : 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-950/30 hover:bg-emerald-100 dark:hover:bg-emerald-950/40'
@@ -1601,7 +1601,7 @@ function DatasetViewerContent() {
                       {canDelete && (
                       <button
                         onClick={() => setDeleteConfirmId(selectedSample.id)}
-                        className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-red-50 dark:bg-red-950/20 hover:bg-red-100 dark:hover:bg-red-950/40 text-red-600 dark:text-red-400 text-xs font-bold border border-red-100 dark:border-red-950/30 transition-all duration-200 ease-out active:scale-97 hover:-translate-y-[1px] shadow-sm"
+                        className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-red-50 dark:bg-red-950/20 hover:bg-red-100 dark:hover:bg-red-950/40 text-red-600 dark:text-red-400 text-xs font-bold border border-red-100 dark:border-red-950/30 transition-all duration-200 ease-out active:scale-97 hover:-translate-y-px shadow-sm"
                       >
                         <Trash2 className="w-4 h-4" />
                         Reject &amp; Delete
@@ -1643,7 +1643,7 @@ function DatasetViewerContent() {
               />
 
               {/* Modal Box */}
-              <div className="fixed inset-0 flex items-center justify-center p-4 z-[60] pointer-events-none">
+              <div className="fixed inset-0 flex items-center justify-center p-4 z-60 pointer-events-none">
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95, y: 10 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}

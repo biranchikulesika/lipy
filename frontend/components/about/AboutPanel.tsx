@@ -98,7 +98,7 @@ export function AboutPanel() {
 	return (
 		<main className="w-full h-[calc(100dvh-4.5rem)] flex bg-transparent overflow-hidden">
 			{/* PowerPoint Sidebar Sorter - Left Side */}
-			<aside className="hidden lg:flex w-72 border-r border-white/5 bg-[#0b1917]/20 backdrop-blur-md flex-shrink-0 flex-col justify-start p-6 pt-16 xl:pt-20">
+			<aside className="hidden lg:flex w-72 border-r border-white/5 bg-verdigris-950/20 backdrop-blur-md shrink-0 flex-col justify-start p-6 pt-16 xl:pt-20">
 				<nav className="space-y-2">
 					{SLIDES.map((slide, idx) => (
 						<button
@@ -152,7 +152,7 @@ export function AboutPanel() {
 
 								<div className="pt-2 flex items-center gap-3">
 									<Link                href="/"
-                className="inline-flex items-center justify-center gap-2 w-[135px] py-3 bg-verdigris-200 text-slate-950 rounded-xl text-sm font-bold tracking-wider hover:opacity-90 transition-all shadow-md shadow-verdigris-900/10"
+                className="inline-flex items-center justify-center gap-2 w-33.75 py-3 bg-verdigris-200 text-slate-950 rounded-xl text-sm font-bold tracking-wider hover:opacity-90 transition-all shadow-md shadow-verdigris-900/10"
 									>
 										Try Now
 										<ChevronRight className="h-4 w-4" />
@@ -160,7 +160,7 @@ export function AboutPanel() {
 									<a
 										href="https://github.com/biranchikulesika/lipy"
 										target="_blank"
-										rel="noopener noreferrer"                className="inline-flex items-center justify-center gap-2 w-[135px] py-3 border border-white/5 bg-slate-950/20 rounded-xl text-sm font-bold tracking-wider hover:bg-white/5 transition-all text-slate-200 shadow-sm"
+										rel="noopener noreferrer"                className="inline-flex items-center justify-center gap-2 w-33.75 py-3 border border-white/5 bg-slate-950/20 rounded-xl text-sm font-bold tracking-wider hover:bg-white/5 transition-all text-slate-200 shadow-sm"
 									>
 										<Github className="h-4 w-4" />
 										GitHub
@@ -207,7 +207,7 @@ export function AboutPanel() {
 							</div>
 
 							{/* Right: Unified Data Collection Pipeline Diagram */}
-							<div className="lg:col-span-7 w-full p-6 border border-white/5 rounded-3xl bg-[#071312]/30 backdrop-blur-md shadow-lg flex flex-col justify-between h-[52vh] max-h-[420px] relative overflow-hidden">
+							<div className="lg:col-span-7 w-full p-6 border border-white/5 rounded-3xl bg-[#071312]/30 backdrop-blur-md shadow-lg flex flex-col justify-between h-[52vh] max-h-105 relative overflow-hidden">
 								{/* Tab Header */}
 								<div className="flex justify-between items-center border-b border-white/5 pb-3 mb-4">
 									<div className="flex items-center gap-1.5">
@@ -220,20 +220,20 @@ export function AboutPanel() {
 								</div>
 
 								{/* Diagram Contents: Zigzag Timeline */}
-								<div className="flex-grow relative min-h-0 flex items-center justify-center">
+								<div className="grow relative min-h-0 flex items-center justify-center">
 									{/* Horizontal Bezier Wave Background */}
-									<svg className="absolute inset-x-0 w-full h-[80px] pointer-events-none stroke-verdigris-400/15 fill-none stroke-[2] stroke-dasharray-[4]" viewBox="0 0 300 100" preserveAspectRatio="none">
+									<svg className="absolute inset-x-0 w-full h-20 pointer-events-none stroke-verdigris-400/15 fill-none stroke-2 stroke-dasharray-[4]" viewBox="0 0 300 100" preserveAspectRatio="none">
 										<path d="M 0,50 C 75,-10 75,110 150,50 C 225,-10 225,110 300,50" />
 									</svg>
 
 									<div className="flex items-stretch justify-between gap-1 w-full h-full relative z-10">
 										{/* Step 1: Register Node (Top-weighted) */}
-										<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
-											<div className="flex flex-col items-center justify-center h-[185px] w-full p-3 gap-2.5 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm">
+										<div className="flex-2 flex flex-col justify-between items-center text-center h-full py-1">
+											<div className="flex flex-col items-center justify-center h-46.25 w-full p-3 gap-2.5 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm">
 												<div className="text-sm lg:text-base font-black text-white leading-none">
 													User Register
 												</div>
-												<div className="w-full max-w-[155px] h-[95px] text-left bg-verdigris-950/20 p-2.5 rounded-lg border border-verdigris-900/5 flex flex-col justify-center space-y-0.5 font-mono text-[9px] text-slate-350 leading-tight">
+												<div className="w-full max-w-38.75 h-23.75 text-left bg-verdigris-950/20 p-2.5 rounded-lg border border-verdigris-900/5 flex flex-col justify-center space-y-0.5 font-mono text-[9px] text-slate-350 leading-tight">
 													<div className="font-bold text-slate-100 text-[10.5px] border-b border-white/5 pb-0.5 mb-1 uppercase tracking-wide">Contributor</div>
 													<div className="truncate"><span className="text-slate-400">name:</span> "Biranchi K."</div>
 													<div className="truncate"><span className="text-slate-400">mode:</span> "mixed-random"</div>
@@ -249,23 +249,23 @@ export function AboutPanel() {
 										</div>
 
 										{/* Step 2: Donate Samples (Bottom-weighted) */}
-										<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
+										<div className="flex-2 flex flex-col justify-between items-center text-center h-full py-1">
 											<div className="h-4" />
 											<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mb-auto mt-5" />
-											<div className="flex flex-col items-center justify-center h-[185px] w-full p-3 gap-2.5 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm">
+											<div className="flex flex-col items-center justify-center h-46.25 w-full p-3 gap-2.5 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm">
 												<div className="text-sm lg:text-base font-black text-white leading-none">
 													Drawing Canvas
 												</div>
-												<div className="w-full max-w-[155px] h-[95px] text-left bg-verdigris-950/20 p-2.5 rounded-lg border border-verdigris-900/5 flex flex-col justify-between font-mono text-[8px] text-slate-350 leading-tight">
+												<div className="w-full max-w-38.75 h-23.75 text-left bg-verdigris-950/20 p-2.5 rounded-lg border border-verdigris-900/5 flex flex-col justify-between font-mono text-[8px] text-slate-350 leading-tight">
 													<div className="font-bold text-slate-100 text-[9.5px] border-b border-white/5 pb-0.5 uppercase tracking-wide">Drawing Canvas</div>
-													<div className="flex items-center justify-between gap-1 w-full flex-grow mt-1.5">
+													<div className="flex items-center justify-between gap-1 w-full grow mt-1.5">
 														<div className="flex flex-col justify-center space-y-1">
 															<div className="truncate"><span className="text-slate-400">target:</span> "VOW_U"</div>
 															<div className="truncate"><span className="text-slate-400">total:</span> 2002</div>
 														</div>
-														<div className="w-[50px] h-[50px] border border-slate-800 rounded bg-[#0a1413] relative overflow-hidden shrink-0 flex items-center justify-center">
-															<div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800c_1px,transparent_1px),linear-gradient(to_bottom,#8080800c_1px,transparent_1px)] bg-[size:4px_4px]" />
-															<svg className="h-[34px] w-[34px] stroke-verdigris-400 stroke-[3.5] fill-none" viewBox="0 0 100 100">
+														<div className="w-12.5 h-12.5 border border-slate-800 rounded bg-[#0a1413] relative overflow-hidden shrink-0 flex items-center justify-center">
+															<div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800c_1px,transparent_1px),linear-gradient(to_bottom,#8080800c_1px,transparent_1px)] bg-size-[4px_4px]" />
+															<svg className="h-8.5 w-8.5 stroke-verdigris-400 stroke-[3.5] fill-none" viewBox="0 0 100 100">
 																<path d="M 30,30 C 55,20 75,40 50,70 C 40,80 30,55 60,55 C 70,55 80,60 80,75" />
 															</svg>
 														</div>
@@ -280,12 +280,12 @@ export function AboutPanel() {
 										</div>
 
 										{/* Step 3: Synced to DB (Top-weighted) */}
-										<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
-											<div className="flex flex-col items-center justify-center h-[185px] w-full p-3 gap-2.5 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm">
+										<div className="flex-2 flex flex-col justify-between items-center text-center h-full py-1">
+											<div className="flex flex-col items-center justify-center h-46.25 w-full p-3 gap-2.5 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm">
 												<div className="text-sm lg:text-base font-black text-white leading-none">
 													Synced to DB
 												</div>
-												<div className="w-full max-w-[155px] h-[95px] text-left bg-verdigris-950/20 p-2.5 rounded-lg border border-verdigris-900/5 flex flex-col justify-center space-y-0.5 font-mono text-[9px] text-slate-350 leading-tight">
+												<div className="w-full max-w-38.75 h-23.75 text-left bg-verdigris-950/20 p-2.5 rounded-lg border border-verdigris-900/5 flex flex-col justify-center space-y-0.5 font-mono text-[9px] text-slate-350 leading-tight">
 													<div className="font-bold text-slate-100 text-[10.5px] border-b border-white/5 pb-0.5 mb-1 uppercase tracking-wide">Supabase Storage</div>
 													<div className="truncate"><span className="text-slate-400">table:</span> "lipy_samples"</div>
 													<div className="truncate"><span className="text-slate-400">path:</span> "storage_path"</div>
@@ -332,7 +332,7 @@ export function AboutPanel() {
 							</div>
 
 							{/* Right: High-Fidelity Wave Infographic Timeline */}
-							<div className="lg:col-span-7 w-full p-5 border border-white/5 rounded-3xl bg-[#071312]/30 backdrop-blur-md shadow-lg flex flex-col justify-between h-[52vh] max-h-[420px] relative overflow-hidden">
+							<div className="lg:col-span-7 w-full p-5 border border-white/5 rounded-3xl bg-[#071312]/30 backdrop-blur-md shadow-lg flex flex-col justify-between h-[52vh] max-h-105 relative overflow-hidden">
 								{/* Tab Header */}
 								<div className="flex justify-between items-center border-b border-white/5 pb-2 mb-4">            <span className="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-widest">
 										Model Training Pipeline (L.ipynb)
@@ -345,13 +345,13 @@ export function AboutPanel() {
 								{/* Infographic Steps with Zigzag Connecting Arrows */}
 								<div className="flex-1 relative min-h-0 flex items-center justify-center">
 									{/* Horizontal Bezier Wave Background */}
-									<svg className="absolute inset-x-0 w-full h-[80px] pointer-events-none stroke-verdigris-400/15 fill-none stroke-[2] stroke-dasharray-[4]" viewBox="0 0 400 100" preserveAspectRatio="none">
+									<svg className="absolute inset-x-0 w-full h-20 pointer-events-none stroke-verdigris-400/15 fill-none stroke-2 stroke-dasharray-[4]" viewBox="0 0 400 100" preserveAspectRatio="none">
 										<path d="M 0,50 C 100,-10 100,110 200,50 C 300,-10 300,110 400,50" />
 									</svg>
 									<div className="flex items-stretch justify-between gap-1 w-full h-full relative z-10">
 										{/* Step 1: Download & Clean (Top-weighted) */}
-										<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
-											<div className="flex flex-col justify-center h-[145px] w-full p-3 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm space-y-1">
+										<div className="flex-2 flex flex-col justify-between items-center text-center h-full py-1">
+											<div className="flex flex-col justify-center h-36.25 w-full p-3 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm space-y-1">
 												<div className="text-sm font-black text-white leading-tight">Download DB</div>
 												<p className="text-[10.5px] lg:text-xs text-slate-400 leading-relaxed mt-1">Downloaded dataset from Hugging Face and filtered valid classes.</p>
 											</div>
@@ -365,10 +365,10 @@ export function AboutPanel() {
 										</div>
 
 										{/* Step 2: Drive Upload (Bottom-weighted) */}
-										<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
+										<div className="flex-2 flex flex-col justify-between items-center text-center h-full py-1">
 											<div className="h-4" />
 											<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mb-auto mt-5" />
-											<div className="flex flex-col justify-center h-[145px] w-full p-3 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm space-y-1">
+											<div className="flex flex-col justify-center h-36.25 w-full p-3 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm space-y-1">
 												<div className="text-sm font-black text-white leading-tight">Drive Upload</div>
 												<p className="text-[10.5px] lg:text-xs text-slate-400 leading-relaxed mt-1">Cleaned dataset uploaded to Google Drive.</p>
 											</div>
@@ -380,8 +380,8 @@ export function AboutPanel() {
 										</div>
 
 										{/* Step 3: Colab Import (Top-weighted) */}
-										<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
-											<div className="flex flex-col justify-center h-[145px] w-full p-3 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm space-y-1">
+										<div className="flex-2 flex flex-col justify-between items-center text-center h-full py-1">
+											<div className="flex flex-col justify-center h-36.25 w-full p-3 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm space-y-1">
 												<div className="text-sm font-black text-white leading-tight">Colab Import</div>
 												<p className="text-[10.5px] lg:text-xs text-slate-400 leading-relaxed mt-1">Drive dataset imported on Colab kernel.</p>
 											</div>
@@ -395,10 +395,10 @@ export function AboutPanel() {
 										</div>
 
 										{/* Step 4: CNN Training (Bottom-weighted) */}
-										<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
+										<div className="flex-2 flex flex-col justify-between items-center text-center h-full py-1">
 											<div className="h-4" />
 											<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mb-auto mt-5" />
-											<div className="flex flex-col justify-center h-[145px] w-full p-3 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm space-y-1">
+											<div className="flex flex-col justify-center h-36.25 w-full p-3 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm space-y-1">
 												<div className="text-sm font-black text-white leading-tight">Train EfficientNetB0</div>
 												<p className="text-[10.5px] lg:text-xs text-slate-400 leading-relaxed mt-1">Trained EfficientNetB0 and exported model weights.</p>
 											</div>
@@ -441,7 +441,7 @@ export function AboutPanel() {
 							</div>
 
 							{/* Right: High-Fidelity CI/CD Deployment Map */}
-							<div className="lg:col-span-7 w-full p-5 border border-white/5 rounded-3xl bg-[#071312]/30 backdrop-blur-md shadow-lg flex flex-col justify-between h-[52vh] max-h-[420px] relative overflow-hidden">
+							<div className="lg:col-span-7 w-full p-5 border border-white/5 rounded-3xl bg-[#071312]/30 backdrop-blur-md shadow-lg flex flex-col justify-between h-[52vh] max-h-105 relative overflow-hidden">
 								{/* Tab Header */}
 								<div className="flex justify-between items-center border-b border-white/5 pb-2 mb-3">            <span className="text-[10px] lg:text-xs font-mono font-bold text-slate-500 uppercase tracking-widest">
 										CI/CD Deployment Architecture
@@ -452,10 +452,10 @@ export function AboutPanel() {
 								</div>
 
 								{/* 3-Node Architecture Grid */}
-								<div className="flex-grow relative flex flex-col justify-between p-2 min-h-0">
+								<div className="grow relative flex flex-col justify-between p-2 min-h-0">
 									{/* Central Source: GitHub */}
 									<div className="flex justify-center">
-										<div className="p-3 border border-slate-800 rounded-xl bg-slate-950/40 text-center w-[160px] space-y-1 shadow-sm z-10">
+										<div className="p-3 border border-slate-800 rounded-xl bg-slate-950/40 text-center w-40 space-y-1 shadow-sm z-10">
 											<div className="text-sm font-black text-white leading-none">GitHub Repo</div>
 											<div className="text-[10.5px] lg:text-xs text-slate-400 font-mono">Pushed changes</div>
 										</div>
@@ -474,20 +474,20 @@ export function AboutPanel() {
 									</div>
 
 									{/* Labels for pathways */}
-									<div className="absolute top-[55px] left-[25px] text-[8.5px] lg:text-[9.5px] font-mono text-slate-400 font-bold uppercase">Auto Build</div>
-									<div className="absolute top-[55px] right-[25px] text-[8.5px] lg:text-[9.5px] font-mono text-slate-400 font-bold uppercase">Auto Deploy</div>
-									<div className="absolute bottom-[35px] left-1/2 -translate-x-1/2 text-[8.5px] lg:text-[9.5px] font-mono text-verdigris-400 font-bold uppercase bg-slate-950 px-2 py-0.5 rounded border border-verdigris-500/10 z-10">REST API Requests</div>
+									<div className="absolute top-13.75 left-6.25 text-[8.5px] lg:text-[9.5px] font-mono text-slate-400 font-bold uppercase">Auto Build</div>
+									<div className="absolute top-13.75 right-6.25 text-[8.5px] lg:text-[9.5px] font-mono text-slate-400 font-bold uppercase">Auto Deploy</div>
+									<div className="absolute bottom-8.75 left-1/2 -translate-x-1/2 text-[8.5px] lg:text-[9.5px] font-mono text-verdigris-400 font-bold uppercase bg-slate-950 px-2 py-0.5 rounded border border-verdigris-500/10 z-10">REST API Requests</div>
 
 									{/* Hosts: Vercel & Azure */}
 									<div className="flex justify-between items-center w-full px-2 z-10">
 										{/* Vercel Node */}
-										<div className="p-3 border border-white/5 rounded-xl bg-verdigris-950/50 text-center w-[145px] space-y-1 shadow-sm">
+										<div className="p-3 border border-white/5 rounded-xl bg-verdigris-950/50 text-center w-36.25 space-y-1 shadow-sm">
 											<div className="text-sm font-black text-white leading-none">Vercel</div>
 											<div className="text-[10.5px] lg:text-xs text-emerald-500 font-bold">Frontend Host</div>
 										</div>
 
 										{/* Azure Node */}
-										<div className="p-3 border border-white/5 rounded-xl bg-verdigris-950/50 text-center w-[145px] space-y-1 shadow-sm">
+										<div className="p-3 border border-white/5 rounded-xl bg-verdigris-950/50 text-center w-36.25 space-y-1 shadow-sm">
 											<div className="text-sm font-black text-white leading-none">Azure</div>
 											<div className="text-[10.5px] lg:text-xs text-emerald-500 font-bold">FastAPI Backend</div>
 										</div>
@@ -529,16 +529,16 @@ export function AboutPanel() {
 							</div>
 
 							{/* Infographic Steps with Zigzag Connecting Arrows */}
-							<div className="flex-grow relative min-h-0 flex items-center justify-center py-6">
+							<div className="grow relative min-h-0 flex items-center justify-center py-6">
 								{/* Horizontal Bezier Wave Background */}
-								<svg className="absolute inset-x-0 w-full h-[80px] pointer-events-none stroke-verdigris-400/15 fill-none stroke-[2] stroke-dasharray-[4]" viewBox="0 0 500 100" preserveAspectRatio="none">
+								<svg className="absolute inset-x-0 w-full h-20 pointer-events-none stroke-verdigris-400/15 fill-none stroke-2 stroke-dasharray-[4]" viewBox="0 0 500 100" preserveAspectRatio="none">
 									<path d="M 0,50 C 125,-10 125,110 250,50 C 375,-10 375,110 500,50" />
 								</svg>
 
 								<div className="flex items-stretch justify-between gap-1 w-full h-full relative z-10">
 									{/* Step 1: Input Character (Top-weighted) */}
-									<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
-										<div className="flex flex-col justify-center h-[145px] w-full p-3 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm space-y-1">
+									<div className="flex-2 flex flex-col justify-between items-center text-center h-full py-1">
+										<div className="flex flex-col justify-center h-36.25 w-full p-3 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm space-y-1">
 											<div className="text-sm font-black text-white leading-tight">Input Character</div>
 											<p className="text-[10.5px] lg:text-xs text-slate-400 leading-relaxed mt-1">User draws a character on the canvas board or uploads an image.</p>
 										</div>
@@ -552,10 +552,10 @@ export function AboutPanel() {
 									</div>
 
 									{/* Step 2: Preprocessing (Bottom-weighted) */}
-									<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
+									<div className="flex-2 flex flex-col justify-between items-center text-center h-full py-1">
 										<div className="h-4" />
 										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mb-auto mt-5" />
-										<div className="flex flex-col justify-center h-[145px] w-full p-3 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm space-y-1">
+										<div className="flex flex-col justify-center h-36.25 w-full p-3 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm space-y-1">
 											<div className="text-sm font-black text-white leading-tight">Preprocessing</div>
 											<p className="text-[10.5px] lg:text-xs text-slate-400 leading-relaxed mt-1">Grayscales, normalizes pixel intensities, and resizes to 64x64 matrix.</p>
 										</div>
@@ -567,8 +567,8 @@ export function AboutPanel() {
 									</div>
 
 									{/* Step 3: CNN Inference (Top-weighted) */}
-									<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
-										<div className="flex flex-col justify-center h-[145px] w-full p-3 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm space-y-1">
+									<div className="flex-2 flex flex-col justify-between items-center text-center h-full py-1">
+										<div className="flex flex-col justify-center h-36.25 w-full p-3 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm space-y-1">
 											<div className="text-sm font-black text-white leading-tight">CNN Inference</div>
 											<p className="text-[10.5px] lg:text-xs text-slate-400 leading-relaxed mt-1">Feature maps computed through Conv2D blocks to output class scores.</p>
 										</div>
@@ -582,10 +582,10 @@ export function AboutPanel() {
 									</div>
 
 									{/* Step 4: API Response (Bottom-weighted) */}
-									<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
+									<div className="flex-2 flex flex-col justify-between items-center text-center h-full py-1">
 										<div className="h-4" />
 										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mb-auto mt-5" />
-										<div className="flex flex-col justify-center h-[145px] w-full p-3 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm space-y-1">
+										<div className="flex flex-col justify-center h-36.25 w-full p-3 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm space-y-1">
 											<div className="text-sm font-black text-white leading-tight">API Response</div>
 											<p className="text-[10.5px] lg:text-xs text-slate-400 leading-relaxed mt-1">FastAPI backend returns prediction results and confidence values.</p>
 										</div>
@@ -597,8 +597,8 @@ export function AboutPanel() {
 									</div>
 
 									{/* Step 5: Render Output (Top-weighted) */}
-									<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
-										<div className="flex flex-col justify-center h-[145px] w-full p-3 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm space-y-1">
+									<div className="flex-2 flex flex-col justify-between items-center text-center h-full py-1">
+										<div className="flex flex-col justify-center h-36.25 w-full p-3 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm space-y-1">
 											<div className="text-sm font-black text-white leading-tight">Render Output</div>
 											<p className="text-[10.5px] lg:text-xs text-slate-400 leading-relaxed mt-1">UI maps label keys to Odia glyphs and displays predictions to user.</p>
 										</div>
@@ -640,16 +640,16 @@ export function AboutPanel() {
 							</div>
 
 							{/* Infographic Steps with Zigzag Connecting Arrows */}
-							<div className="flex-grow relative min-h-0 flex items-center justify-center py-6">
+							<div className="grow relative min-h-0 flex items-center justify-center py-6">
 								{/* Horizontal Bezier Wave Background */}
-								<svg className="absolute inset-x-0 w-full h-[80px] pointer-events-none stroke-verdigris-400/15 fill-none stroke-[2] stroke-dasharray-[4]" viewBox="0 0 300 100" preserveAspectRatio="none">
+								<svg className="absolute inset-x-0 w-full h-20 pointer-events-none stroke-verdigris-400/15 fill-none stroke-2 stroke-dasharray-[4]" viewBox="0 0 300 100" preserveAspectRatio="none">
 									<path d="M 0,50 C 75,-10 75,110 150,50 C 225,-10 225,110 300,50" />
 								</svg>
 
 								<div className="flex items-stretch justify-between gap-1 w-full h-full relative z-10">
 									{/* Card 1: Handwriting Variability (Top-weighted) */}
-									<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
-										<div className="flex flex-col justify-center h-[185px] w-full p-4 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm space-y-2">
+									<div className="flex-2 flex flex-col justify-between items-center text-center h-full py-1">
+										<div className="flex flex-col justify-center h-46.25 w-full p-4 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm space-y-2">
 											<div className="p-2 bg-verdigris-500/10 text-verdigris-400 rounded-xl w-fit mx-auto">
 												<PenTool className="h-5 w-5" />
 											</div>
@@ -670,10 +670,10 @@ export function AboutPanel() {
 									</div>
 
 									{/* Card 2: Limited Public Datasets (Bottom-weighted) */}
-									<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
+									<div className="flex-2 flex flex-col justify-between items-center text-center h-full py-1">
 										<div className="h-4" />
 										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mb-auto mt-5" />
-										<div className="flex flex-col justify-center h-[185px] w-full p-4 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm space-y-2">
+										<div className="flex flex-col justify-center h-46.25 w-full p-4 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm space-y-2">
 											<div className="p-2 bg-verdigris-500/10 text-verdigris-400 rounded-xl w-fit mx-auto">
 												<Database className="h-5 w-5" />
 											</div>
@@ -697,8 +697,8 @@ export function AboutPanel() {
 									</div>
 
 									{/* Card 3: Character Similarity (Top-weighted) */}
-									<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
-										<div className="flex flex-col justify-center h-[185px] w-full p-4 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm space-y-2">
+									<div className="flex-2 flex flex-col justify-between items-center text-center h-full py-1">
+										<div className="flex flex-col justify-center h-46.25 w-full p-4 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm space-y-2">
 											<div className="p-2 bg-verdigris-500/10 text-verdigris-400 rounded-xl w-fit mx-auto">
 												<Scan className="h-5 w-5" />
 											</div>
@@ -753,16 +753,16 @@ export function AboutPanel() {
 							</div>
 
 							{/* Infographic Steps with Zigzag Connecting Arrows */}
-							<div className="flex-grow relative min-h-0 flex items-center justify-center py-6">
+							<div className="grow relative min-h-0 flex items-center justify-center py-6">
 								{/* Horizontal Bezier Wave Background */}
-								<svg className="absolute inset-x-0 w-full h-[80px] pointer-events-none stroke-verdigris-400/15 fill-none stroke-[2] stroke-dasharray-[4]" viewBox="0 0 400 100" preserveAspectRatio="none">
+								<svg className="absolute inset-x-0 w-full h-20 pointer-events-none stroke-verdigris-400/15 fill-none stroke-2 stroke-dasharray-[4]" viewBox="0 0 400 100" preserveAspectRatio="none">
 									<path d="M 0,50 C 100,-10 100,110 200,50 C 300,-10 300,110 400,50" />
 								</svg>
 
 								<div className="flex items-stretch justify-between gap-1 w-full h-full relative z-10">
 									{/* Step 1: Classes (Top-weighted) */}
-									<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
-										<div className="flex flex-col items-center justify-center h-[145px] w-full p-3 gap-1 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm text-center">
+									<div className="flex-2 flex flex-col justify-between items-center text-center h-full py-1">
+										<div className="flex flex-col items-center justify-center h-36.25 w-full p-3 gap-1 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm text-center">
 											<div className="p-1.5 bg-verdigris-500/10 text-verdigris-400 rounded-lg w-fit">
 												<Cpu className="h-4 w-4" />
 											</div>
@@ -780,10 +780,10 @@ export function AboutPanel() {
 									</div>
 
 									{/* Step 2: Samples (Bottom-weighted) */}
-									<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
+									<div className="flex-2 flex flex-col justify-between items-center text-center h-full py-1">
 										<div className="h-4" />
 										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mb-auto mt-5" />
-										<div className="flex flex-col items-center justify-center h-[145px] w-full p-3 gap-1 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm text-center">
+										<div className="flex flex-col items-center justify-center h-36.25 w-full p-3 gap-1 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm text-center">
 											<div className="p-1.5 bg-verdigris-500/10 text-verdigris-400 rounded-lg w-fit">
 												<Database className="h-4 w-4" />
 											</div>
@@ -799,8 +799,8 @@ export function AboutPanel() {
 									</div>
 
 									{/* Step 3: Model Architecture (Top-weighted) */}
-									<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
-										<div className="flex flex-col items-center justify-center h-[145px] w-full p-3 gap-1 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm text-center">
+									<div className="flex-2 flex flex-col justify-between items-center text-center h-full py-1">
+										<div className="flex flex-col items-center justify-center h-36.25 w-full p-3 gap-1 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm text-center">
 											<div className="p-1.5 bg-verdigris-500/10 text-verdigris-400 rounded-lg w-fit">
 												<Scan className="h-4 w-4" />
 											</div>
@@ -818,10 +818,10 @@ export function AboutPanel() {
 									</div>
 
 									{/* Step 4: Development Phase (Bottom-weighted) */}
-									<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
+									<div className="flex-2 flex flex-col justify-between items-center text-center h-full py-1">
 										<div className="h-4" />
 										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mb-auto mt-5" />
-										<div className="flex flex-col items-center justify-center h-[145px] w-full p-3 gap-1 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm text-center">
+										<div className="flex flex-col items-center justify-center h-36.25 w-full p-3 gap-1 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm text-center">
 											<div className="p-1.5 bg-verdigris-500/10 text-verdigris-400 rounded-lg w-fit">
 												<Sparkles className="h-4 w-4" />
 											</div>
@@ -867,16 +867,16 @@ export function AboutPanel() {
 							</div>
 
 							{/* Infographic Steps with Zigzag Connecting Arrows */}
-							<div className="flex-grow relative min-h-0 flex items-center justify-center py-6">
+							<div className="grow relative min-h-0 flex items-center justify-center py-6">
 								{/* Horizontal Bezier Wave Background */}
-								<svg className="absolute inset-x-0 w-full h-[80px] pointer-events-none stroke-verdigris-400/15 fill-none stroke-[2] stroke-dasharray-[4]" viewBox="0 0 400 100" preserveAspectRatio="none">
+								<svg className="absolute inset-x-0 w-full h-20 pointer-events-none stroke-verdigris-400/15 fill-none stroke-2 stroke-dasharray-[4]" viewBox="0 0 400 100" preserveAspectRatio="none">
 									<path d="M 0,50 C 100,-10 100,110 200,50 C 300,-10 300,110 400,50" />
 								</svg>
 
 								<div className="flex items-stretch justify-between gap-1 w-full h-full relative z-10">
 									{/* Step 1: Frontend (Top-weighted) */}
-									<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
-										<div className="flex flex-col items-center justify-center h-[145px] w-full p-3 gap-1 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm text-center">
+									<div className="flex-2 flex flex-col justify-between items-center text-center h-full py-1">
+										<div className="flex flex-col items-center justify-center h-36.25 w-full p-3 gap-1 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm text-center">
 											<div className="p-1.5 bg-verdigris-500/10 text-verdigris-400 rounded-lg w-fit">
 												<Layers className="h-4 w-4" />
 											</div>
@@ -894,10 +894,10 @@ export function AboutPanel() {
 									</div>
 
 									{/* Step 2: Backend (Bottom-weighted) */}
-									<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
+									<div className="flex-2 flex flex-col justify-between items-center text-center h-full py-1">
 										<div className="h-4" />
 										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mb-auto mt-5" />
-										<div className="flex flex-col items-center justify-center h-[145px] w-full p-3 gap-1 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm text-center">
+										<div className="flex flex-col items-center justify-center h-36.25 w-full p-3 gap-1 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm text-center">
 											<div className="p-1.5 bg-verdigris-500/10 text-verdigris-400 rounded-lg w-fit">
 												<Server className="h-4 w-4" />
 											</div>
@@ -913,8 +913,8 @@ export function AboutPanel() {
 									</div>
 
 									{/* Step 3: ML (Top-weighted) */}
-									<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
-										<div className="flex flex-col items-center justify-center h-[145px] w-full p-3 gap-1 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm text-center">
+									<div className="flex-2 flex flex-col justify-between items-center text-center h-full py-1">
+										<div className="flex flex-col items-center justify-center h-36.25 w-full p-3 gap-1 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm text-center">
 											<div className="p-1.5 bg-verdigris-500/10 text-verdigris-400 rounded-lg w-fit">
 												<Cpu className="h-4 w-4" />
 											</div>
@@ -932,10 +932,10 @@ export function AboutPanel() {
 									</div>
 
 									{/* Step 4: Deployment (Bottom-weighted) */}
-									<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
+									<div className="flex-2 flex flex-col justify-between items-center text-center h-full py-1">
 										<div className="h-4" />
 										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mb-auto mt-5" />
-										<div className="flex flex-col items-center justify-center h-[145px] w-full p-3 gap-1 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm text-center">
+										<div className="flex flex-col items-center justify-center h-36.25 w-full p-3 gap-1 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm text-center">
 											<div className="p-1.5 bg-verdigris-500/10 text-verdigris-400 rounded-lg w-fit">
 												<Cloud className="h-4 w-4" />
 											</div>
@@ -982,16 +982,16 @@ export function AboutPanel() {
 							</div>
 
 							{/* Infographic Steps with Zigzag Connecting Arrows */}
-							<div className="flex-grow relative min-h-0 flex items-center justify-center py-6">
+							<div className="grow relative min-h-0 flex items-center justify-center py-6">
 								{/* Horizontal Bezier Wave Background */}
-								<svg className="absolute inset-x-0 w-full h-[80px] pointer-events-none stroke-verdigris-400/15 fill-none stroke-[2] stroke-dasharray-[4]" viewBox="0 0 400 100" preserveAspectRatio="none">
+								<svg className="absolute inset-x-0 w-full h-20 pointer-events-none stroke-verdigris-400/15 fill-none stroke-2 stroke-dasharray-[4]" viewBox="0 0 400 100" preserveAspectRatio="none">
 									<path d="M 0,50 C 100,-10 100,110 200,50 C 300,-10 300,110 400,50" />
 								</svg>
 
 								<div className="flex items-stretch justify-between gap-1 w-full h-full relative z-10">
 									{/* Step 1: Phase 1 (Top-weighted) */}
-									<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
-										<div className="flex flex-col items-center justify-center h-[145px] w-full p-3 gap-1 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm text-center">
+									<div className="flex-2 flex flex-col justify-between items-center text-center h-full py-1">
+										<div className="flex flex-col items-center justify-center h-36.25 w-full p-3 gap-1 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm text-center">
 											<div className="p-1.5 bg-verdigris-500/10 text-verdigris-400 rounded-lg w-fit">
 												<Database className="h-4 w-4" />
 											</div>
@@ -1009,10 +1009,10 @@ export function AboutPanel() {
 									</div>
 
 									{/* Step 2: Phase 2 (Bottom-weighted) */}
-									<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
+									<div className="flex-2 flex flex-col justify-between items-center text-center h-full py-1">
 										<div className="h-4" />
 										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mb-auto mt-5" />
-										<div className="flex flex-col items-center justify-center h-[145px] w-full p-3 gap-1 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm text-center">
+										<div className="flex flex-col items-center justify-center h-36.25 w-full p-3 gap-1 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm text-center">
 											<div className="p-1.5 bg-verdigris-500/10 text-verdigris-400 rounded-lg w-fit">
 												<Cpu className="h-4 w-4" />
 											</div>
@@ -1028,8 +1028,8 @@ export function AboutPanel() {
 									</div>
 
 									{/* Step 3: Phase 3 (Top-weighted) */}
-									<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
-										<div className="flex flex-col items-center justify-center h-[145px] w-full p-3 gap-1 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm text-center">
+									<div className="flex-2 flex flex-col justify-between items-center text-center h-full py-1">
+										<div className="flex flex-col items-center justify-center h-36.25 w-full p-3 gap-1 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm text-center">
 											<div className="p-1.5 bg-verdigris-500/10 text-verdigris-400 rounded-lg w-fit">
 												<Scan className="h-4 w-4" />
 											</div>
@@ -1047,10 +1047,10 @@ export function AboutPanel() {
 									</div>
 
 									{/* Step 4: Phase 4 (Bottom-weighted) */}
-									<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
+									<div className="flex-2 flex flex-col justify-between items-center text-center h-full py-1">
 										<div className="h-4" />
 										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mb-auto mt-5" />
-										<div className="flex flex-col items-center justify-center h-[145px] w-full p-3 gap-1 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm text-center">
+										<div className="flex flex-col items-center justify-center h-36.25 w-full p-3 gap-1 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm text-center">
 											<div className="p-1.5 bg-verdigris-500/10 text-verdigris-400 rounded-lg w-fit">
 												<Server className="h-4 w-4" />
 											</div>
