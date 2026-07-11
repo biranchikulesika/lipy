@@ -2,6 +2,7 @@
 
 import { createServerClient } from '@supabase/ssr';
 import { cookies, headers } from 'next/headers';
+import { logSecurityEventDirect } from '../security-actions';
 
 // In-memory rate limiter.
 // NOTE: This is suitable for development but is not reliable on
@@ -16,6 +17,8 @@ export async function authenticateUser(email: string, password: string) {
     forwardedFor?.split(',')[0].trim() ||
     headersList.get('x-real-ip') ||
     'unknown';
+
+  const ua = headersList.get('user-agent');
 
   const now = Date.now();
 
@@ -40,8 +43,8 @@ export async function authenticateUser(email: string, password: string) {
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  // Authentication requires Supabase to be configured.
   if (!supabaseUrl || !supabaseAnonKey) {
     return {
       error: {
@@ -70,12 +73,17 @@ export async function authenticateUser(email: string, password: string) {
     },
   });
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
 
   if (error) {
+    logSecurityEventDirect(supabaseUrl, serviceKey || '', 'login_failed', '00000000-0000-0000-0000-000000000000', ip, ua, {
+      status: 'Failed',
+      metadata: { method: 'email_password', email, reason: error.message },
+    }).catch(() => {});
+
     return {
       error: {
         message: 'Invalid login credentials',
@@ -85,6 +93,14 @@ export async function authenticateUser(email: string, password: string) {
 
   // Reset rate limit after successful authentication.
   rateLimitMap.delete(ip);
+
+  // Log successful login
+  if (data.user) {
+    logSecurityEventDirect(supabaseUrl, serviceKey || '', 'login', data.user.id, ip, ua, {
+      status: 'Success',
+      metadata: { method: 'email_password' },
+    }).catch(() => {});
+  }
 
   return {
     error: null,
