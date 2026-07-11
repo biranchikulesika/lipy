@@ -25,6 +25,32 @@ The frontend is modularized into feature-based workspaces:
 - `useCanvasDrawing.ts`: A robust custom hook managing drawing states, brush logic, clearing, and canvas initialization for both the OCR module and the Dataset Contributor module.
 - `useDatasetSync.ts`: Controls the data payload state for user-generated Odia character contributions.
 
+## Admin Dashboard
+
+The admin dashboard (`/admin`) provides role-based access to manage the dataset and verify contributions.
+
+### Admin Roles
+
+Users must be added to the `admins` table in Supabase to access the dashboard. Roles follow a hierarchy where higher roles inherit all permissions of lower roles.
+
+| Role | View Dashboard | Verify/Unverify Samples | Delete Samples |
+| ---- | :------------: | :---------------------: | :------------: |
+| `viewer` | Yes | No | No |
+| `verifier` | Yes | Yes | No |
+| `admin` | Yes | Yes | Yes |
+| `owner` | Yes | Yes | Yes |
+
+- **viewer** — Read-only access to the dataset viewer and dashboard stats.
+- **verifier** — Can verify and unverify dataset samples (sets `verified_by` and `verified_at` audit fields).
+- **admin** — Can verify samples and delete rejected samples from the dataset.
+- **owner** — Full access. Same as admin, reserved for the primary administrator.
+
+### Database Schema
+
+The Supabase SQL schema script is located at `scripts/database/schema.sql`. It creates all tables (`lipy_contributors`, `lipy_sessions`, `lipy_samples`, `security_events`, `admins`), RLS policies, storage buckets, and helper functions. Safe to run multiple times.
+
+To apply: open the **Supabase Dashboard → SQL Editor**, paste the script, and execute.
+
 ## Local Development
 
 Ensure you have Node.js installed, then start the frontend:

@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { AdminShell } from '@/components/admin/AdminShell';
+import { useAdminRole } from '@/components/admin/AdminShell';
 import { odiaCharacters } from '@/lib/lipyd/odiaCharacters';
 
 function cleanStoragePath(path: string): string {
@@ -50,6 +51,8 @@ interface SampleRecord {
   uploaded_at: string;
   metadata: any;
   signedUrl?: string;
+  verified_by: string | null;
+  verified_at: string | null;
 }
 
 const ITEMS_PER_PAGE = 72;
@@ -74,7 +77,8 @@ type MobileFilterDraft = {
   sortBy: string;
 };
 
-export default function DatasetViewerPage() {
+function DatasetViewerContent() {
+  const { canVerify, canDelete } = useAdminRole();
   const [supabase, setSupabase] = useState<any>(null);
   const [samples, setSamples] = useState<SampleRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -275,9 +279,9 @@ export default function DatasetViewerPage() {
 
       // Apply sorting
       if (sortBy === 'newest') {
-        query = query.order('created_at', { ascending: false });
+        query = query.order('character_text', { ascending: true }).order('created_at', { ascending: false });
       } else if (sortBy === 'oldest') {
-        query = query.order('created_at', { ascending: true });
+        query = query.order('character_text', { ascending: true }).order('created_at', { ascending: true });
       } else if (sortBy === 'az') {
         query = query.order('character_text', { ascending: true }).order('created_at', { ascending: false });
       } else if (sortBy === 'za') {
@@ -518,17 +522,30 @@ export default function DatasetViewerPage() {
   // Verify/Unverify single sample
   const handleToggleVerify = async (sample: SampleRecord) => {
     if (!supabase) return;
-    const newStatus = sample.status === 'verified' ? 'unverified' : 'verified';
+    const isVerified = sample.status === 'verified';
+    const newStatus = isVerified ? 'unverified' : 'verified';
+    const updatePayload: Record<string, any> = { status: newStatus };
+
+    if (!isVerified) {
+      // Verifying — get current user id
+      const { data: { user } } = await supabase.auth.getUser();
+      updatePayload.verified_by = user?.id ?? null;
+      updatePayload.verified_at = new Date().toISOString();
+    } else {
+      // Unverifying — clear audit fields
+      updatePayload.verified_by = null;
+      updatePayload.verified_at = null;
+    }
+
     try {
       const { error } = await supabase
         .from('lipy_samples')
-        .update({ status: newStatus })
+        .update(updatePayload)
         .eq('id', sample.id);
 
       if (error) throw error;
 
-      // Update local state
-      const updatedSample = { ...sample, status: newStatus };
+      const updatedSample = { ...sample, ...updatePayload };
       setSelectedSample(updatedSample);
       setSamples(prev => prev.map(s => s.id === sample.id ? updatedSample : s));
       fetchStats(supabase);
@@ -582,10 +599,21 @@ export default function DatasetViewerPage() {
     if (!supabase || selectedIds.length === 0 || bulkActionLoading) return;
     setBulkActionLoading(true);
     const targetStatus = verify ? 'verified' : 'unverified';
+    const updatePayload: Record<string, any> = { status: targetStatus };
+
+    if (verify) {
+      const { data: { user } } = await supabase.auth.getUser();
+      updatePayload.verified_by = user?.id ?? null;
+      updatePayload.verified_at = new Date().toISOString();
+    } else {
+      updatePayload.verified_by = null;
+      updatePayload.verified_at = null;
+    }
+
     try {
       const { error } = await supabase
         .from('lipy_samples')
-        .update({ status: targetStatus })
+        .update(updatePayload)
         .in('id', selectedIds);
 
       if (error) throw error;
@@ -696,22 +724,19 @@ export default function DatasetViewerPage() {
 
   if (!isConfigured) {
     return (
-      <AdminShell title="Dataset Viewer" subtitle="Browse handwriting collection">
-        <div className="p-8 max-w-4xl mx-auto">
-          <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-2xl p-6 text-center space-y-4">
-            <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto" />
-            <h3 className="text-lg font-bold">Supabase Config Required</h3>
-            <p className="text-sm text-stone-500 dark:text-stone-400 max-w-md mx-auto">
-              Please define <code>NEXT_PUBLIC_SUPABASE_URL</code> and <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> in your environment or <code>frontend/.env</code> configuration file to use the administrator Dataset Viewer.
-            </p>
-          </div>
+      <div className="p-8 max-w-4xl mx-auto">
+        <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-2xl p-6 text-center space-y-4">
+          <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto" />
+          <h3 className="text-lg font-bold">Supabase Config Required</h3>
+          <p className="text-sm text-stone-500 dark:text-stone-400 max-w-md mx-auto">
+            Please define <code>NEXT_PUBLIC_SUPABASE_URL</code> and <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> in your environment or <code>frontend/.env</code> configuration file to use the administrator Dataset Viewer.
+          </p>
         </div>
-      </AdminShell>
+      </div>
     );
   }
 
   return (
-    <AdminShell title="Dataset Viewer" subtitle="Audit and manage handwritten samples">
       <div className="h-full flex flex-col overflow-hidden w-full max-w-none">
         
         {/* Fixed top filters header */}
@@ -1085,8 +1110,10 @@ export default function DatasetViewerPage() {
           </p>
           <div className="flex items-center gap-2">
             {/* Bulk Action Controls */}
-            {selectedIds.length > 0 && !isMobileView && (
+            {selectedIds.length > 0 && !isMobileView && (canVerify || canDelete) && (
               <div className="flex items-center gap-1 border border-amber-500/30 rounded-xl px-1.5 py-0.5 bg-amber-500/5 h-[32px]">
+                {canVerify && (
+                <>
                 <button
                   type="button"
                   onClick={() => handleBulkVerify(true)}
@@ -1107,6 +1134,9 @@ export default function DatasetViewerPage() {
                   <X className="w-3.5 h-3.5" />
                   <span className="font-bold select-none">Unverify</span>
                 </button>
+                </>
+                )}
+                {canDelete && (
                 <button
                   type="button"
                   onClick={handleBulkDelete}
@@ -1117,6 +1147,7 @@ export default function DatasetViewerPage() {
                   <Trash2 className="w-3.5 h-3.5" />
                   <span className="font-bold select-none">Delete</span>
                 </button>
+                )}
                 <button
                   type="button"
                   onClick={() => setSelectedIds([])}
@@ -1211,6 +1242,8 @@ export default function DatasetViewerPage() {
             </div>
 
             <div className="grid grid-cols-4 gap-2">
+              {canVerify && (
+              <>
               <button
                 type="button"
                 onClick={() => handleBulkVerify(true)}
@@ -1232,7 +1265,10 @@ export default function DatasetViewerPage() {
                 <X className="h-4 w-4" />
                 <span>Unverify</span>
               </button>
+              </>
+              )}
 
+              {canDelete && (
               <button
                 type="button"
                 onClick={handleBulkDelete}
@@ -1243,6 +1279,7 @@ export default function DatasetViewerPage() {
                 <Trash2 className="h-4 w-4" />
                 <span>Delete</span>
               </button>
+              )}
 
               <button
                 type="button"
@@ -1420,6 +1457,33 @@ export default function DatasetViewerPage() {
                       </span>
                     </div>
 
+                    {selectedSample.verified_at && (
+                    <div className="flex justify-between items-center p-2.5 bg-stone-50 dark:bg-stone-900/30 rounded-xl">
+                      <div className="flex items-center gap-2 text-stone-400 dark:text-stone-500">
+                        <Calendar className="w-3.5 h-3.5" />
+                        <span className="text-xs">Verified At</span>
+                      </div>
+                      <span className="text-xs font-semibold">
+                        {new Date(selectedSample.verified_at).toLocaleDateString('en-IN', {
+                          day: 'numeric', month: 'short', year: 'numeric',
+                          hour: '2-digit', minute: '2-digit'
+                        })}
+                      </span>
+                    </div>
+                    )}
+
+                    {selectedSample.verified_by && (
+                    <div className="flex justify-between items-center p-2.5 bg-stone-50 dark:bg-stone-900/30 rounded-xl">
+                      <div className="flex items-center gap-2 text-stone-400 dark:text-stone-500">
+                        <User className="w-3.5 h-3.5" />
+                        <span className="text-xs">Verified By</span>
+                      </div>
+                      <code className="text-[10px] font-mono bg-stone-100 dark:bg-stone-850 px-1.5 py-0.5 rounded text-amber-600 dark:text-amber-400">
+                        {selectedSample.verified_by.slice(0, 8)}...
+                      </code>
+                    </div>
+                    )}
+
                     <div className="flex justify-between items-center p-2.5 bg-stone-50 dark:bg-stone-900/30 rounded-xl">
                       <div className="flex items-center gap-2 text-stone-400 dark:text-stone-500">
                         <User className="w-3.5 h-3.5" />
@@ -1521,6 +1585,7 @@ export default function DatasetViewerPage() {
                     </div>
                   ) : (
                     <div className="flex gap-2">
+                      {canVerify && (
                       <button
                         onClick={() => handleToggleVerify(selectedSample)}
                         className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold border transition-all duration-200 ease-out active:scale-97 hover:-translate-y-[1px] shadow-sm ${
@@ -1532,6 +1597,8 @@ export default function DatasetViewerPage() {
                         <Check className="w-4 h-4" />
                         {selectedSample.status === 'verified' ? 'Mark Unverified' : 'Verify Sample'}
                       </button>
+                      )}
+                      {canDelete && (
                       <button
                         onClick={() => setDeleteConfirmId(selectedSample.id)}
                         className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-red-50 dark:bg-red-950/20 hover:bg-red-100 dark:hover:bg-red-950/40 text-red-600 dark:text-red-400 text-xs font-bold border border-red-100 dark:border-red-950/30 transition-all duration-200 ease-out active:scale-97 hover:-translate-y-[1px] shadow-sm"
@@ -1539,6 +1606,7 @@ export default function DatasetViewerPage() {
                         <Trash2 className="w-4 h-4" />
                         Reject &amp; Delete
                       </button>
+                      )}
                       {selectedSample.signedUrl && (
                         <a
                           href={selectedSample.signedUrl}
@@ -1630,6 +1698,13 @@ export default function DatasetViewerPage() {
         </AnimatePresence>
 
       </div>
+  );
+}
+
+export default function DatasetViewerPage() {
+  return (
+    <AdminShell title="Dataset Viewer" subtitle="Audit and manage handwritten samples">
+      <DatasetViewerContent />
     </AdminShell>
   );
 }

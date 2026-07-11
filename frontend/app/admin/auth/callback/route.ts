@@ -2,6 +2,34 @@ import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { logSecurityEventDirect } from '../../security-actions';
+import { getSupabaseAdmin } from '@/lib/supabase/server';
+
+function parseBrowser(ua: string | null): string {
+  if (!ua) return 'Other';
+  if (ua.includes('Firefox/') && !ua.includes('Seamonkey')) return 'Firefox';
+  if (ua.includes('Edg/')) return 'Edge';
+  if (ua.includes('OPR/') || ua.includes('Opera')) return 'Opera';
+  if (ua.includes('Chrome/')) return 'Chrome';
+  if (ua.includes('Safari/') && !ua.includes('Chrome')) return 'Safari';
+  return 'Other';
+}
+
+function parseOs(ua: string | null): string {
+  if (!ua) return 'Other';
+  if (ua.includes('Windows NT 10')) return 'Windows 11';
+  if (ua.includes('Windows')) return 'Windows';
+  if (ua.includes('Mac OS X')) return 'macOS';
+  if (ua.includes('Android')) return 'Android';
+  if (ua.includes('iPhone') || ua.includes('iPad')) return 'iOS';
+  if (ua.includes('Linux')) return 'Linux';
+  return 'Other';
+}
+
+function deviceInfo(os: string, browser: string): string {
+  return os === 'Other' && browser === 'Other'
+    ? 'Unknown Device'
+    : os === 'Other' ? browser : browser === 'Other' ? os : `${browser} on ${os}`;
+}
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
@@ -26,6 +54,9 @@ export async function GET(request: Request) {
     request.headers.get('x-real-ip') ||
     'unknown';
   const ua = request.headers.get('user-agent');
+  const browser = parseBrowser(ua);
+  const os = parseOs(ua);
+  const device = deviceInfo(os, browser);
 
   if (code) {
     const cookieStore = await cookies();
@@ -52,6 +83,31 @@ export async function GET(request: Request) {
 
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error && data.user) {
+      // ── Admin authorization check ──
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+      const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+      if (serviceKey) {
+        const admin = getSupabaseAdmin();
+        const { data: adminRow } = await admin
+          .from('admins')
+          .select('id')
+          .eq('id', data.user.id)
+          .single();
+
+        if (!adminRow) {
+          // User authenticated successfully but is not in the admins table
+          await supabase.auth.signOut();
+
+          await logSecurityEventDirect(
+            supabaseUrl, serviceKey,
+            'login_failed', data.user.id, ip, ua,
+            { status: 'Not Authorized', metadata: { provider: provider || 'unknown', reason: 'not_in_admins_table' } }
+          );
+
+          return NextResponse.redirect(new URL('/admin/login?error=not_registered', origin).toString());
+        }
+      }
+
       logSecurityEventDirect(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY || '',

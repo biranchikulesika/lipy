@@ -65,6 +65,8 @@ CREATE TABLE IF NOT EXISTS lipy_samples (
   uploaded_at       TIMESTAMPTZ,
   metadata          JSONB,
   status            VARCHAR(50) DEFAULT 'pending',
+  verified_by       UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  verified_at       TIMESTAMPTZ,
   CONSTRAINT lipy_samples_contributor_id_fkey
     FOREIGN KEY (contributor_id)
     REFERENCES lipy_contributors (contributor_id)
@@ -88,6 +90,13 @@ CREATE TABLE IF NOT EXISTS security_events (
   created_at  TIMESTAMPTZ DEFAULT now()
 );
 
+-- 2e. Admins — role-based access control for the admin dashboard
+CREATE TABLE IF NOT EXISTS public.admins (
+  id         UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  role       TEXT NOT NULL DEFAULT 'viewer',
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
 -- ─────────────────────────────────────────────────────────────────────
 -- 3. INDEXES
 -- ─────────────────────────────────────────────────────────────────────
@@ -97,6 +106,7 @@ CREATE INDEX IF NOT EXISTS idx_lipy_samples_character_id   ON lipy_samples (char
 CREATE INDEX IF NOT EXISTS idx_lipy_samples_created_at     ON lipy_samples (created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_lipy_samples_upload_status  ON lipy_samples (upload_status);
 CREATE INDEX IF NOT EXISTS idx_lipy_samples_status         ON lipy_samples (status);
+CREATE INDEX IF NOT EXISTS idx_lipy_samples_verified_by   ON lipy_samples (verified_by);
 CREATE INDEX IF NOT EXISTS idx_lipy_contributors_last_seen ON lipy_contributors (last_seen_at DESC);
 CREATE INDEX IF NOT EXISTS idx_lipy_sessions_updated_at    ON lipy_sessions (updated_at DESC);
 CREATE INDEX IF NOT EXISTS idx_security_events_user_id     ON security_events (user_id);
@@ -113,6 +123,7 @@ ALTER TABLE lipy_contributors ENABLE ROW LEVEL SECURITY;
 ALTER TABLE lipy_sessions      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE lipy_samples       ENABLE ROW LEVEL SECURITY;
 ALTER TABLE security_events    ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.admins       ENABLE ROW LEVEL SECURITY;
 
 -- ─── 4b. Anon policies (used by dataset sync / public contributors) ───
 
@@ -167,6 +178,18 @@ CREATE POLICY "auth_select_security_events" ON security_events
 CREATE POLICY "auth_insert_security_events" ON security_events
   FOR INSERT TO authenticated WITH CHECK (true);
 
+-- admins: service role has full access (middleware / server-side checks)
+CREATE POLICY "Service role manages admins"
+  ON public.admins FOR ALL
+  USING (auth.role() = 'service_role')
+  WITH CHECK (auth.role() = 'service_role');
+
+-- admins: authenticated users can read their own row (AdminShell client check)
+CREATE POLICY "Authenticated users read own admin row"
+  ON public.admins FOR SELECT
+  TO authenticated
+  USING ((select auth.uid()) = id);
+
 -- ─────────────────────────────────────────────────────────────────────
 -- 4b. FUNCTIONS — Session revocation
 -- ─────────────────────────────────────────────────────────────────────
@@ -197,6 +220,14 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.revoke_other_sessions(text, uuid) TO anon;
 GRANT EXECUTE ON FUNCTION public.revoke_other_sessions(text, uuid) TO authenticated;
+
+-- Check if a user is in the admins table (used by middleware and RLS)
+CREATE OR REPLACE FUNCTION public.is_admin(uid UUID)
+RETURNS BOOLEAN
+LANGUAGE sql STABLE SECURITY DEFINER
+AS $$
+  SELECT EXISTS (SELECT 1 FROM public.admins WHERE id = uid);
+$$;
 
 -- ─────────────────────────────────────────────────────────────────────
 -- 5. STORAGE BUCKET SETUP
@@ -237,12 +268,12 @@ CREATE POLICY "anon_delete_lipy_objects" ON storage.objects
 -- Check that all tables exist
 SELECT table_name FROM information_schema.tables
 WHERE table_schema = 'public'
-  AND table_name IN ('lipy_contributors','lipy_sessions','lipy_samples','security_events')
+  AND table_name IN ('lipy_contributors','lipy_sessions','lipy_samples','security_events','admins')
 ORDER BY table_name;
 
 -- Check that all RLS policies are in place
 SELECT schemaname, tablename, policyname, roles, cmd
 FROM pg_policies
-WHERE (schemaname = 'public' AND tablename IN ('lipy_contributors','lipy_sessions','lipy_samples','security_events'))
+WHERE (schemaname = 'public' AND tablename IN ('lipy_contributors','lipy_sessions','lipy_samples','security_events','admins'))
    OR (schemaname = 'storage' AND tablename = 'objects')
 ORDER BY schemaname, tablename, policyname;

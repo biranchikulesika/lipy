@@ -82,6 +82,78 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  // ── Admin authorization check ──
+  // Authenticated users must exist in the admins table to access the dashboard.
+  const isPasswordFlow = request.nextUrl.pathname.startsWith('/admin/forgot-password') ||
+    request.nextUrl.pathname.startsWith('/admin/reset-password')
+
+  if (user && !isLoginRoute && !isPasswordFlow) {
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+    if (serviceKey) {
+      try {
+        const { createClient } = await import('@supabase/supabase-js');
+        const admin = createClient(supabaseUrl, serviceKey);
+        const { data: adminRow } = await admin
+          .from('admins')
+          .select('id')
+          .eq('id', user.id)
+          .single();
+
+        if (!adminRow) {
+          // User is authenticated but not an admin — sign out immediately
+          await supabase.auth.signOut();
+
+          const forwardedFor = request.headers.get('x-forwarded-for');
+          const ip = forwardedFor?.split(',')[0].trim() || request.headers.get('x-real-ip') || 'unknown';
+          const ua = request.headers.get('user-agent');
+
+          let browser = 'Other';
+          let os = 'Other';
+          if (ua) {
+            if (ua.includes('Firefox/') && !ua.includes('Seamonkey')) browser = 'Firefox';
+            else if (ua.includes('Edg/')) browser = 'Edge';
+            else if (ua.includes('OPR/') || ua.includes('Opera')) browser = 'Opera';
+            else if (ua.includes('Chrome/')) browser = 'Chrome';
+            else if (ua.includes('Safari/') && !ua.includes('Chrome')) browser = 'Safari';
+
+            if (ua.includes('Windows NT 10')) os = 'Windows 11';
+            else if (ua.includes('Windows')) os = 'Windows';
+            else if (ua.includes('Mac OS X')) os = 'macOS';
+            else if (ua.includes('Android')) os = 'Android';
+            else if (ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
+            else if (ua.includes('Linux')) os = 'Linux';
+          }
+
+          const deviceInfo = os === 'Other' && browser === 'Other'
+            ? 'Unknown Device'
+            : os === 'Other' ? browser : browser === 'Other' ? os : `${browser} on ${os}`;
+
+          await admin.from('security_events').insert({
+            user_id: user.id,
+            event_type: 'login_failed',
+            status: 'Not Authorized',
+            device_info: deviceInfo,
+            browser,
+            os,
+            ip_address: ip,
+            metadata: { reason: 'not_in_admins_table' },
+          });
+
+          const url = request.nextUrl.clone()
+          if (url.host.startsWith('0.0.0.0')) {
+            url.host = url.host.replace('0.0.0.0', 'localhost');
+          }
+          url.pathname = '/admin/login'
+          url.searchParams.set('error', 'not_registered')
+          return NextResponse.redirect(url)
+        }
+      } catch {
+        // If admin check fails (e.g. table doesn't exist), allow through
+        // to avoid locking out all users during initial setup
+      }
+    }
+  }
+
   // ── 24-hour session expiry enforcement ──
   if (user) {
     const session = (await supabase.auth.getSession()).data.session

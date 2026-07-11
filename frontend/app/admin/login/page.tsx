@@ -34,6 +34,7 @@ function LoginContent() {
   const [invalidCredentials, setInvalidCredentials] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const [notRegisteredPopup, setNotRegisteredPopup] = useState<{ show: boolean; provider: string }>({ show: false, provider: '' });
   const searchParams = useSearchParams();
   const errorParam = searchParams?.get('error');
   const providerParam = searchParams?.get('provider');
@@ -43,7 +44,14 @@ function LoginContent() {
       const providerName = providerParam
         ? (providerParam.toLowerCase() === 'github' ? 'GitHub' : providerParam.charAt(0).toUpperCase() + providerParam.slice(1))
         : 'OAuth';
-      setEmailError(`We could not find any account associated with your ${providerName} account.`);
+      setNotRegisteredPopup({ show: true, provider: providerName });
+    } else if (errorParam === 'auth_failed') {
+      setEmailError('Authentication failed. Please try again.');
+    }
+
+    // Clean error/provider params from URL after displaying
+    if (errorParam) {
+      window.history.replaceState({}, '', window.location.pathname);
     }
   }, [errorParam, providerParam]);
 
@@ -431,7 +439,7 @@ function LoginContent() {
                 </button>
               </div>
 
-              {emailError && (
+              {emailError && !notRegisteredPopup.show && (
                 <p className="text-red-500 text-[12px] text-center mt-4">
                   {emailError}
                 </p>
@@ -460,6 +468,51 @@ function LoginContent() {
                 <span>© 2026 LiPy Team</span>
               </div>
             </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Not Registered Popup */}
+        <AnimatePresence>
+          {notRegisteredPopup.show && (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50"
+                onClick={() => setNotRegisteredPopup({ show: false, provider: '' })}
+              />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+                className="fixed inset-0 flex items-center justify-center p-4 z-50"
+              >
+                <div className="bg-[#111111] border border-stone-800 rounded-2xl p-6 w-full max-w-sm text-center space-y-4 shadow-2xl">
+                  <div className="w-10 h-10 rounded-full bg-stone-800/50 flex items-center justify-center mx-auto">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="text-stone-400">
+                      <circle cx="10" cy="10" r="9" stroke="currentColor" strokeWidth="1.5" />
+                      <path d="M10 6v5M10 13.5v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                    </svg>
+                  </div>
+                  <div className="space-y-1.5">
+                    <h3 className="text-sm font-semibold text-stone-200">Account not found</h3>
+                    <p className="text-[13px] text-stone-400 leading-relaxed">
+                      We couldn&apos;t find any account registered with your{' '}
+                      <span className="font-medium text-stone-300">{notRegisteredPopup.provider}</span>{' '}
+                      account.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setNotRegisteredPopup({ show: false, provider: '' })}
+                    className="w-full py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 text-[13px] font-semibold transition-colors"
+                  >
+                    OK
+                  </button>
+                </div>
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
 

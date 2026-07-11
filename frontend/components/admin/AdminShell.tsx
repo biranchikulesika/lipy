@@ -12,6 +12,34 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { logSecurityEvent } from '@/app/admin/security-actions';
 
+// ─── Admin role types & context ───
+export type AdminRole = 'owner' | 'admin' | 'verifier' | 'viewer';
+
+interface AdminRoleContextValue {
+  role: AdminRole | null;
+  loading: boolean;
+  canVerify: boolean;
+  canDelete: boolean;
+}
+
+const ROLE_HIERARCHY: Record<AdminRole, number> = {
+  owner: 4,
+  admin: 3,
+  verifier: 2,
+  viewer: 1,
+};
+
+const AdminRoleContext = createContext<AdminRoleContextValue>({
+  role: null,
+  loading: true,
+  canVerify: false,
+  canDelete: false,
+});
+
+export function useAdminRole() {
+  return useContext(AdminRoleContext);
+}
+
 // ─── Context for sidebar state ───
 const SidebarContext = createContext({ collapsed: false });
 
@@ -72,9 +100,10 @@ export function AdminShell({
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [adminRole, setAdminRole] = useState<AdminRole | null>(null);
   const mobileMenuRef = useRef<HTMLDivElement | null>(null);
 
-  // Authentication check
+  // Authentication + admin role check
   useEffect(() => {
     (async () => {
       try {
@@ -88,9 +117,24 @@ export function AdminShell({
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
           router.push('/admin/login');
-        } else {
-          setCheckingAuth(false);
+          return;
         }
+
+        // Check admin authorization
+        const { data: adminRow } = await supabase
+          .from('admins')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+
+        if (!adminRow) {
+          await supabase.auth.signOut();
+          router.push('/admin/login?error=not_registered');
+          return;
+        }
+
+        setAdminRole(adminRow.role as AdminRole);
+        setCheckingAuth(false);
       } catch {
         setCheckingAuth(false);
       }
@@ -198,7 +242,15 @@ export function AdminShell({
     </nav>
   );
 
+  const roleLevel = adminRole ? ROLE_HIERARCHY[adminRole] : 0;
+
   return (
+    <AdminRoleContext.Provider value={{
+      role: adminRole,
+      loading: checkingAuth,
+      canVerify: roleLevel >= ROLE_HIERARCHY['verifier'],
+      canDelete: roleLevel >= ROLE_HIERARCHY['admin'],
+    }}>
     <SidebarContext.Provider value={{ collapsed }}>
       <div className="min-h-dvh sm:h-dvh bg-[#070707] text-[#F5F5F5] font-sans selection:bg-blue-900 flex flex-col overflow-x-hidden overflow-y-auto sm:overflow-hidden">
 
@@ -348,5 +400,6 @@ export function AdminShell({
         </div>
       </div>
     </SidebarContext.Provider>
+    </AdminRoleContext.Provider>
   );
 }

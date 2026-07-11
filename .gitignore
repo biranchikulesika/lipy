@@ -48,6 +48,7 @@ models/
 backend/models/
 
 dataset/
+!frontend/app/admin/dataset/
 data/
 outputs/
 
