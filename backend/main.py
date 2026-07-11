@@ -3,6 +3,7 @@ from __future__ import annotations
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+import numpy as np
 
 try:
     from .config import (
@@ -68,9 +69,13 @@ app.add_middleware(
 
 @app.on_event("startup")
 def warm_model() -> None:
-    """Load the OCR model during application startup."""
+    """Load and fully warm the OCR model during application startup."""
 
-    load_prediction_bundle()
+    model, _, _ = load_prediction_bundle()
+
+    dummy = np.zeros((1, 64, 64, 3), dtype=np.float32)
+
+    model.predict(dummy, verbose=0)
 
 
 # =============================================================================
