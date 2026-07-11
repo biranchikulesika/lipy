@@ -1,5 +1,5 @@
 ﻿import { odiaCharacters, OdiaCharacter, CharacterType } from './odiaCharacters';
-import { getAllSamples } from './storageService';
+import { getAllSamples, getLifetimeCount, getContributorSampleCount } from './storageService';
 
 const STATE_VERSION = 1;
 const STORAGE_PREFIX = 'lipy_mixed_scheduler_state_v1_';
@@ -405,13 +405,13 @@ async function loadSessionTotals(sessionConfig: any) {
     }
   }
 
-  let cachedDev = 0;
-  try {
-    const devKey = `lipy_device_sample_count_${String(sessionConfig?.contributorId || '').trim()}`;
-    cachedDev = Number(localStorage.getItem(devKey) || 0) || 0;
-  } catch(e) {}
+  // Lifetime count reflects all completed samples (durable across sessions).
+  // Reconcile it with the IndexedDB count so the scheduler's baseline stays
+  // accurate even if localStorage was cleared.
+  const cachedLifetime = getLifetimeCount(sessionConfig?.contributorId || '');
+  const dbCount = await getContributorSampleCount(sessionConfig?.contributorId || '');
 
-  return { datasetCounts, contributorCompletedCount: Math.max(contributorCompletedCount, cachedDev) };
+  return { datasetCounts, contributorCompletedCount: Math.max(contributorCompletedCount, cachedLifetime, dbCount) };
 }
 
 async function ensureSessionState(sessionConfig: any) {

@@ -28,6 +28,11 @@ export function getSupabaseClient() {
           autoRefreshToken: false,
           persistSession: false,
           detectSessionInUrl: false,
+          storage: {
+            getItem: () => null,
+            setItem: () => {},
+            removeItem: () => {},
+          },
         },
       });
       if (typeof window !== 'undefined') {
