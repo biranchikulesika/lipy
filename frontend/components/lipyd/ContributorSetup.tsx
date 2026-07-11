@@ -73,6 +73,16 @@ export default function ContributorSetup({ onStart, isSearchFocused, onSearchFoc
     } catch (e) { }
   }, []);
 
+  const generateSecureId = (): string => {
+    if (typeof crypto !== 'undefined') {
+      if (crypto.randomUUID) return crypto.randomUUID();
+      const bytes = new Uint8Array(16);
+      crypto.getRandomValues(bytes);
+      return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+    }
+    return `c_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+  };
+
   useEffect(() => {
     if (!contributorId) {
       try {
@@ -93,10 +103,10 @@ export default function ContributorSetup({ onStart, isSearchFocused, onSearchFoc
         }
       } catch (e) { }
       try {
-        const id = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `c_${Math.random().toString(36).slice(2, 9)}`;
+        const id = `c_${generateSecureId()}`;
         setContributorId(id);
       } catch (e) {
-        setContributorId(`c_${Math.random().toString(36).slice(2, 9)}`);
+        setContributorId(`c_${generateSecureId()}`);
       }
     }
   }, [contributorId]);

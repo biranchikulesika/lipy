@@ -97,7 +97,7 @@ export const UploadContent = forwardRef<InputModeRef, UploadContentProps>(
 					onDragLeave={() => setIsDragActive(false)}
 					aria-label="Upload workspace"
 				>
-					{previewUrl ? (
+					{previewUrl && previewUrl.startsWith("blob:") ? (
 						<img
 							src={previewUrl}
 							alt="Uploaded handwritten character preview"
