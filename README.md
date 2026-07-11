@@ -52,6 +52,8 @@ lipy/
 ├── scripts/
 │   ├── common/              # Shared utilities
 │   ├── dataset/             # Dataset management
+│   ├── database/            # Database schema and migrations
+│   │   └── migration.sql    # Full Supabase schema (tables, RLS, policies, storage)
 │   ├── model/               # Model management
 │   └── requirements.txt
 │
@@ -171,6 +173,7 @@ Each major component contains its own documentation.
 | `backend/README.md` | Backend API (endpoints, response models, status-based predictions), inference pipeline, Docker deployment, and Azure setup |
 | `frontend/README.md` | Frontend setup and development |
 | `scripts/README.md` | Dataset and model management utilities |
+| `scripts/database/migration.sql` | Supabase database schema — run in SQL Editor to set up all tables (`lipy_contributors`, `lipy_sessions`, `lipy_samples`, `security_events`), RLS policies, indexes, session revocation function, and storage bucket. Safe to re-run (uses `IF NOT EXISTS`) |
 | `notebooks/L.ipynb` | Complete training workflow from dataset download to model export |
 
 ### Key Features

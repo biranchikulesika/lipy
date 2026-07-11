@@ -186,24 +186,34 @@ export default function DatasetViewerPage() {
         
       if (err1) throw err1;
 
-      // 2. Get distinct contributors count by querying distinct contributor_ids
+      // 2. Get contributors who have at least 1 sample (with count)
       const { data: contribData, error: err2 } = await client
         .from('lipy_samples')
-        .select('contributor_id, contributor_name');
+        .select('contributor_id, contributor_name')
+        .not('storage_path', 'is', null);
       
       if (err2) throw err2;
 
       let uniqueContributors = 0;
-      const uniqueContribsMap = new Map();
+      const uniqueContribsMap = new Map<string, { name: string; count: number }>();
 
       if (contribData) {
         contribData.forEach((d: any) => {
           if (d.contributor_id) {
-            uniqueContribsMap.set(d.contributor_id, d.contributor_name || d.contributor_id);
+            const existing = uniqueContribsMap.get(d.contributor_id);
+            if (existing) {
+              existing.count++;
+            } else {
+              uniqueContribsMap.set(d.contributor_id, { name: d.contributor_name || d.contributor_id, count: 1 });
+            }
           }
         });
-        uniqueContributors = uniqueContribsMap.size;
-        const list = Array.from(uniqueContribsMap.entries()).map(([id, name]) => ({ id, name }));
+        // Only keep contributors with at least 1 image
+        const list = Array.from(uniqueContribsMap.entries())
+          .filter(([, v]) => v.count > 0)
+          .map(([id, v]) => ({ id, name: v.name }))
+          .sort((a, b) => a.name.localeCompare(b.name));
+        uniqueContributors = list.length;
         setContributors(list);
       }
 
@@ -543,10 +553,13 @@ export default function DatasetViewerPage() {
 
       // 2. Attempt to delete from Storage (soft fail if error)
       try {
-        const bucketName = sample.storage_bucket || 'lipi-samples';
-        await supabase.storage
-          .from(bucketName)
-          .remove([sample.storage_path]);
+        const bucketName = sample.storage_bucket || 'lipy-samples';
+        const cleanPath = cleanStoragePath(sample.storage_path);
+        if (cleanPath) {
+          await supabase.storage
+            .from(bucketName)
+            .remove([cleanPath]);
+        }
       } catch (err) {
         console.warn('Failed to delete storage file, but DB record was deleted:', err);
       }
@@ -608,11 +621,14 @@ export default function DatasetViewerPage() {
       const bucketToPaths = new Map<string, string[]>();
       selectedSamples.forEach(s => {
         if (s.storage_path) {
-          const bucketName = s.storage_bucket || 'lipi-samples';
-          if (!bucketToPaths.has(bucketName)) {
-            bucketToPaths.set(bucketName, []);
+          const bucketName = s.storage_bucket || 'lipy-samples';
+          const cleanPath = cleanStoragePath(s.storage_path);
+          if (cleanPath) {
+            if (!bucketToPaths.has(bucketName)) {
+              bucketToPaths.set(bucketName, []);
+            }
+            bucketToPaths.get(bucketName)!.push(cleanPath);
           }
-          bucketToPaths.get(bucketName)!.push(s.storage_path);
         }
       });
 

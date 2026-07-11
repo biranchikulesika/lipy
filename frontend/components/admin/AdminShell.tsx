@@ -200,7 +200,7 @@ export function AdminShell({
 
   return (
     <SidebarContext.Provider value={{ collapsed }}>
-      <div className="h-screen bg-[#070707] text-[#F5F5F5] font-sans selection:bg-blue-900 flex flex-col overflow-hidden">
+      <div className="min-h-dvh sm:h-dvh bg-[#070707] text-[#F5F5F5] font-sans selection:bg-blue-900 flex flex-col overflow-x-hidden overflow-y-auto sm:overflow-hidden">
 
         {/* Mobile Top Bar */}
         <header className="sticky top-0 z-50 h-14 border-b border-stone-900 bg-[#0A0A0A]/95 backdrop-blur-xl md:hidden">
@@ -236,7 +236,7 @@ export function AdminShell({
         </header>
 
         {/* ─── Split layout below Header ─── */}
-        <div className="flex flex-1 min-h-0 overflow-hidden">
+        <div className="flex flex-1 sm:min-h-0 overflow-x-hidden overflow-y-visible sm:overflow-hidden">
 
           {/* ─── Desktop Sidebar ─── */}
           <aside
@@ -342,7 +342,7 @@ export function AdminShell({
           </AnimatePresence>
 
           {/* Page Content */}
-          <main className="flex-1 overflow-hidden flex flex-col">
+          <main className="flex-1 overflow-x-hidden overflow-y-visible sm:overflow-hidden flex flex-col">
             {children}
           </main>
         </div>

@@ -168,6 +168,37 @@ CREATE POLICY "auth_insert_security_events" ON security_events
   FOR INSERT TO authenticated WITH CHECK (true);
 
 -- ─────────────────────────────────────────────────────────────────────
+-- 4b. FUNCTIONS — Session revocation
+-- ─────────────────────────────────────────────────────────────────────
+
+-- Revokes all refresh tokens and sessions for a user EXCEPT the specified current session.
+-- Used after password change/reset and for manual "log out all other devices".
+CREATE OR REPLACE FUNCTION public.revoke_other_sessions(p_user_id text, p_current_session_id uuid)
+RETURNS integer
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  deleted_count integer;
+BEGIN
+  DELETE FROM auth.refresh_tokens
+  WHERE user_id = p_user_id
+    AND (session_id IS DISTINCT FROM p_current_session_id);
+
+  GET DIAGNOSTICS deleted_count = ROW_COUNT;
+
+  DELETE FROM auth.sessions
+  WHERE user_id::text = p_user_id
+    AND id != p_current_session_id;
+
+  RETURN deleted_count;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.revoke_other_sessions(text, uuid) TO anon;
+GRANT EXECUTE ON FUNCTION public.revoke_other_sessions(text, uuid) TO authenticated;
+
+-- ─────────────────────────────────────────────────────────────────────
 -- 5. STORAGE BUCKET SETUP
 -- ─────────────────────────────────────────────────────────────────────
 
@@ -193,6 +224,11 @@ CREATE POLICY "anon_upsert_lipy_objects" ON storage.objects
   FOR UPDATE TO anon
   USING (bucket_id = 'lipy-samples')
   WITH CHECK (bucket_id = 'lipy-samples');
+
+-- Allow anon to delete files from the lipy-samples bucket (admin dataset cleanup)
+CREATE POLICY "anon_delete_lipy_objects" ON storage.objects
+  FOR DELETE TO anon
+  USING (bucket_id = 'lipy-samples');
 
 -- ─────────────────────────────────────────────────────────────────────
 -- 6. VERIFICATION

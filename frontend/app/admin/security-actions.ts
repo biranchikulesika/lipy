@@ -15,7 +15,8 @@ export type SecurityEventType =
   | 'passkey_register'
   | 'provider_link'
   | 'provider_unlink'
-  | 'active_session';
+  | 'active_session'
+  | 'sessions_revoked';
 
 function parseUserAgent(ua: string | null) {
   if (!ua) return { browser: 'Unknown', os: 'Unknown' };
@@ -172,5 +173,74 @@ export async function logSecurityEventDirect(
     });
   } catch {
     // Gracefully ignore
+  }
+}
+
+export async function revokeOtherSessions(
+  userId: string,
+  currentSessionId: string,
+  clientInfo?: { browser: string; os: string; ip?: string }
+): Promise<{ success: boolean; revokedCount: number; error?: string }> {
+  try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!supabaseUrl || !supabaseServiceKey) {
+      return { success: false, revokedCount: 0, error: 'Missing Supabase configuration' };
+    }
+
+    const { createClient } = await import('@supabase/supabase-js');
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    const { data, error } = await supabase.rpc('revoke_other_sessions', {
+      p_user_id: userId,
+      p_current_session_id: currentSessionId,
+    });
+
+    if (error) {
+      console.error('revokeOtherSessions RPC error:', error);
+      return { success: false, revokedCount: 0, error: error.message };
+    }
+
+    const revokedCount = typeof data === 'number' ? data : 0;
+
+    // Log the event using client-provided browser/OS (more reliable than server-side UA parsing)
+    try {
+      let browser = 'Unknown';
+      let os = 'Unknown';
+
+      if (clientInfo?.browser) {
+        // Client sends raw navigator.userAgent — parse it
+        const parsed = parseUserAgent(clientInfo.browser);
+        browser = parsed.browser;
+        os = parsed.os;
+      } else if (clientInfo?.os) {
+        // Client sent pre-parsed platform string
+        os = clientInfo.os;
+      }
+
+      const ip = clientInfo?.ip || 'unknown';
+
+      await supabase.from('security_events').insert({
+        user_id: userId,
+        event_type: 'sessions_revoked',
+        status: 'Success',
+        device_info: getDeviceLabel(browser, os),
+        browser,
+        os,
+        ip_address: ip,
+        metadata: { revoked_count: revokedCount, current_session_id: currentSessionId },
+      });
+    } catch {
+      // Non-critical: don't fail the revoke if logging fails
+    }
+
+    return { success: true, revokedCount };
+  } catch (err: unknown) {
+    console.error('revokeOtherSessions error:', err);
+    return {
+      success: false,
+      revokedCount: 0,
+      error: err instanceof Error ? err.message : 'Unknown error',
+    };
   }
 }

@@ -9,7 +9,7 @@ import {
   TrendingUp, Shield, Settings, Loader2,
   Mail, CalendarDays, Fingerprint, ChevronRight,
   Database, UserCheck, Users, AlertCircle, Github,
-  CheckCircle2, Hash
+  CheckCircle2, Hash, ScanLine
 } from 'lucide-react';
 import Link from 'next/link';
 import { AdminShell } from '@/components/admin/AdminShell';
@@ -293,7 +293,7 @@ export default function AdminDashboardPage() {
 
   return (
     <AdminShell title="Dashboard" subtitle="Administrator overview">
-      <div ref={containerRef} className="p-3 sm:p-4 md:p-5 space-y-4 w-full max-w-none flex flex-col flex-1 h-full overflow-hidden">
+      <div ref={containerRef} className="p-3 sm:p-4 md:p-5 space-y-4 w-full max-w-none flex flex-col flex-1 sm:h-full overflow-x-hidden overflow-y-visible sm:overflow-hidden">
         
         {/* Welcome Banner */}
         <motion.div
@@ -311,7 +311,7 @@ export default function AdminDashboardPage() {
                 {(userName || userEmail || 'A').charAt(0).toUpperCase()}
               </div>
             )}
-            <h2 className="min-w-0 text-sm sm:text-base leading-tight tracking-normal">
+            <h2 className="min-w-0 text-sm sm:text-base leading-tight tracking-normal flex-1">
               <span className="block text-[10px] sm:text-[11px] uppercase tracking-[0.24em] opacity-70 font-semibold font-display">
                 {greeting}
               </span>
@@ -319,6 +319,14 @@ export default function AdminDashboardPage() {
                 {userName ? userName.trim().split(' ')[0] : (userEmail ? userEmail.split('@')[0].split(/[\._-]/)[0].replace(/\b\w/g, c => c.toUpperCase()) : 'Admin')}
               </span>
             </h2>
+            <Link
+              href="/"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl border border-stone-800 bg-[#0F0F0F] hover:bg-stone-900/60 hover:border-stone-700 text-stone-400 hover:text-stone-200 text-xs font-semibold transition-all shrink-0"
+            >
+              <ScanLine className="w-3.5 h-3.5" />
+              OCR
+              <ArrowUpRight className="w-3 h-3 opacity-50" />
+            </Link>
           </div>
         </motion.div>
 
@@ -437,15 +445,27 @@ export default function AdminDashboardPage() {
                   color="bg-blue-950/30 text-blue-500"
                   delay={0.1}
                 />
-                <QuickAction
-                  title="Lipy GitHub"
-                  description="Open the source repository for the project"
-                  icon={Github}
-                  href="https://github.com/biranchikulesika/lipy"
-                  color="bg-emerald-950/30 text-emerald-500"
-                  delay={0.15}
-                  external
-                />
+                <div className="sm:hidden">
+                  <QuickAction
+                    title="OCR Workspace"
+                    description="Recognize handwritten Odia characters"
+                    icon={ScanLine}
+                    href="/"
+                    color="bg-violet-950/30 text-violet-500"
+                    delay={0.15}
+                  />
+                </div>
+                <div className="hidden sm:block">
+                  <QuickAction
+                    title="Lipy GitHub"
+                    description="Open the source repository for the project"
+                    icon={Github}
+                    href="https://github.com/biranchikulesika/lipy"
+                    color="bg-emerald-950/30 text-emerald-500"
+                    delay={0.15}
+                    external
+                  />
+                </div>
               </div>
             </div>
           </div>

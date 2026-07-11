@@ -8,10 +8,10 @@ import type { UserIdentity } from '@supabase/supabase-js';
 import {
   Loader2, ShieldAlert, KeyRound, Link as LinkIcon,
   Check, X, Mail, Shield, Fingerprint,
-  Eye, EyeOff, ChevronRight, ChevronLeft, CircleCheck, CircleAlert,
+  Eye, EyeOff, ChevronDown, CircleCheck, CircleAlert,
   Wand2, Lock, Unlink, MonitorSmartphone, Globe, MapPin, LogOut,
 } from 'lucide-react';
-import { logSecurityEvent, logActiveSessionIfStale } from '@/app/admin/security-actions';
+import { logSecurityEvent, logActiveSessionIfStale, revokeOtherSessions } from '@/app/admin/security-actions';
 
 // ─── Helpers ───
 
@@ -46,6 +46,27 @@ function GitHubIcon({ className }: { className?: string }) {
       <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
     </svg>
   );
+}
+
+function decodeJwtPayload(token: string): Record<string, unknown> | null {
+  try {
+    const base64 = token.split('.')[1];
+    const padded = base64.replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(atob(padded));
+  } catch {
+    return null;
+  }
+}
+
+async function getSessionInfo(supabase: ReturnType<typeof createClient>) {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.access_token) return null;
+  const payload = decodeJwtPayload(session.access_token);
+  if (!payload) return null;
+  return {
+    userId: (payload.sub as string) || null,
+    sessionId: (payload.session_id as string) || null,
+  };
 }
 
 function getBrowserAndOS() {
@@ -410,7 +431,14 @@ function PasswordChangeModal({
             });
           }
         } catch { /* noop */ }
-        onSuccess('Password updated successfully.');
+        // Auto-revoke all other sessions after password change
+        try {
+          const sessionInfo = await getSessionInfo(supabase);
+          if (sessionInfo?.userId && sessionInfo?.sessionId) {
+            await revokeOtherSessions(sessionInfo.userId, sessionInfo.sessionId);
+          }
+        } catch { /* non-critical */ }
+        onSuccess('Password updated successfully. All other sessions have been logged out.');
         setPasswordUpdated(true);
       }
     } catch (e: unknown) {
@@ -676,9 +704,6 @@ export function AuthSettings() {
   const [securityEvents, setSecurityEvents] = useState<any[]>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const gridRef = useRef<HTMLDivElement | null>(null);
-  const [maxCardHeight, setMaxCardHeight] = useState<number>(400);
-  const [maxRows, setMaxRows] = useState(5);
-  const [currentPage, setCurrentPage] = useState(1);
   const [isDesktop, setIsDesktop] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -687,42 +712,34 @@ export function AuthSettings() {
   const [pwModalOpen, setPwModalOpen] = useState(false);
   const [pendingUnlinkProvider, setPendingUnlinkProvider] = useState<string | null>(null);
   const [passkeyCount, setPasskeyCount] = useState(0);
+  const [revokeLoading, setRevokeLoading] = useState(false);
+  const [revokeConfirmOpen, setRevokeConfirmOpen] = useState(false);
+  const [eventFilter, setEventFilter] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [ipFilter, setIpFilter] = useState<string | null>(null);
+  const [sortField, setSortField] = useState<'browser' | 'os' | 'created_at' | null>(null);
+  const [sortAsc, setSortAsc] = useState(true);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number } | null>(null);
 
-  const updateMaxCardHeight = useCallback(() => {
+  const updateLayout = useCallback(() => {
     if (typeof window === 'undefined') return;
     setIsDesktop(window.innerWidth >= 1024);
-    
-    if (!containerRef.current || !gridRef.current) return;
-    const containerRect = containerRef.current.getBoundingClientRect();
-    const gridRect = gridRef.current.getBoundingClientRect();
-    
-    // Remaining height from bottom of grid to bottom of container minus padding/spacing
-    const availableHeight = containerRect.bottom - gridRect.bottom - 48;
-    const computedMaxCardHeight = Math.max(150, availableHeight);
-    setMaxCardHeight(computedMaxCardHeight);
-    
-    // Card decorations (py-4 is 32px, spacing is 16px, table headers is 40px, paddings is 10px, SectionLabel height is 24px) ~ 125px
-    const cardDecorations = 125;
-    const availableHeightForRows = computedMaxCardHeight - cardDecorations;
-    const rowHeight = 49;
-    const computedRows = Math.floor(availableHeightForRows / rowHeight);
-    const finalRows = Math.max(1, computedRows);
-    setMaxRows(finalRows);
   }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    updateMaxCardHeight();
-    window.addEventListener('resize', updateMaxCardHeight);
-    return () => window.removeEventListener('resize', updateMaxCardHeight);
-  }, [updateMaxCardHeight]);
+    updateLayout();
+    window.addEventListener('resize', updateLayout);
+    return () => window.removeEventListener('resize', updateLayout);
+  }, [updateLayout]);
 
   useEffect(() => {
     if (!initialLoading) {
-      const timer = setTimeout(updateMaxCardHeight, 50);
+      const timer = setTimeout(updateLayout, 50);
       return () => clearTimeout(timer);
     }
-  }, [initialLoading, updateMaxCardHeight]);
+  }, [initialLoading, updateLayout]);
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
@@ -853,6 +870,66 @@ export function AuthSettings() {
     }
   };
 
+  const handleRevokeOtherSessions = async () => {
+    setRevokeLoading(true);
+    setRevokeConfirmOpen(false);
+    setError(null);
+    setSuccess(null);
+    try {
+      const supabase = getSupabase();
+      const sessionInfo = await getSessionInfo(supabase);
+      if (!sessionInfo?.userId || !sessionInfo?.sessionId) {
+        setError('Could not identify current session.');
+        return;
+      }
+      const result = await revokeOtherSessions(sessionInfo.userId, sessionInfo.sessionId, {
+        browser: navigator.userAgent,
+        os: navigator.platform || navigator.userAgent,
+      });
+      if (result.success) {
+        setSuccess(`Logged out from ${result.revokedCount} other session${result.revokedCount === 1 ? '' : 's'}.`);
+        fetchSecurityEvents(sessionInfo.userId, userEmail || undefined);
+      } else {
+        setError(result.error || 'Failed to log out other sessions.');
+      }
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Failed to log out other sessions.');
+    } finally {
+      setRevokeLoading(false);
+    }
+  };
+
+  const toggleDropdown = (name: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (activeDropdown === name) {
+      setActiveDropdown(null);
+      setDropdownPos(null);
+    } else {
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+      setDropdownPos({ top: rect.bottom + 4, left: rect.left });
+      setActiveDropdown(name);
+    }
+  };
+
+  const toggleSort = (field: 'browser' | 'os' | 'created_at') => {
+    if (sortField === field) {
+      setSortAsc(!sortAsc);
+    } else {
+      setSortField(field);
+      setSortAsc(true);
+    }
+  };
+
+  useEffect(() => {
+    if (!activeDropdown) return;
+    const handler = () => {
+      setActiveDropdown(null);
+      setDropdownPos(null);
+    };
+    document.addEventListener('click', handler);
+    return () => document.removeEventListener('click', handler);
+  }, [activeDropdown]);
+
   const isProviderLinked = (p: string) => identities.some(i => i.provider === p);
   const getProviderIdentity = (p: string) => identities.find(i => i.provider === p);
   const getProviderEmail = (p: string) => identities.find(i => i.provider === p)?.identity_data?.email as string | null ?? null;
@@ -920,7 +997,7 @@ export function AuthSettings() {
         }}
       />
 
-              <div ref={containerRef} className="p-3 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-4xl mx-auto w-full flex flex-col flex-1 h-full overflow-hidden">
+              <div ref={containerRef} className="p-3 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-4xl mx-auto w-full flex flex-col flex-1 sm:h-full overflow-x-hidden overflow-y-visible sm:overflow-hidden">
         <AnimatePresence mode="popLayout">
           {error && <AlertBanner type="error" message={error} onDismiss={() => setError(null)} />}
           {success && <AlertBanner type="success" message={success} onDismiss={() => setSuccess(null)} />}
@@ -1125,10 +1202,6 @@ export function AuthSettings() {
 
         {/* Security & Login Activity */}
         {(() => {
-          const totalPages = Math.ceil(securityEvents.length / maxRows);
-          const effectiveCurrentPage = Math.min(Math.max(1, currentPage), Math.max(1, totalPages));
-          const paginatedEvents = securityEvents.slice((effectiveCurrentPage - 1) * maxRows, effectiveCurrentPage * maxRows);
-
           const formatEventType = (type: string) => {
             const labels: Record<string, string> = {
               login: 'Login',
@@ -1143,6 +1216,7 @@ export function AuthSettings() {
               provider_link: 'Provider Linked',
               provider_unlink: 'Provider Unlinked',
               active_session: 'Active Session',
+              sessions_revoked: 'Signed Out Other Devices',
             };
             return labels[type] || type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
           };
@@ -1176,64 +1250,131 @@ export function AuthSettings() {
               return <Lock className="w-3.5 h-3.5 shrink-0 text-amber-400" />;
             }
 
+            if (event.event_type === 'sessions_revoked') {
+              return <LogOut className="w-3.5 h-3.5 shrink-0 text-red-400" />;
+            }
+
             // email/password login (default)
             return <KeyRound className="w-3.5 h-3.5 shrink-0 text-blue-400" />;
           };
+
+          const uniqueEvents = [...new Set(securityEvents.map(e => e.event_type))].sort();
+          const uniqueStatuses = [...new Set(securityEvents.map(e => e.status).filter(Boolean))].sort();
+          const uniqueIps = [...new Set(securityEvents.map(e => e.ip_address).filter(Boolean))].sort();
+
+          let filteredEvents = securityEvents;
+          if (eventFilter) filteredEvents = filteredEvents.filter(e => e.event_type === eventFilter);
+          if (statusFilter) filteredEvents = filteredEvents.filter(e => e.status === statusFilter);
+          if (ipFilter) filteredEvents = filteredEvents.filter(e => e.ip_address === ipFilter);
+
+          if (sortField) {
+            filteredEvents = [...filteredEvents].sort((a, b) => {
+              const aVal = ((a as Record<string, unknown>)[sortField] || '') as string;
+              const bVal = ((b as Record<string, unknown>)[sortField] || '') as string;
+              const cmp = String(aVal).localeCompare(String(bVal));
+              return sortAsc ? cmp : -cmp;
+            });
+          }
+
+          const hasActiveFilter = eventFilter || statusFilter || ipFilter;
 
           return (
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.35, ease: 'easeOut' }}
-              style={isDesktop ? { maxHeight: `${maxCardHeight}px` } : undefined}
-              className="sm:rounded-2xl sm:border sm:border-stone-800/80 sm:bg-[#0F0F0F] sm:shadow-sm shadow-none px-0 py-4 sm:p-6 space-y-3 sm:space-y-4 flex flex-col overflow-hidden w-full h-auto"
+              className="sm:rounded-2xl sm:border sm:border-stone-800/80 sm:bg-[#0F0F0F] sm:shadow-sm shadow-none px-0 py-4 sm:p-6 space-y-3 sm:space-y-4 flex flex-col flex-1 min-h-0 overflow-hidden w-full"
             >
               <div className="flex items-center justify-between shrink-0">
-                <SectionLabel>Security & Login Activity</SectionLabel>
+                <div className="flex items-center gap-2 min-w-0">
+                  <SectionLabel>Security & Login Activity</SectionLabel>
+                  <span className="text-[10px] font-medium text-stone-500 tabular-nums shrink-0">
+                    {filteredEvents.length} event{filteredEvents.length !== 1 ? 's' : ''}
+                  </span>
+                  {hasActiveFilter && (
+                    <button
+                      type="button"
+                      onClick={() => { setEventFilter(null); setStatusFilter(null); setIpFilter(null); }}
+                      className="text-[10px] font-semibold text-blue-400 hover:text-blue-300 border border-blue-900/40 bg-blue-950/20 rounded-md px-1.5 py-0.5 transition-colors shrink-0"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
                 
-                {/* Pagination Controls */}
-                {totalPages > 1 && (
-                  <div className="flex items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                      disabled={effectiveCurrentPage === 1}
-                      className="p-1 rounded-lg border border-stone-850 hover:bg-stone-900/60 transition-colors disabled:opacity-40 disabled:cursor-not-allowed text-stone-400"
-                      aria-label="Previous Page"
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                    </button>
-                    <span className="text-xs font-semibold text-stone-400 px-1 select-none">
-                      Page {effectiveCurrentPage} of {totalPages}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                      disabled={effectiveCurrentPage === totalPages}
-                      className="p-1 rounded-lg border border-stone-850 hover:bg-stone-900/60 transition-colors disabled:opacity-40 disabled:cursor-not-allowed text-stone-400"
-                      aria-label="Next Page"
-                    >
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                )}
+                <div className="flex items-center gap-2 shrink-0">
+                  {/* Log out all other devices button */}
+                  <button
+                    type="button"
+                    onClick={() => setRevokeConfirmOpen(true)}
+                    disabled={revokeLoading}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-stone-800 hover:border-red-800/60 hover:bg-red-950/20 text-stone-400 hover:text-red-400 text-xs font-medium transition-all disabled:opacity-50 disabled:pointer-events-none"
+                    title="Log out from all other devices and sessions"
+                  >
+                    {revokeLoading ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <LogOut className="w-3.5 h-3.5" />
+                    )}
+                    <span className="hidden sm:inline">Other Devices</span>
+                  </button>
+                </div>
               </div>
 
-              <div className="overflow-auto flex-1 min-h-0 w-full">
-                <table className="w-full text-left border-collapse text-sm min-w-[700px]">
-                  <thead>
-                    <tr className="border-b border-stone-850 text-xs font-bold uppercase tracking-wider text-stone-500">
-                      <th className="pb-3 pr-4">Event</th>
-                      <th className="pb-3 px-4">Status</th>
-                      <th className="pb-3 px-4"><span className="flex items-center gap-1"><Globe className="w-3 h-3" />Browser</span></th>
-                      <th className="pb-3 px-4"><span className="flex items-center gap-1"><MonitorSmartphone className="w-3 h-3" />Device</span></th>
-                      <th className="pb-3 px-4"><span className="flex items-center gap-1"><MapPin className="w-3 h-3" />IP Address</span></th>
-                      <th className="pb-3 pl-4">Date & Time</th>
+              <div className="flex-1 min-h-0 overflow-auto w-full">
+                <table className="w-full text-left border-collapse text-xs sm:text-sm min-w-[600px]">
+                  <thead className="sticky top-0 bg-[#0F0F0F] z-10">
+                    <tr className="border-b border-stone-850 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-stone-500">
+                      <th className="py-2.5 sm:py-3 pr-3 sm:pr-4 relative">
+                        <button type="button" onClick={(e) => toggleDropdown('event', e)} className="flex items-center gap-1 hover:text-stone-300 transition-colors">
+                          Event
+                          <ChevronDown className={`w-3 h-3 transition-colors ${eventFilter ? 'text-blue-400' : ''}`} />
+                        </button>
+                      </th>
+                      <th className="py-2.5 sm:py-3 px-3 sm:px-4 relative">
+                        <button type="button" onClick={(e) => toggleDropdown('status', e)} className="flex items-center gap-1 hover:text-stone-300 transition-colors">
+                          Status
+                          <ChevronDown className={`w-3 h-3 transition-colors ${statusFilter ? 'text-blue-400' : ''}`} />
+                        </button>
+                      </th>
+                      <th className="py-2.5 sm:py-3 px-3 sm:px-4">
+                        <button type="button" onClick={() => toggleSort('browser')} className="flex items-center gap-1 hover:text-stone-300 transition-colors">
+                          <Globe className="w-3 h-3" />
+                          Browser
+                          {sortField === 'browser' && (
+                            <ChevronDown className={`w-3 h-3 transition-transform ${sortAsc ? '' : 'rotate-180'}`} />
+                          )}
+                        </button>
+                      </th>
+                      <th className="py-2.5 sm:py-3 px-3 sm:px-4">
+                        <button type="button" onClick={() => toggleSort('os')} className="flex items-center gap-1 hover:text-stone-300 transition-colors">
+                          <MonitorSmartphone className="w-3 h-3" />
+                          Device
+                          {sortField === 'os' && (
+                            <ChevronDown className={`w-3 h-3 transition-transform ${sortAsc ? '' : 'rotate-180'}`} />
+                          )}
+                        </button>
+                      </th>
+                      <th className="py-2.5 sm:py-3 px-3 sm:px-4 relative">
+                        <button type="button" onClick={(e) => toggleDropdown('ip', e)} className="flex items-center gap-1 hover:text-stone-300 transition-colors">
+                          <MapPin className="w-3 h-3" />
+                          IP
+                          <ChevronDown className={`w-3 h-3 transition-colors ${ipFilter ? 'text-blue-400' : ''}`} />
+                        </button>
+                      </th>
+                      <th className="py-2.5 sm:py-3 pl-3 sm:pl-4">
+                        <button type="button" onClick={() => toggleSort('created_at')} className="flex items-center gap-1 hover:text-stone-300 transition-colors">
+                          Date & Time
+                          {sortField === 'created_at' && (
+                            <ChevronDown className={`w-3 h-3 transition-transform ${sortAsc ? '' : 'rotate-180'}`} />
+                          )}
+                        </button>
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-stone-850/60">
-                    {paginatedEvents.length > 0 ? (
-                      paginatedEvents.map((event) => {
+                    {filteredEvents.length > 0 ? (
+                      filteredEvents.map((event) => {
                         const isSuccess = event.status?.toLowerCase() === 'success';
                         const isFailed = event.status?.toLowerCase().startsWith('failed');
                         const isAutoExpired = event.status === 'Auto-Expired';
@@ -1250,32 +1391,41 @@ export function AuthSettings() {
                           badgeBg = 'bg-red-950/20 border-red-900/45 text-red-400';
                         }
 
+                        const isRevoked = event.event_type === 'sessions_revoked';
+                        const revokedCount = isRevoked ? (event.metadata?.revoked_count as number | undefined) : undefined;
+
                         return (
-                          <tr key={event.id} className="text-stone-100">
-                            <td className="py-3 pr-4">
-                              <div className="flex items-center gap-2">
+                          <tr key={event.id} className="text-stone-100 hover:bg-white/[0.02] transition-colors">
+                            <td className="py-2.5 sm:py-3 pr-3 sm:pr-4">
+                              <div className="flex items-center gap-1.5 sm:gap-2">
                                 {isCurrentSession && (
-                                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                                  <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
                                 )}
                                 {getAuthMethodIcon(event)}
-                                <span className="font-semibold text-stone-100">{formatEventType(event.event_type)}</span>
+                                <span className="font-semibold text-stone-100 truncate max-w-[120px] sm:max-w-none">{formatEventType(event.event_type)}</span>
                               </div>
                             </td>
-                            <td className="py-3 px-4">
-                              <span className={`inline-flex items-center px-2 py-0.5 rounded border text-xs font-semibold ${badgeBg}`}>
-                                {isCurrentSession ? 'Current Session' : event.status}
-                              </span>
+                            <td className="py-2.5 sm:py-3 px-3 sm:px-4">
+                              {isRevoked ? (
+                                <span className="text-[10px] sm:text-xs text-stone-400 font-medium">
+                                  {revokedCount != null ? `${revokedCount} session${revokedCount !== 1 ? 's' : ''} ended` : 'Success'}
+                                </span>
+                              ) : (
+                                <span className={`inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded border text-[10px] sm:text-xs font-semibold ${badgeBg}`}>
+                                  {isCurrentSession ? 'Current' : event.status}
+                                </span>
+                              )}
                             </td>
-                            <td className="py-3 px-4 text-stone-300 font-medium text-xs">
-                              {event.browser || '—'}
+                            <td className="py-2.5 sm:py-3 px-3 sm:px-4 text-stone-300 font-medium text-xs">
+                              {isRevoked ? '—' : (event.browser || '—')}
                             </td>
-                            <td className="py-3 px-4 text-stone-300 font-medium text-xs">
-                              {event.os || '—'}
+                            <td className="py-2.5 sm:py-3 px-3 sm:px-4 text-stone-300 font-medium text-xs">
+                              {isRevoked ? '—' : (event.os || '—')}
                             </td>
-                            <td className="py-3 px-4 text-stone-400 font-mono text-xs">
-                              {event.ip_address || 'Unknown IP'}
+                            <td className="py-2.5 sm:py-3 px-3 sm:px-4 text-stone-400 font-mono text-xs">
+                              {isRevoked ? '—' : (event.ip_address || '—')}
                             </td>
-                            <td className="py-3 pl-4 text-stone-500 text-xs">
+                            <td className="py-2.5 sm:py-3 pl-3 sm:pl-4 text-stone-500 text-xs whitespace-nowrap">
                               {new Date(event.created_at).toLocaleString()}
                             </td>
                           </tr>
@@ -1283,7 +1433,7 @@ export function AuthSettings() {
                       })
                     ) : (
                       <tr className="text-stone-400">
-                        <td colSpan={5} className="py-6 text-center text-stone-400 font-medium">
+                        <td colSpan={6} className="py-6 text-center text-stone-400 font-medium">
                           No security events recorded yet.
                         </td>
                       </tr>
@@ -1291,10 +1441,135 @@ export function AuthSettings() {
                   </tbody>
                 </table>
               </div>
+
+              {/* Filter Dropdowns (rendered inside motion.div so they're in the IIFE scope) */}
+              {activeDropdown && dropdownPos && (
+                <div
+                  className="fixed z-50 bg-[#0A0A0A] border border-stone-800 rounded-xl shadow-xl py-1 min-w-[180px] max-h-[240px] overflow-auto"
+                  style={{ top: dropdownPos.top, left: dropdownPos.left }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {activeDropdown === 'event' && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => { setEventFilter(null); setActiveDropdown(null); setDropdownPos(null); }}
+                        className={`w-full text-left px-3 py-1.5 text-xs hover:bg-stone-900/60 transition-colors ${!eventFilter ? 'text-blue-400 font-semibold' : 'text-stone-300'}`}
+                      >
+                        All Events
+                      </button>
+                      {uniqueEvents.map((ev: string) => (
+                        <button
+                          key={ev}
+                          type="button"
+                          onClick={() => { setEventFilter(ev); setActiveDropdown(null); setDropdownPos(null); }}
+                          className={`w-full text-left px-3 py-1.5 text-xs hover:bg-stone-900/60 transition-colors flex items-center gap-2 ${eventFilter === ev ? 'text-blue-400 font-semibold' : 'text-stone-300'}`}
+                        >
+                          {formatEventType(ev)}
+                        </button>
+                      ))}
+                    </>
+                  )}
+                  {activeDropdown === 'status' && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => { setStatusFilter(null); setActiveDropdown(null); setDropdownPos(null); }}
+                        className={`w-full text-left px-3 py-1.5 text-xs hover:bg-stone-900/60 transition-colors ${!statusFilter ? 'text-blue-400 font-semibold' : 'text-stone-300'}`}
+                      >
+                        All Statuses
+                      </button>
+                      {uniqueStatuses.map((st: string) => (
+                        <button
+                          key={st}
+                          type="button"
+                          onClick={() => { setStatusFilter(st); setActiveDropdown(null); setDropdownPos(null); }}
+                          className={`w-full text-left px-3 py-1.5 text-xs hover:bg-stone-900/60 transition-colors ${statusFilter === st ? 'text-blue-400 font-semibold' : 'text-stone-300'}`}
+                        >
+                          {st}
+                        </button>
+                      ))}
+                    </>
+                  )}
+                  {activeDropdown === 'ip' && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => { setIpFilter(null); setActiveDropdown(null); setDropdownPos(null); }}
+                        className={`w-full text-left px-3 py-1.5 text-xs hover:bg-stone-900/60 transition-colors ${!ipFilter ? 'text-blue-400 font-semibold' : 'text-stone-300'}`}
+                      >
+                        All IPs
+                      </button>
+                      {uniqueIps.map((ipAddr: string) => (
+                        <button
+                          key={ipAddr}
+                          type="button"
+                          onClick={() => { setIpFilter(ipAddr); setActiveDropdown(null); setDropdownPos(null); }}
+                          className={`w-full text-left px-3 py-1.5 text-xs font-mono hover:bg-stone-900/60 transition-colors ${ipFilter === ipAddr ? 'text-blue-400 font-semibold' : 'text-stone-300'}`}
+                        >
+                          {ipAddr}
+                        </button>
+                      ))}
+                    </>
+                  )}
+                </div>
+              )}
             </motion.div>
           );
         })()}
       </div>
+
+      {/* Revoke Other Sessions Confirmation Dialog */}
+      <AnimatePresence>
+        {revokeConfirmOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            onClick={() => setRevokeConfirmOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ duration: 0.2 }}
+              className="bg-[#0A0A0A] border border-stone-800 rounded-2xl p-6 w-full max-w-sm shadow-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2.5 rounded-xl bg-red-950/30 text-red-400">
+                  <LogOut className="w-5 h-5" />
+                </div>
+                <h3 className="text-base font-bold text-stone-100">Log out from all other devices?</h3>
+              </div>
+              <p className="text-sm text-stone-400 mb-5">
+                Your account will log out from all other devices and sessions, except for this one.
+              </p>
+              <div className="flex gap-2.5">
+                <button
+                  onClick={() => setRevokeConfirmOpen(false)}
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-stone-800 hover:bg-stone-900/50 text-stone-300 text-sm font-medium transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleRevokeOtherSessions}
+                  disabled={revokeLoading}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-sm font-semibold transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {revokeLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <LogOut className="w-4 h-4" />
+                  )}
+                  {revokeLoading ? 'Confirming...' : 'Confirm'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import { Loader2, KeyRound, Eye, EyeOff, ShieldAlert, Check, ArrowLeft, LogIn, CircleCheckBig } from 'lucide-react';
 import { Logo } from '@/components/ui/logo';
 import Link from 'next/link';
+import { revokeOtherSessions } from '@/app/admin/security-actions';
 
 type Phase = 'loading' | 'expired' | 'form' | 'success';
 
@@ -94,6 +95,21 @@ function ResetPasswordContent() {
           setError(msg || 'Failed to update password.');
         }
       } else {
+        // Auto-revoke all old sessions after password reset
+        try {
+          const supabase = createClient();
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.access_token) {
+            const base64 = session.access_token.split('.')[1];
+            const padded = base64.replace(/-/g, '+').replace(/_/g, '/');
+            const payload = JSON.parse(atob(padded));
+            const userId = payload.sub as string | undefined;
+            const sessionId = payload.session_id as string | undefined;
+            if (userId && sessionId) {
+              await revokeOtherSessions(userId, sessionId);
+            }
+          }
+        } catch { /* non-critical */ }
         setPhase('success');
       }
     } catch (err: unknown) {
@@ -176,7 +192,7 @@ function ResetPasswordContent() {
           <div className="space-y-2">
             <h1 className="text-xl font-bold tracking-tight">Password Updated</h1>
             <p className="text-sm text-stone-400 leading-relaxed">
-              Your password has been changed successfully. Sign in with your new password to continue.
+              Your password has been changed successfully. All other sessions have been logged out for security. Sign in with your new password to continue.
             </p>
           </div>
           <Link

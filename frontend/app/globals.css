@@ -35,6 +35,12 @@ html {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar {
+  display: none;
 }
 
 input, textarea, [contenteditable="true"] {
@@ -46,25 +52,44 @@ input, textarea, [contenteditable="true"] {
 
 body {
   height: 100dvh;
-  overflow: hidden;
+  overflow-y: auto;
   color: var(--foreground);
   background:
     radial-gradient(circle at top, rgba(111, 195, 182, 0.1), transparent 26%),
     radial-gradient(circle at bottom right, rgba(60, 144, 131, 0.1), transparent 24%),
     linear-gradient(180deg, var(--background), var(--background-deep));
   font-family: var(--font-body), sans-serif;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-.scrollbar-none {
-  scrollbar-width: none !important;
-  -ms-overflow-style: none !important;
+body::-webkit-scrollbar {
+  display: none;
 }
 
-.scrollbar-none::-webkit-scrollbar {
+@media (max-width: 639px) {
+  html {
+    overflow: hidden;
+  }
+  body {
+    overflow-x: hidden;
+    overflow-y: auto;
+    max-width: 100vw;
+    width: 100%;
+  }
+}
+
+.scrollbar-none::-webkit-scrollbar,
+*::-webkit-scrollbar {
   display: none !important;
   width: 0 !important;
   height: 0 !important;
   background: transparent !important;
+}
+
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
 }
 
 ::selection {
