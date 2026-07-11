@@ -39,7 +39,7 @@ function TeamMemberAvatar({ name, photoFilename, validPhotos, className = "h-16 
 
 function TeamMemberCard({ member, validPhotos, isFlipped, onFlip }: { member: TeamMember; validPhotos: string[]; isFlipped: boolean; onFlip: () => void }) {
 	return (
-		<div className="group flex flex-col h-85 w-[75vw] max-w-65 sm:h-105 sm:w-full sm:max-w-none shrink-0 snap-center rounded-2xl border border-verdigris-700/20 bg-verdigris-950/40 backdrop-blur-md shadow-sm transition-transform duration-300 ease-out hover:-translate-y-2 hover:scale-[1.02] hover:shadow-xl hover:border-verdigris-400/30 relative">
+		<div className="group flex flex-col h-85 w-[75vw] max-w-65 sm:h-105 sm:w-full sm:max-w-none shrink-0 snap-center rounded-2xl border border-verdigris-700/20 bg-verdigris-950/60 shadow-sm transition-transform duration-300 ease-out hover:-translate-y-2 hover:scale-[1.02] hover:shadow-xl hover:border-verdigris-400/30 relative">
 			{/* Flippable Top Section */}
 			<div
 				className="relative flex-1 cursor-pointer perspective-distant"
@@ -52,15 +52,15 @@ function TeamMemberCard({ member, validPhotos, isFlipped, onFlip }: { member: Te
 				>
 					{/* Front of Top Section */}
 					<div
-						className={`flip-card-front flex flex-col items-center justify-center p-6 rounded-t-[15px] bg-transparent transition-opacity duration-300 ${
+						className={`flip-card-front flex flex-col items-center justify-center p-6 rounded-t-2xl bg-transparent transition-opacity duration-300 ${
 							isFlipped ? "opacity-0 pointer-events-none" : "opacity-100"
 						}`}
 					>
 						<div className="relative mb-4 sm:mb-5">
 							{/* Outer ring gradient glow */}
-							<div className="absolute -inset-1 bg-linear-to-tr from-verdigris-500/20 to-[#d4a055]/30 rounded-full blur-sm opacity-60 group-hover:opacity-100 transition duration-300"></div>
+							<div className="absolute -inset-1 bg-linear-to-tr from-verdigris-500/20 to-[#d4a055]/30 rounded-full blur-[1px] opacity-60 group-hover:opacity-100 transition duration-300"></div>
 							<div className="relative ring-2 ring-verdigris-400/25 rounded-full p-1 bg-verdigris-950/50">
-								<TeamMemberAvatar name={member.name} photoFilename={member.photoFilename} validPhotos={validPhotos} className="h-20 w-20 sm:h-24 sm:w-24 transition-transform duration-300 group-hover:scale-[1.03]" />
+								<TeamMemberAvatar name={member.name} photoFilename={member.photoFilename} validPhotos={validPhotos} className="h-20 w-20 sm:h-24 sm:w-24" />
 							</div>
 						</div>
 
@@ -76,7 +76,7 @@ function TeamMemberCard({ member, validPhotos, isFlipped, onFlip }: { member: Te
 
 					{/* Back of Top Section */}
 					<div
-						className={`flip-card-back flex flex-col items-center justify-start p-6 bg-verdigris-900/90 backdrop-blur-md rounded-t-[15px] transition-opacity duration-300 ${
+						className={`flip-card-back flex flex-col items-center justify-start p-6 bg-verdigris-900/90 backdrop-blur-md rounded-t-2xl transition-opacity duration-300 ${
 							isFlipped ? "opacity-100" : "opacity-0 pointer-events-none"
 						}`}
 					>
@@ -176,7 +176,7 @@ export function TeamPanel({ validPhotos = [], members = TEAM_MEMBERS }: { validP
 						</span>
 						<Logo size="xl" />
 					</h1>
-					<p className="mt-4 max-w-2xl text-sm leading-relaxed text-slate-450 sm:text-base">
+					<p className="mt-4 max-w-2xl text-sm leading-relaxed text-slate-400 sm:text-base">
 						LiPy is being developed by second-year students of the 5-Year Integrated MCA Programme
 						at Utkal University under the NIELIT Bhubaneswar Internship Programme.
 					</p>
@@ -200,7 +200,7 @@ export function TeamPanel({ validPhotos = [], members = TEAM_MEMBERS }: { validP
 
 				<section className="mt-12 pt-12 border-t border-white/10 w-full">
 					<div className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-6 w-full scrollbar-none sm:grid sm:grid-cols-3 sm:pb-0 justify-items-center">
-						<div className="flex flex-col items-center text-center p-4 sm:p-6 w-[70vw] max-w-60 sm:w-full sm:max-w-[320px] shrink-0 snap-center rounded-2xl border border-verdigris-900/5 bg-verdigris-950/20 backdrop-blur-md shadow-sm hover:border-verdigris-500/20 transition-all duration-300">
+						<div className="flex flex-col items-center text-center p-4 sm:p-6 w-[70vw] max-w-60 sm:w-full sm:max-w-[320px] shrink-0 snap-center rounded-2xl border border-white/5 bg-verdigris-950/20 backdrop-blur-md shadow-sm hover:border-verdigris-500/20 transition-all duration-300">
 							<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-verdigris-500/10 text-indigo-400 ring-1 ring-inset ring-verdigris-400/20">
 								<GraduationCap className="h-5 w-5" />
 							</div>
@@ -208,7 +208,7 @@ export function TeamPanel({ validPhotos = [], members = TEAM_MEMBERS }: { validP
 							<p className="mt-2 text-xs text-slate-400 leading-relaxed max-w-55">Department of Computer Science & Applications</p>
 						</div>
 
-						<div className="flex flex-col items-center text-center p-4 sm:p-6 w-[70vw] max-w-60 sm:w-full sm:max-w-[320px] shrink-0 snap-center rounded-2xl border border-verdigris-900/5 bg-verdigris-950/20 backdrop-blur-md shadow-sm hover:border-verdigris-500/20 transition-all duration-300">
+						<div className="flex flex-col items-center text-center p-4 sm:p-6 w-[70vw] max-w-60 sm:w-full sm:max-w-[320px] shrink-0 snap-center rounded-2xl border border-white/5 bg-verdigris-950/20 backdrop-blur-md shadow-sm hover:border-verdigris-500/20 transition-all duration-300">
 							<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-verdigris-500/10 text-[#d4a055] ring-1 ring-inset ring-verdigris-400/20">
 								<Building2 className="h-5 w-5" />
 							</div>
@@ -216,7 +216,7 @@ export function TeamPanel({ validPhotos = [], members = TEAM_MEMBERS }: { validP
 							<p className="mt-2 text-xs text-slate-400 leading-relaxed max-w-55">Academic Industry Exposure & Internship Programme</p>
 						</div>
 
-						<div className="flex flex-col items-center text-center p-4 sm:p-6 w-[70vw] max-w-60 sm:w-full sm:max-w-[320px] shrink-0 snap-center rounded-2xl border border-verdigris-900/5 bg-verdigris-950/20 backdrop-blur-md shadow-sm hover:border-verdigris-500/20 transition-all duration-300">
+						<div className="flex flex-col items-center text-center p-4 sm:p-6 w-[70vw] max-w-60 sm:w-full sm:max-w-[320px] shrink-0 snap-center rounded-2xl border border-white/5 bg-verdigris-950/20 backdrop-blur-md shadow-sm hover:border-verdigris-500/20 transition-all duration-300">
 							<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-verdigris-500/10 text-verdigris-400 ring-1 ring-inset ring-verdigris-400/20">
 								<UserCheck className="h-5 w-5" />
 							</div>
