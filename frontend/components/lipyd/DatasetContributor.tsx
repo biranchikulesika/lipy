@@ -1,8 +1,17 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import ContributorSetup from '@/components/lipyd/ContributorSetup';
-import CanvasBoard from '@/components/lipyd/CanvasBoard';
+import dynamic from 'next/dynamic';
+
+const ContributorSetup = dynamic(() => import('@/components/lipyd/ContributorSetup'), {
+  ssr: false,
+  loading: () => <div className="w-full h-48 rounded-[16px] bg-verdigris-950/40 animate-pulse" />,
+});
+
+const CanvasBoard = dynamic(() => import('@/components/lipyd/CanvasBoard'), {
+  ssr: false,
+  loading: () => <div className="w-full max-w-[340px] sm:max-w-[400px] lg:max-w-[480px] mx-auto aspect-square rounded-3xl bg-verdigris-950 animate-pulse" />,
+});
 
 export function DatasetContributor() {
   const [view, setView] = useState('home');

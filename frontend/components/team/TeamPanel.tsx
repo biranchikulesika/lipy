@@ -1,7 +1,7 @@
 "use client";
 
 import { TEAM_MEMBERS, type TeamMember } from "@/constants/team";
-import { Github, Linkedin, Mail, GraduationCap, Building2, UserCheck, Globe, Instagram, RotateCcw, Check } from "lucide-react";
+import { Github, Linkedin, Mail, GraduationCap, Building2, UserCheck, Globe, Instagram, Check } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { Logo } from "@/components/ui/logo";

@@ -1,8 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AboutPanel } from "./AboutPanel";
-import { MobileStoryCarousel } from "./MobileStoryCarousel";
+import dynamic from "next/dynamic";
+
+const AboutPanel = dynamic(() => import("./AboutPanel").then(mod => mod.AboutPanel), {
+  ssr: false,
+  loading: () => <div className="min-h-[calc(100dvh-4.5rem)] w-full" />,
+});
+
+const MobileStoryCarousel = dynamic(() => import("./MobileStoryCarousel").then(mod => mod.MobileStoryCarousel), {
+  ssr: false,
+  loading: () => <div className="fixed inset-0 z-[100] w-full h-[100dvh] bg-black" />,
+});
 
 export function AboutClientContainer() {
 	const [isMobile, setIsMobile] = useState<boolean | null>(null);

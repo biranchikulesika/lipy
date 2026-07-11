@@ -99,4 +99,3 @@ export const TEAM_MEMBERS: TeamMember[] = [
   }
 ];
 
-export const CONTRIBUTIONS = [];

@@ -1,8 +1,3 @@
-export function isValidContributorId(id: string | null | undefined): boolean {
-  if (!id) return false;
-  return /^[A-Z0-9]{1,10}$/i.test(String(id).trim());
-}
-
 export function isValidContributorName(name: string | null | undefined): boolean {
   if (!name) return false;
   const s = String(name).trim();

@@ -40,6 +40,14 @@ build/
 
 *.tsbuildinfo
 
+# Next.js auto-generated (regenerated on every dev/build)
+next-env.d.ts
+frontend/next-env.d.ts
+
+# Chrome browser binary (downloaded for Lighthouse audits)
+chrome/
+frontend/chrome/
+
 # ============================================================================
 # Machine Learning
 # ============================================================================

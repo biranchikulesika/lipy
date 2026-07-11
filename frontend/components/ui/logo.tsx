@@ -1,5 +1,3 @@
-'use client';
-
 export function Logo({ collapsed = false, suffix = '', className }: { collapsed?: boolean; suffix?: string; className?: string }) {
   const sizeClass = className || (collapsed ? 'text-[16px]' : 'text-[16px] sm:text-[18px]');
   return (

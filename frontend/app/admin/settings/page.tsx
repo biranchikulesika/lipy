@@ -2,8 +2,12 @@
 
 import { Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { AdminShell } from '@/components/admin/AdminShell';
-import { AuthSettings } from '@/components/admin/AuthSettings';
+
+const AuthSettings = dynamic(() => import('@/components/admin/AuthSettings').then(mod => mod.AuthSettings), {
+  ssr: false,
+});
 
 export default function SettingsPage() {
   return (

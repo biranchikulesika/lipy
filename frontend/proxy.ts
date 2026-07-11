@@ -16,13 +16,6 @@ export const config = {
 };
 
 export default async function proxy(request: NextRequest) {
-  const host = request.headers.get('host') || '';
-
-  // Redirect code.<domain> to the GitHub repository
-  if (host.startsWith('code.')) {
-    return NextResponse.redirect('https://github.com/biranchikulesika/lipy', 301);
-  }
-
   // Protect Admin Dashboard Routes using Supabase Auth Session Middleware
   if (request.nextUrl.pathname.startsWith('/admin')) {
     return await updateSession(request);

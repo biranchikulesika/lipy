@@ -6,7 +6,11 @@ import { createClient } from '@/lib/supabase/client';
 import { motion, AnimatePresence } from 'motion/react';
 import { Loader2, KeyRound, AtSign, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
-import { ParticleCanvas } from '@/components/ui/particle-canvas';
+import dynamic from 'next/dynamic';
+
+const ParticleCanvas = dynamic(() => import('@/components/ui/particle-canvas').then(mod => mod.ParticleCanvas), {
+  ssr: false,
+});
 import { Logo } from '@/components/ui/logo';
 import { useFakeTyping } from '@/hooks/use-fake-typing';
 import { useAuthSequence } from '@/hooks/use-auth-sequence';
