@@ -1,0 +1,45 @@
+# LiPy: Odia Handwritten Character Recognition
+
+> LiPy is an academic project that uses deep learning (EfficientNetB0) to recognize handwritten Odia characters. It includes an OCR web application, a crowdsourced dataset platform (LiPyD), and a FastAPI inference backend.
+
+## Project Info
+
+- **Repository:** https://github.com/biranchikulesika/lipy
+- **Website:** https://lipy.app (or local development at http://localhost:3000)
+- **License:** MIT
+- **Stack:** Next.js, FastAPI, TensorFlow/Keras, Supabase, Hugging Face Hub, Azure, Vercel
+- **Dataset:** 2,002+ crowdsourced handwritten samples across 41 Odia character classes (34 consonants + 7 vowels)
+- **Model:** EfficientNetB0 trained on 64×64 grayscale images via transfer learning
+
+## Pages
+
+- [Home (OCR Workspace)](/): Draw, upload, or capture an Odia character for handwriting recognition.
+- [LiPyD Dataset](/lipyd): Contribute handwritten Odia character samples to the open dataset.
+- [About](/about): Project overview, system architecture, data pipeline, model training, deployment, and roadmap.
+- [Team](/team): The five-member development team from Utkal University and NIELIT Bhubaneswar.
+
+## Architecture
+
+- **Frontend:** Next.js + Tailwind CSS deployed on Vercel
+- **Backend:** FastAPI inference service deployed on Azure
+- **Model:** EfficientNetB0 exported via TensorFlow/Keras, hosted on Hugging Face Hub
+- **Dataset:** Stored on Hugging Face Datasets (biranchikulesika/lipy)
+- **Contributor Data:** Supabase (PostgreSQL + Storage) for LiPyD samples and admin auth
+- **Training Notebook:** Google Colab (L.ipynb) with complete end-to-end pipeline
+
+## Key Technical Details
+
+- Image input is preprocessed to 64×64 grayscale → RGB, normalized [0,1]
+- Inference returns status (success / low_confidence / ambiguous) with confidence scores
+- Prediction threshold: LOW_CONFIDENCE_THRESHOLD = 0.60, AMBIGUOUS_MARGIN = 0.10
+- Top-K predictions: 3
+- Label format: CONS_KA, VOW_A, etc. mapped to Odia Unicode characters
+
+## Dataset Structure
+
+- Complete dataset: ~2,002 images across 41 classes
+- Minimum samples per class: 25
+- File naming: `<CATEGORY>_<CHARACTER>_<UUID>.png` (e.g., `CONS_KA_abc123.png`)
+- Categories: Consonants (CONS_) and Vowels (VOW_)
+- Supported formats: PNG, JPG/JPEG
+- Data augmentation during training: rotation ±15°, shift ±10%, shear ±10%, zoom ±10%, brightness 0.9–1.1

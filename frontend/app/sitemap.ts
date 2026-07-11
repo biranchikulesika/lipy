@@ -30,6 +30,16 @@ const routes: Array<{
     changeFrequency: "weekly",
     priority: 0.8,
   },
+  {
+    path: "/privacy",
+    changeFrequency: "monthly",
+    priority: 0.3,
+  },
+  {
+    path: "/terms",
+    changeFrequency: "monthly",
+    priority: 0.3,
+  },
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

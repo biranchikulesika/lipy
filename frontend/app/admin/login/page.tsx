@@ -268,7 +268,7 @@ function LoginContent() {
             onMouseLeave={handleMouseLeave}
           >
             <h1 className={`text-3xl md:text-5xl whitespace-nowrap transition-all duration-300 ${isInputFocused ? 'mb-3 md:mb-6' : 'mb-6 md:mb-10'}`}>
-              <Logo suffix=" Admin" className="text-3xl md:text-5xl font-bold" />
+              <Logo suffix=" Admin" size="lg" />
             </h1>
 
             <form className="w-full space-y-2" onSubmit={handleSubmit}>
@@ -466,6 +466,8 @@ function LoginContent() {
               <Link href="/about" className="hover:underline">About</Link>
               <Link href="/lipyd" className="hover:underline">LiPyD</Link>
               <Link href="/team" className="hover:underline">Team</Link>
+              <Link href="/privacy" className="hover:underline">Privacy</Link>
+              <Link href="/terms" className="hover:underline">Terms</Link>
               <a href={SOCIAL_LINKS.github} target="_blank" rel="noopener noreferrer" className="hover:underline">GitHub</a>
 
               <div className="w-full flex justify-center gap-4 mt-1 md:mt-2">

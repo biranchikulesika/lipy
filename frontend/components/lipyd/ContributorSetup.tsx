@@ -205,7 +205,7 @@ export default function ContributorSetup({ onStart, isSearchFocused, onSearchFoc
       activeFocus ? 'py-3 px-4 sm:py-6 sm:px-8 space-y-3' : 'py-4 px-5 sm:py-6 sm:px-8 space-y-4'
     }`}>
       <div className="space-y-1">
-        <h2 className="text-3xl font-extrabold tracking-tight"><Logo suffix="D" className="text-3xl font-extrabold" /></h2>
+        <h2 className="text-3xl font-extrabold tracking-tight"><Logo suffix="D" size="lg" /></h2>
         <p className="text-sm text-slate-400">Help build the Odia handwriting dataset.</p>
       </div>
 

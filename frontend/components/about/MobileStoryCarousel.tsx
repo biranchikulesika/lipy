@@ -8,7 +8,8 @@ import { MobileStorySlide } from "./MobileStorySlide";
 import { STORIES_DATA } from "../../constants/about";
 
 const STORY_DURATION = 5000;
-const SLIDE_TRANSITION = 0.15;
+const SLIDE_TRANSITION = 0.1;
+const PROGRESS_INTERVAL = 50;
 
 export function MobileStoryCarousel() {
     const router = useRouter();
@@ -17,41 +18,47 @@ export function MobileStoryCarousel() {
 
     const progressRef = useRef(0);
     const isPausedRef = useRef(false);
-    const progressBarsRef = useRef<(HTMLDivElement | null)[]>([]);
     const isAnimatingRef = useRef(false);
+    const progressBarsRef = useRef<(HTMLDivElement | null)[]>([]);
+    const progressTimerRef = useRef<ReturnType<typeof setInterval>>(undefined);
 
     const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
-    const requestRef = useRef<number>(0);
-    const lastTimeRef = useRef<number>(0);
-
+    const isMountedRef = useRef(true);
+    // Refs to break circular dependency between callbacks
+    const startProgressTimerRef = useRef<() => void>(() => {});
     const controls = useAnimation();
 
     // Preload all images on mount
     useEffect(() => {
+        isMountedRef.current = true;
         STORIES_DATA.forEach((story) => {
             if (story.image) {
                 const img = new Image();
                 img.src = story.image;
             }
         });
+
+        return () => {
+            isMountedRef.current = false;
+        };
     }, []);
 
     const slidePercent = 100 / STORIES_DATA.length;
 
-    const updateProgressBars = useCallback((currentIndex: number, progress: number) => {
-        progressBarsRef.current.forEach((bar, index) => {
-            if (!bar) return;
-            if (index < currentIndex) {
-                bar.style.transform = "scaleX(1)";
-            } else if (index > currentIndex) {
-                bar.style.transform = "scaleX(0)";
-            } else {
-                bar.style.transform = `scaleX(${progress / 100})`;
-            }
-        });
+    // --- Timer control ---
+
+    const stopProgressTimer = useCallback(() => {
+        if (progressTimerRef.current !== undefined) {
+            clearInterval(progressTimerRef.current);
+            progressTimerRef.current = undefined;
+        }
     }, []);
 
-    const goToSlide = useCallback(async (index: number) => {
+    // --- Navigation ---
+
+    const goToSlide = useCallback((index: number) => {
+        stopProgressTimer();
+
         const safeIndex = Math.max(0, Math.min(index, STORIES_DATA.length - 1));
         if (safeIndex === activeIndexRef.current && !isAnimatingRef.current) return;
 
@@ -61,70 +68,98 @@ export function MobileStoryCarousel() {
         setActiveIndex(safeIndex);
 
         progressRef.current = 0;
-        updateProgressBars(safeIndex, 0);
 
-        await controls.start({
-            x: `-${safeIndex * slidePercent}%`,
-            transition: { type: "tween", ease: [0.25, 0.1, 0.25, 1], duration: SLIDE_TRANSITION },
+        // Reset all progress bars: completed stories at 100%, the rest at 0
+        progressBarsRef.current.forEach((bar, idx) => {
+            if (!bar) return;
+            if (idx < safeIndex) {
+                bar.style.transform = "scaleX(1)";
+            } else {
+                bar.style.transform = "scaleX(0)";
+            }
         });
 
-        isAnimatingRef.current = false;
-        lastTimeRef.current = performance.now();
-        isPausedRef.current = false;
-    }, [controls, slidePercent, updateProgressBars]);
+        // Use animation frame for the slide transition, then resume timer
+        controls.start({
+            x: `-${safeIndex * slidePercent}%`,
+            transition: { type: "tween", ease: [0.25, 0.1, 0.25, 1], duration: SLIDE_TRANSITION },
+        }).then(() => {
+            if (!isMountedRef.current) return;
+            isAnimatingRef.current = false;
+            isPausedRef.current = false;
+            startProgressTimerRef.current();
+        });
+    }, [controls, slidePercent, stopProgressTimer]);
 
-    // Animation loop — uses ref for activeIndex to avoid re-creating
-    const animateRef = useCallback((time: number) => {
-        if (!lastTimeRef.current) lastTimeRef.current = time;
-        const deltaTime = Math.min(time - lastTimeRef.current, 100); // clamp to avoid jumps
-        lastTimeRef.current = time;
-
-        if (!isPausedRef.current && !isAnimatingRef.current) {
-            const addedProgress = (deltaTime / STORY_DURATION) * 100;
-            progressRef.current += addedProgress;
-
-            if (progressRef.current >= 100) {
-                progressRef.current = 100;
-                const currentIdx = activeIndexRef.current;
-                if (currentIdx < STORIES_DATA.length - 1) {
-                    goToSlide(currentIdx + 1);
-                } else {
-                    router.push("/");
-                }
-            }
-
-            const currentIdx = activeIndexRef.current;
-            if (progressBarsRef.current[currentIdx]) {
-                progressBarsRef.current[currentIdx]!.style.transform = `scaleX(${progressRef.current / 100})`;
-            }
+    // advanceToNext must be defined AFTER goToSlide to avoid stale closure
+    const advanceToNext = useCallback(() => {
+        const currentIdx = activeIndexRef.current;
+        if (currentIdx < STORIES_DATA.length - 1) {
+            goToSlide(currentIdx + 1);
+        } else {
+            router.push("/");
         }
-
-        requestRef.current = requestAnimationFrame(animateRef);
     }, [goToSlide, router]);
 
-    useEffect(() => {
-        lastTimeRef.current = performance.now();
-        requestRef.current = requestAnimationFrame(animateRef);
-        return () => cancelAnimationFrame(requestRef.current);
-    }, [animateRef]);
+    // Keep ref in sync so startProgressTimer can call advanceToNext without creating a circular dep
+    const advanceToNextRef = useRef(advanceToNext);
+    advanceToNextRef.current = advanceToNext;
 
-    // Reset progress bars when activeIndex changes
-    useEffect(() => {
-        updateProgressBars(activeIndex, progressRef.current);
-    }, [activeIndex, updateProgressBars]);
+    // startProgressTimer uses ref to call advanceToNext, avoiding circular dependency
+    const startProgressTimer = useCallback(() => {
+        stopProgressTimer();
 
-    // Pointer Events for tap navigation
+        const incrementPerTick = (PROGRESS_INTERVAL / STORY_DURATION) * 100;
+
+        progressTimerRef.current = setInterval(() => {
+            if (!isPausedRef.current && !isAnimatingRef.current) {
+                progressRef.current = Math.min(progressRef.current + incrementPerTick, 100);
+
+                const bar = progressBarsRef.current[activeIndexRef.current];
+                if (bar) {
+                    bar.style.transform = `scaleX(${progressRef.current / 100})`;
+                }
+
+                if (progressRef.current >= 100) {
+                    stopProgressTimer();
+                    advanceToNextRef.current();
+                }
+            }
+        }, PROGRESS_INTERVAL);
+    }, [stopProgressTimer]);
+
+    // Keep ref in sync so goToSlide can call startProgressTimer without creating a circular dep
+    startProgressTimerRef.current = startProgressTimer;
+
+    // Start timer on mount, cleanup on unmount
+    useEffect(() => {
+        startProgressTimer();
+        return stopProgressTimer;
+    }, [startProgressTimer, stopProgressTimer]);
+
+    // Pause/resume on visibility change (tab hidden = pause)
+    useEffect(() => {
+        const onVisibility = () => {
+            if (document.hidden) {
+                isPausedRef.current = true;
+            } else {
+                if (!isAnimatingRef.current) {
+                    isPausedRef.current = false;
+                }
+            }
+        };
+        document.addEventListener("visibilitychange", onVisibility);
+        return () => document.removeEventListener("visibilitychange", onVisibility);
+    }, []);
+
+    // --- Pointer / touch handling ---
+
     const handlePointerDown = (e: React.PointerEvent) => {
         isPausedRef.current = true;
         touchStartRef.current = { x: e.clientX, y: e.clientY, time: Date.now() };
     };
 
     const handlePointerUp = (e: React.PointerEvent) => {
-        const currentIdx = activeIndexRef.current;
-        if (currentIdx < STORIES_DATA.length - 1 || progressRef.current < 100) {
-            isPausedRef.current = false;
-        }
-
         if (!touchStartRef.current) return;
 
         const touchEnd = { x: e.clientX, y: e.clientY, time: Date.now() };
@@ -133,24 +168,43 @@ export function MobileStoryCarousel() {
         const dt = touchEnd.time - touchStartRef.current.time;
         touchStartRef.current = null;
 
+        const currentIdx = activeIndexRef.current;
+
         // Tap detection: fast tap with minimal movement
         if (dt < 200 && Math.abs(dx) < 15 && Math.abs(dy) < 15) {
             const width = window.innerWidth;
             if (touchEnd.x < width * 0.3) {
-                // Left 30%: go back
-                if (currentIdx > 0) goToSlide(currentIdx - 1);
-                else progressRef.current = 0;
+                if (currentIdx > 0) {
+                    goToSlide(currentIdx - 1);
+                } else {
+                    progressRef.current = 0;
+                    const bar = progressBarsRef.current[0];
+                    if (bar) bar.style.transform = "scaleX(0)";
+                    isPausedRef.current = false;
+                }
             } else {
-                // Right 70%: go forward
-                if (currentIdx < STORIES_DATA.length - 1) goToSlide(currentIdx + 1);
-                else router.push("/");
+                if (currentIdx < STORIES_DATA.length - 1) {
+                    goToSlide(currentIdx + 1);
+                } else {
+                    router.push("/");
+                }
+            }
+            return;
+        }
+
+        // Not a tap — resume timer if not on last slide or progress not complete
+        if (currentIdx < STORIES_DATA.length - 1 || progressRef.current < 100) {
+            if (!isAnimatingRef.current) {
+                isPausedRef.current = false;
             }
         }
     };
 
     const handlePointerCancel = () => {
-        isPausedRef.current = false;
         touchStartRef.current = null;
+        if (!isAnimatingRef.current) {
+            isPausedRef.current = false;
+        }
     };
 
     // Horizontal swipe navigation
@@ -159,11 +213,9 @@ export function MobileStoryCarousel() {
         const currentIdx = activeIndexRef.current;
 
         if (offset.x < -40 || velocity.x < -300) {
-            // Swipe left → next
             if (currentIdx < STORIES_DATA.length - 1) goToSlide(currentIdx + 1);
             else router.push("/");
         } else if (offset.x > 40 || velocity.x > 300) {
-            // Swipe right → prev
             if (currentIdx > 0) goToSlide(currentIdx - 1);
             else {
                 controls.start({
@@ -172,7 +224,6 @@ export function MobileStoryCarousel() {
                 });
             }
         } else {
-            // Snap back
             controls.start({
                 x: `-${currentIdx * slidePercent}%`,
                 transition: { type: "tween", ease: [0.25, 0.1, 0.25, 1], duration: SLIDE_TRANSITION },

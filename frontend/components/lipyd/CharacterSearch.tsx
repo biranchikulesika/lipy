@@ -43,7 +43,7 @@ export default function CharacterSearch({ onSelect, selected, onStart, startLabe
           onChange={(e) => setQ(e.target.value)}
           onFocus={() => onFocusChange?.(true)}
           onBlur={() => onFocusChange?.(false)}
-          className="w-full rounded-xl border border-verdigris-300 border-verdigris-700 bg-white bg-verdigris-950 px-4 py-2.5 text-sm text-slate-900 text-white outline-none transition focus:border-verdigris-400 focus:border-verdigris-600 focus:ring-2 focus:ring-verdigris-900/5 focus:ring-white/5"
+          className="w-full rounded-xl border border-verdigris-700 bg-verdigris-950 px-4 py-2.5 text-sm text-white outline-none transition focus:border-verdigris-600 focus:ring-2 focus:ring-white/5"
           placeholder="Search character (e.g. CONS_K, VOW_A)..."
           aria-label="Search character"
         />
@@ -55,7 +55,7 @@ export default function CharacterSearch({ onSelect, selected, onStart, startLabe
               try { onSelect(null); } catch (e) { }
               try { inputRef.current && inputRef.current.focus(); } catch (e) { }
             }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-slate-500 hover:text-slate-600 hover:text-slate-300 font-bold"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 font-bold"
             aria-label="Clear search"
             title="Clear"
           >
@@ -73,18 +73,18 @@ export default function CharacterSearch({ onSelect, selected, onStart, startLabe
                 onSelect(s);
                 setQ('');
               }}
-              className="rounded-xl border border-verdigris-900/5 border-white/5 bg-verdigris-500/5 bg-white/5 p-2 text-center transition hover:bg-verdigris-500/15 hover:bg-white/10"
+              className="rounded-xl border border-white/5 bg-white/5 p-2 text-center transition hover:bg-white/10"
               title={`Select ${s.id}`}
             >
-              <div className="text-xl font-bold text-slate-900 text-white">{s.char}</div>
-              <div className="mt-0.5 text-[9px] uppercase font-bold tracking-wider text-slate-400 text-slate-500">{s.id}</div>
+              <div className="text-xl font-bold text-white">{s.char}</div>
+              <div className="mt-0.5 text-[9px] uppercase font-bold tracking-wider text-slate-500">{s.id}</div>
             </button>
           ))}
         </div>
       )}
       {onStart && (
         <div className="mt-3">
-          <button className="w-full rounded-xl bg-gradient-to-r from-verdigris-600 to-verdigris-700 hover:from-verdigris-700 hover:to-verdigris-800 from-verdigris-500 to-verdigris-600 hover:from-verdigris-600 hover:to-verdigris-700 py-3 text-sm font-bold text-white transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none shadow-sm hover:shadow group border border-verdigris-600/10" onClick={() => onStart()} disabled={!selected}>
+          <button className="w-full rounded-xl bg-gradient-to-r from-verdigris-500 to-verdigris-600 hover:from-verdigris-600 hover:to-verdigris-700 py-3 text-sm font-bold text-white transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none shadow-sm hover:shadow group border border-verdigris-600/10" onClick={() => onStart()} disabled={!selected}>
             <span>{startLabel}</span>
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="9 18 15 12 9 6" />

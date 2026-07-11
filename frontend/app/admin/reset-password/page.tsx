@@ -143,7 +143,7 @@ function ResetPasswordContent() {
           className="w-full max-w-md bg-[#0A0A0A] border border-stone-900 rounded-2xl p-6 md:p-8 shadow-sm flex flex-col items-center space-y-5 text-center"
         >
           <div className="flex items-center gap-1.5">
-            <Logo className="text-lg font-bold" />
+            <Logo />
           </div>
           <div className="p-3 rounded-full bg-amber-950/20 border border-amber-900/40">
             <ShieldAlert className="w-6 h-6 text-amber-400" />
@@ -184,7 +184,7 @@ function ResetPasswordContent() {
           className="w-full max-w-md bg-[#0A0A0A] border border-stone-900 rounded-2xl p-6 md:p-8 shadow-sm flex flex-col items-center space-y-5 text-center"
         >
           <div className="flex items-center gap-1.5">
-            <Logo className="text-lg font-bold" />
+            <Logo />
           </div>
           <div className="p-3 rounded-full bg-emerald-950/20 border border-emerald-900/40">
             <CircleCheckBig className="w-6 h-6 text-emerald-400" />
@@ -216,7 +216,7 @@ function ResetPasswordContent() {
       >
         <div className="flex flex-col space-y-2">
           <div className="flex items-center gap-1.5 mb-1">
-            <Logo className="text-lg font-bold" />
+            <Logo />
           </div>
           <Link
             href="/admin/login"

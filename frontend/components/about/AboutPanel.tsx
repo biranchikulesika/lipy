@@ -98,7 +98,7 @@ export function AboutPanel() {
 	return (
 		<main className="w-full h-[calc(100dvh-4.5rem)] flex bg-transparent overflow-hidden">
 			{/* PowerPoint Sidebar Sorter - Left Side */}
-			<aside className="hidden lg:flex w-72 border-r border-verdigris-200/50 border-white/5 bg-[#0b1917]/20 backdrop-blur-md flex-shrink-0 flex-col justify-start p-6 pt-16 xl:pt-20">
+			<aside className="hidden lg:flex w-72 border-r border-white/5 bg-[#0b1917]/20 backdrop-blur-md flex-shrink-0 flex-col justify-start p-6 pt-16 xl:pt-20">
 				<nav className="space-y-2">
 					{SLIDES.map((slide, idx) => (
 						<button
@@ -143,7 +143,7 @@ export function AboutPanel() {
 						<div className="grid lg:grid-cols-12 gap-8 items-center my-auto">
 							<div className="lg:col-span-7 space-y-6">
 								<h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight flex flex-wrap items-center gap-3">
-									Meet <Logo className="text-4xl sm:text-5xl lg:text-6xl" />
+									Meet <Logo size="xl" />
 								</h1>
 
 								<p className="text-base sm:text-lg leading-relaxed text-slate-400 max-w-xl">
@@ -199,7 +199,7 @@ export function AboutPanel() {
 									<Database className="h-12 w-12" />
 								</div>
 								<h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight flex flex-wrap items-center gap-2">
-									<Logo className="text-3xl sm:text-4xl lg:text-5xl" /> Dataset Collection
+									<Logo size="lg" /> Dataset Collection
 								</h2>
 								<p className="text-sm sm:text-base leading-relaxed text-slate-400">
 									Crowdsourcing odia handwriting samples through LiPyD.
@@ -209,7 +209,7 @@ export function AboutPanel() {
 							{/* Right: Unified Data Collection Pipeline Diagram */}
 							<div className="lg:col-span-7 w-full p-6 border border-white/5 rounded-3xl bg-[#071312]/30 backdrop-blur-md shadow-lg flex flex-col justify-between h-[52vh] max-h-[420px] relative overflow-hidden">
 								{/* Tab Header */}
-								<div className="flex justify-between items-center border-b border-verdigris-550/10 border-white/5 pb-3 mb-4">
+								<div className="flex justify-between items-center border-b border-white/5 pb-3 mb-4">
 									<div className="flex items-center gap-1.5">
 										<span className="w-2 h-2 rounded-full bg-verdigris-500/80" />
 										<span className="w-2 h-2 rounded-full bg-verdigris-400/80" />
@@ -239,7 +239,7 @@ export function AboutPanel() {
 													<div className="truncate"><span className="text-slate-400">mode:</span> "mixed-random"</div>
 												</div>
 											</div>
-											<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-white border-slate-950 shadow animate-pulse mt-auto mb-5" />
+											<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mt-auto mb-5" />
 											<div className="h-4" />
 										</div>
 
@@ -251,7 +251,7 @@ export function AboutPanel() {
 										{/* Step 2: Donate Samples (Bottom-weighted) */}
 										<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
 											<div className="h-4" />
-											<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-white border-slate-950 shadow animate-pulse mb-auto mt-5" />
+											<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mb-auto mt-5" />
 											<div className="flex flex-col items-center justify-center h-[185px] w-full p-3 gap-2.5 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm">
 												<div className="text-sm lg:text-base font-black text-white leading-none">
 													Drawing Canvas
@@ -286,12 +286,12 @@ export function AboutPanel() {
 													Synced to DB
 												</div>
 												<div className="w-full max-w-[155px] h-[95px] text-left bg-verdigris-950/20 p-2.5 rounded-lg border border-verdigris-900/5 flex flex-col justify-center space-y-0.5 font-mono text-[9px] text-slate-350 leading-tight">
-													<div className="font-bold text-slate-100 text-[10.5px] border-b border-white/5 pb-0.5 mb-1 uppercase tracking-wide">AWS S3 Storage</div>
-													<div className="truncate"><span className="text-slate-400">table:</span> "samples"</div>
-													<div className="truncate"><span className="text-slate-400">path:</span> "s3_image_path"</div>
+													<div className="font-bold text-slate-100 text-[10.5px] border-b border-white/5 pb-0.5 mb-1 uppercase tracking-wide">Supabase Storage</div>
+													<div className="truncate"><span className="text-slate-400">table:</span> "lipy_samples"</div>
+													<div className="truncate"><span className="text-slate-400">path:</span> "storage_path"</div>
 												</div>
 											</div>
-											<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-white border-slate-950 shadow animate-pulse mt-auto mb-5" />
+											<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mt-auto mb-5" />
 											<div className="h-4" />
 										</div>
 									</div>
@@ -327,14 +327,14 @@ export function AboutPanel() {
 									Model Training
 								</h2>
 								<p className="text-sm sm:text-base leading-relaxed text-slate-400">
-									Deep Convolutional networks trained on normalized 64x64 matrices.
+									EfficientNetB0 trained on 64×64 images from the Hugging Face dataset.
 								</p>
 							</div>
 
 							{/* Right: High-Fidelity Wave Infographic Timeline */}
 							<div className="lg:col-span-7 w-full p-5 border border-white/5 rounded-3xl bg-[#071312]/30 backdrop-blur-md shadow-lg flex flex-col justify-between h-[52vh] max-h-[420px] relative overflow-hidden">
 								{/* Tab Header */}
-								<div className="flex justify-between items-center border-b border-verdigris-550/10 border-white/5 pb-2 mb-4">            <span className="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-widest">
+								<div className="flex justify-between items-center border-b border-white/5 pb-2 mb-4">            <span className="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-widest">
 										Model Training Pipeline (L.ipynb)
 									</span>
 									<span className="px-2 py-0.5 rounded-full bg-verdigris-500/10 text-verdigris-400 text-[9px] font-mono font-bold">
@@ -353,9 +353,9 @@ export function AboutPanel() {
 										<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
 											<div className="flex flex-col justify-center h-[145px] w-full p-3 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm space-y-1">
 												<div className="text-sm font-black text-white leading-tight">Download DB</div>
-												<p className="text-[10.5px] lg:text-xs text-slate-400 leading-relaxed mt-1">Downloaded DB and filtered invalid entries.</p>
+												<p className="text-[10.5px] lg:text-xs text-slate-400 leading-relaxed mt-1">Downloaded dataset from Hugging Face and filtered valid classes.</p>
 											</div>
-											<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-white border-slate-950 shadow animate-pulse mt-auto mb-5" />
+											<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mt-auto mb-5" />
 											<div className="h-4" />
 										</div>
 
@@ -367,7 +367,7 @@ export function AboutPanel() {
 										{/* Step 2: Drive Upload (Bottom-weighted) */}
 										<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
 											<div className="h-4" />
-											<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-white border-slate-950 shadow animate-pulse mb-auto mt-5" />
+											<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mb-auto mt-5" />
 											<div className="flex flex-col justify-center h-[145px] w-full p-3 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm space-y-1">
 												<div className="text-sm font-black text-white leading-tight">Drive Upload</div>
 												<p className="text-[10.5px] lg:text-xs text-slate-400 leading-relaxed mt-1">Cleaned dataset uploaded to Google Drive.</p>
@@ -385,7 +385,7 @@ export function AboutPanel() {
 												<div className="text-sm font-black text-white leading-tight">Colab Import</div>
 												<p className="text-[10.5px] lg:text-xs text-slate-400 leading-relaxed mt-1">Drive dataset imported on Colab kernel.</p>
 											</div>
-											<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-white border-slate-950 shadow animate-pulse mt-auto mb-5" />
+											<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mt-auto mb-5" />
 											<div className="h-4" />
 										</div>
 
@@ -397,10 +397,10 @@ export function AboutPanel() {
 										{/* Step 4: CNN Training (Bottom-weighted) */}
 										<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
 											<div className="h-4" />
-											<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-white border-slate-950 shadow animate-pulse mb-auto mt-5" />
+											<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mb-auto mt-5" />
 											<div className="flex flex-col justify-center h-[145px] w-full p-3 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm space-y-1">
-												<div className="text-sm font-black text-white leading-tight">Train CNN</div>
-												<p className="text-[10.5px] lg:text-xs text-slate-400 leading-relaxed mt-1">Trained deep network and exported weights.</p>
+												<div className="text-sm font-black text-white leading-tight">Train EfficientNetB0</div>
+												<p className="text-[10.5px] lg:text-xs text-slate-400 leading-relaxed mt-1">Trained EfficientNetB0 and exported model weights.</p>
 											</div>
 										</div>
 									</div>
@@ -443,7 +443,7 @@ export function AboutPanel() {
 							{/* Right: High-Fidelity CI/CD Deployment Map */}
 							<div className="lg:col-span-7 w-full p-5 border border-white/5 rounded-3xl bg-[#071312]/30 backdrop-blur-md shadow-lg flex flex-col justify-between h-[52vh] max-h-[420px] relative overflow-hidden">
 								{/* Tab Header */}
-								<div className="flex justify-between items-center border-b border-verdigris-550/10 border-white/5 pb-2 mb-3">            <span className="text-[10px] lg:text-xs font-mono font-bold text-slate-500 uppercase tracking-widest">
+								<div className="flex justify-between items-center border-b border-white/5 pb-2 mb-3">            <span className="text-[10px] lg:text-xs font-mono font-bold text-slate-500 uppercase tracking-widest">
 										CI/CD Deployment Architecture
 									</span>
 									<span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[9px] font-mono font-bold">
@@ -542,7 +542,7 @@ export function AboutPanel() {
 											<div className="text-sm font-black text-white leading-tight">Input Character</div>
 											<p className="text-[10.5px] lg:text-xs text-slate-400 leading-relaxed mt-1">User draws a character on the canvas board or uploads an image.</p>
 										</div>
-										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-white border-slate-950 shadow animate-pulse mt-auto mb-5" />
+										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mt-auto mb-5" />
 										<div className="h-4" />
 									</div>
 
@@ -554,7 +554,7 @@ export function AboutPanel() {
 									{/* Step 2: Preprocessing (Bottom-weighted) */}
 									<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
 										<div className="h-4" />
-										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-white border-slate-950 shadow animate-pulse mb-auto mt-5" />
+										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mb-auto mt-5" />
 										<div className="flex flex-col justify-center h-[145px] w-full p-3 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm space-y-1">
 											<div className="text-sm font-black text-white leading-tight">Preprocessing</div>
 											<p className="text-[10.5px] lg:text-xs text-slate-400 leading-relaxed mt-1">Grayscales, normalizes pixel intensities, and resizes to 64x64 matrix.</p>
@@ -572,7 +572,7 @@ export function AboutPanel() {
 											<div className="text-sm font-black text-white leading-tight">CNN Inference</div>
 											<p className="text-[10.5px] lg:text-xs text-slate-400 leading-relaxed mt-1">Feature maps computed through Conv2D blocks to output class scores.</p>
 										</div>
-										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-white border-slate-950 shadow animate-pulse mt-auto mb-5" />
+										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mt-auto mb-5" />
 										<div className="h-4" />
 									</div>
 
@@ -584,7 +584,7 @@ export function AboutPanel() {
 									{/* Step 4: API Response (Bottom-weighted) */}
 									<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
 										<div className="h-4" />
-										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-white border-slate-950 shadow animate-pulse mb-auto mt-5" />
+										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mb-auto mt-5" />
 										<div className="flex flex-col justify-center h-[145px] w-full p-3 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm space-y-1">
 											<div className="text-sm font-black text-white leading-tight">API Response</div>
 											<p className="text-[10.5px] lg:text-xs text-slate-400 leading-relaxed mt-1">FastAPI backend returns prediction results and confidence values.</p>
@@ -602,7 +602,7 @@ export function AboutPanel() {
 											<div className="text-sm font-black text-white leading-tight">Render Output</div>
 											<p className="text-[10.5px] lg:text-xs text-slate-400 leading-relaxed mt-1">UI maps label keys to Odia glyphs and displays predictions to user.</p>
 										</div>
-										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-white border-slate-950 shadow animate-pulse mt-auto mb-5" />
+										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mt-auto mb-5" />
 										<div className="h-4" />
 									</div>
 								</div>
@@ -655,12 +655,12 @@ export function AboutPanel() {
 											</div>
 											<div className="text-sm lg:text-base font-black text-white leading-none">Handwriting Variability</div>
 											<p className="text-[10.5px] lg:text-xs leading-relaxed text-slate-400 mt-1">Different writers produce characters with varying stroke sizes, shapes, and speeds.</p>
-											<div className="mt-2 pt-2 border-t border-slate-100 border-white/5 flex items-center justify-center gap-2">
+											<div className="mt-2 pt-2 border-t border-white/5 flex items-center justify-center gap-2">
 												<span className="text-xs font-mono text-slate-400 line-through">କ</span>
 												<span className="text-xs font-mono text-verdigris-550 font-bold">କ</span>
 											</div>
 										</div>
-										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-white border-slate-950 shadow animate-pulse mt-auto mb-5" />
+										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mt-auto mb-5" />
 										<div className="h-4" />
 									</div>
 
@@ -672,17 +672,17 @@ export function AboutPanel() {
 									{/* Card 2: Limited Public Datasets (Bottom-weighted) */}
 									<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
 										<div className="h-4" />
-										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-white border-slate-950 shadow animate-pulse mb-auto mt-5" />
+										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mb-auto mt-5" />
 										<div className="flex flex-col justify-center h-[185px] w-full p-4 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm space-y-2">
 											<div className="p-2 bg-verdigris-500/10 text-verdigris-400 rounded-xl w-fit mx-auto">
 												<Database className="h-5 w-5" />
 											</div>
 											<div className="text-sm lg:text-base font-black text-white leading-none">Limited Public Datasets</div>
 											<p className="text-[10.5px] lg:text-xs leading-relaxed text-slate-400 mt-1">Handwritten Odia research lacks large, structured, and standardized repositories.</p>
-											<div className="mt-2 pt-2 border-t border-slate-100 border-white/5 space-y-1 w-full text-left">
+											<div className="mt-2 pt-2 border-t border-white/5 space-y-1 w-full text-left">
 												<div className="flex justify-between text-[8px] font-mono text-slate-500">
 													<span>Dataset Volume</span>
-													<span className="text-verdigris-550 font-bold">1,370+ samples</span>
+													<span className="text-verdigris-550 font-bold">2,002+ samples</span>
 												</div>
 												<div className="h-1 w-full bg-slate-800 rounded-full overflow-hidden">
 													<div className="h-full bg-verdigris-500 w-[65%] rounded-full" />
@@ -704,7 +704,7 @@ export function AboutPanel() {
 											</div>
 											<div className="text-sm lg:text-base font-black text-white leading-none">Character Similarity</div>
 											<p className="text-[10.5px] lg:text-xs leading-relaxed text-slate-400 mt-1">Visual overlaps in character curves make accurate classification highly difficult.</p>
-											<div className="mt-2 pt-2 border-t border-slate-100 border-white/5 flex flex-col items-center justify-center gap-0.5">
+											<div className="mt-2 pt-2 border-t border-white/5 flex flex-col items-center justify-center gap-0.5">
 												<div className="flex gap-2 text-xs font-bold">
 													<span className="text-slate-500">ଭ</span>
 													<span className="text-slate-400 font-mono">≈</span>
@@ -713,7 +713,7 @@ export function AboutPanel() {
 												<span className="text-[7px] font-mono text-red-500 font-bold leading-none">cons_bha ≈ vow_u</span>
 											</div>
 										</div>
-										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-white border-slate-950 shadow animate-pulse mt-auto mb-5" />
+										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mt-auto mb-5" />
 										<div className="h-4" />
 									</div>
 								</div>
@@ -766,11 +766,11 @@ export function AboutPanel() {
 											<div className="p-1.5 bg-verdigris-500/10 text-verdigris-400 rounded-lg w-fit">
 												<Cpu className="h-4 w-4" />
 											</div>
-											<div className="text-2xl lg:text-3xl font-black text-white leading-none">43</div>
+											<div className="text-2xl lg:text-3xl font-black text-white leading-none">41</div>
 											<div className="text-[10px] lg:text-xs font-bold text-slate-500 uppercase tracking-widest leading-none mt-0.5">Classes</div>
-											<p className="text-[10.5px] lg:text-xs leading-relaxed text-slate-400 mt-1 px-1">Includes Odia independent vowels, consonants, and digit symbols.</p>
+											<p className="text-[10.5px] lg:text-xs leading-relaxed text-slate-400 mt-1 px-1">Includes Odia independent vowels and consonant characters.</p>
 										</div>
-										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-white border-slate-950 shadow animate-pulse mt-auto mb-5" />
+										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mt-auto mb-5" />
 										<div className="h-4" />
 									</div>
 
@@ -782,7 +782,7 @@ export function AboutPanel() {
 									{/* Step 2: Samples (Bottom-weighted) */}
 									<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
 										<div className="h-4" />
-										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-white border-slate-950 shadow animate-pulse mb-auto mt-5" />
+										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mb-auto mt-5" />
 										<div className="flex flex-col items-center justify-center h-[145px] w-full p-3 gap-1 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm text-center">
 											<div className="p-1.5 bg-verdigris-500/10 text-verdigris-400 rounded-lg w-fit">
 												<Database className="h-4 w-4" />
@@ -804,11 +804,11 @@ export function AboutPanel() {
 											<div className="p-1.5 bg-verdigris-500/10 text-verdigris-400 rounded-lg w-fit">
 												<Scan className="h-4 w-4" />
 											</div>
-											<div className="text-2xl lg:text-3xl font-black text-white leading-none">CNN</div>
+											<div className="text-2xl lg:text-3xl font-black text-white leading-none">EfficientNetB0</div>
 											<div className="text-[10px] lg:text-xs font-bold text-slate-500 uppercase tracking-widest leading-none mt-0.5">Model Architecture</div>
-											<p className="text-[10.5px] lg:text-xs leading-relaxed text-slate-400 mt-1 px-1">Convolutional Neural Network trained on augmented glyph patterns.</p>
+											<p className="text-[10.5px] lg:text-xs leading-relaxed text-slate-400 mt-1 px-1">EfficientNetB0 trained on augmented handwritten samples.</p>
 										</div>
-										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-white border-slate-950 shadow animate-pulse mt-auto mb-5" />
+										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mt-auto mb-5" />
 										<div className="h-4" />
 									</div>
 
@@ -820,7 +820,7 @@ export function AboutPanel() {
 									{/* Step 4: Development Phase (Bottom-weighted) */}
 									<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
 										<div className="h-4" />
-										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-white border-slate-950 shadow animate-pulse mb-auto mt-5" />
+										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mb-auto mt-5" />
 										<div className="flex flex-col items-center justify-center h-[145px] w-full p-3 gap-1 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm text-center">
 											<div className="p-1.5 bg-verdigris-500/10 text-verdigris-400 rounded-lg w-fit">
 												<Sparkles className="h-4 w-4" />
@@ -882,9 +882,9 @@ export function AboutPanel() {
 											</div>
 											<div className="text-sm lg:text-base font-black text-white leading-tight">Next.js + Tailwind</div>
 											<div className="text-[10px] lg:text-xs font-bold text-slate-500 uppercase tracking-widest leading-none mt-0.5">Frontend Client</div>
-											<p className="text-[10.5px] lg:text-xs leading-relaxed text-slate-400 mt-1 px-1">Provides an interactive drawing canvas and predictions dashboard layout.</p>
+											<p className="text-[10.5px] lg:text-xs leading-relaxed text-slate-400 mt-1 px-1">Next.js frontend deployed on Vercel with canvas input and result dashboard.</p>
 										</div>
-										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-white border-slate-950 shadow animate-pulse mt-auto mb-5" />
+										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mt-auto mb-5" />
 										<div className="h-4" />
 									</div>
 
@@ -896,14 +896,14 @@ export function AboutPanel() {
 									{/* Step 2: Backend (Bottom-weighted) */}
 									<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
 										<div className="h-4" />
-										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-white border-slate-950 shadow animate-pulse mb-auto mt-5" />
+										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mb-auto mt-5" />
 										<div className="flex flex-col items-center justify-center h-[145px] w-full p-3 gap-1 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm text-center">
 											<div className="p-1.5 bg-verdigris-500/10 text-verdigris-400 rounded-lg w-fit">
 												<Server className="h-4 w-4" />
 											</div>
 											<div className="text-sm lg:text-base font-black text-white leading-tight">FastAPI</div>
 											<div className="text-[10px] lg:text-xs font-bold text-slate-500 uppercase tracking-widest leading-none mt-0.5">Backend Engine</div>
-											<p className="text-[10.5px] lg:text-xs leading-relaxed text-slate-400 mt-1 px-1">High-performance REST API handling image requests and running inferences.</p>
+											<p className="text-[10.5px] lg:text-xs leading-relaxed text-slate-400 mt-1 px-1">FastAPI inference service deployed on Azure with Hugging Face model loading.</p>
 										</div>
 									</div>
 
@@ -920,9 +920,9 @@ export function AboutPanel() {
 											</div>
 											<div className="text-sm lg:text-base font-black text-white leading-tight">TensorFlow / Keras</div>
 											<div className="text-[10px] lg:text-xs font-bold text-slate-500 uppercase tracking-widest leading-none mt-0.5">Machine Learning</div>
-											<p className="text-[10.5px] lg:text-xs leading-relaxed text-slate-400 mt-1 px-1">Loads the prediction model bundle and runs network forward inferences.</p>
+											<p className="text-[10.5px] lg:text-xs leading-relaxed text-slate-400 mt-1 px-1">EfficientNetB0 model loaded from Hugging Face Hub via TensorFlow/Keras.</p>
 										</div>
-										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-white border-slate-950 shadow animate-pulse mt-auto mb-5" />
+										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mt-auto mb-5" />
 										<div className="h-4" />
 									</div>
 
@@ -934,14 +934,14 @@ export function AboutPanel() {
 									{/* Step 4: Deployment (Bottom-weighted) */}
 									<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
 										<div className="h-4" />
-										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-white border-slate-950 shadow animate-pulse mb-auto mt-5" />
+										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mb-auto mt-5" />
 										<div className="flex flex-col items-center justify-center h-[145px] w-full p-3 gap-1 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm text-center">
 											<div className="p-1.5 bg-verdigris-500/10 text-verdigris-400 rounded-lg w-fit">
 												<Cloud className="h-4 w-4" />
 											</div>
 											<div className="text-sm lg:text-base font-black text-white leading-tight">Vercel & Azure</div>
 											<div className="text-[10px] lg:text-xs font-bold text-slate-500 uppercase tracking-widest leading-none mt-0.5">Deployment Hosting</div>
-											<p className="text-[10.5px] lg:text-xs leading-relaxed text-slate-400 mt-1 px-1">Auto-deploy architecture synced with GitHub commits for live production.</p>
+											<p className="text-[10.5px] lg:text-xs leading-relaxed text-slate-400 mt-1 px-1">Frontend on Vercel, backend on Azure, datasets on Hugging Face, data on Supabase.</p>
 										</div>
 									</div>
 							</div>
@@ -999,7 +999,7 @@ export function AboutPanel() {
 											<div className="text-[10px] lg:text-xs font-bold text-slate-500 uppercase tracking-widest leading-none mt-0.5">Phase 1</div>
 											<p className="text-[10.5px] lg:text-xs leading-relaxed text-slate-400 mt-1 px-1">Adding complex compound character classes to cover more ligature curves.</p>
 										</div>
-										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-white border-slate-950 shadow animate-pulse mt-auto mb-5" />
+										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mt-auto mb-5" />
 										<div className="h-4" />
 									</div>
 
@@ -1011,7 +1011,7 @@ export function AboutPanel() {
 									{/* Step 2: Phase 2 (Bottom-weighted) */}
 									<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
 										<div className="h-4" />
-										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-white border-slate-950 shadow animate-pulse mb-auto mt-5" />
+										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mb-auto mt-5" />
 										<div className="flex flex-col items-center justify-center h-[145px] w-full p-3 gap-1 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm text-center">
 											<div className="p-1.5 bg-verdigris-500/10 text-verdigris-400 rounded-lg w-fit">
 												<Cpu className="h-4 w-4" />
@@ -1037,7 +1037,7 @@ export function AboutPanel() {
 											<div className="text-[10px] lg:text-xs font-bold text-slate-500 uppercase tracking-widest leading-none mt-0.5">Phase 3</div>
 											<p className="text-[10.5px] lg:text-xs leading-relaxed text-slate-400 mt-1 px-1">Building line segmentation modules to scan whole paragraphs instead of characters.</p>
 										</div>
-										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-white border-slate-950 shadow animate-pulse mt-auto mb-5" />
+										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mt-auto mb-5" />
 										<div className="h-4" />
 									</div>
 
@@ -1049,7 +1049,7 @@ export function AboutPanel() {
 									{/* Step 4: Phase 4 (Bottom-weighted) */}
 									<div className="flex-[2] flex flex-col justify-between items-center text-center h-full py-1">
 										<div className="h-4" />
-										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-white border-slate-950 shadow animate-pulse mb-auto mt-5" />
+										<div className="w-2.5 h-2.5 rounded-full bg-verdigris-500 border-2 border-slate-950 shadow animate-pulse mb-auto mt-5" />
 										<div className="flex flex-col items-center justify-center h-[145px] w-full p-3 gap-1 border border-white/5 rounded-2xl bg-verdigris-950/50 shadow-sm text-center">
 											<div className="p-1.5 bg-verdigris-500/10 text-verdigris-400 rounded-lg w-fit">
 												<Server className="h-4 w-4" />

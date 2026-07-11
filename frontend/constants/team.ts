@@ -35,15 +35,15 @@ export const TEAM_MEMBERS: TeamMember[] = [
   {
     name: "Biranchi Kulesika",
     role: "Technical Lead",
-    description: "Developed the LiPyD dataset contributor platform, trained the LiPy CNN model, built the OCR application, designed the system architecture, and managed deployment workflows.",
+    description: "Developed the LiPyD dataset contributor platform, trained the LiPy EfficientNetB0 model, built the OCR application, designed the system architecture, and managed deployment workflows.",
     contributions: [
-      "CNN model development",
+      "EfficientNetB0 model development",
       "Platform development",
       "Frontend creation",
       "Training pipeline",
       "System architecture"
     ],
-    photoFilename: "biranchi.jpeg",
+    photoFilename: "biranchi.webp",
     social: {
       github: "https://github.com/biranchikulesika",
       linkedin: "https://linkedin.com/in/biranchikulesika",
@@ -62,7 +62,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
       "Manual data filtering",
       "Documentation support"
     ],
-    photoFilename: "baibhab.jpeg",
+    photoFilename: "baibhab.webp",
     social: {
       github: "https://github.com/baibhab911",
     }
@@ -77,7 +77,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
       "Manual data filtering",
       "Documentation support"
     ],
-    photoFilename: "soumya.jpeg",
+    photoFilename: "soumya.webp",
     social: {
       github: "https://github.com/soumyasmitamohapatra2005"
     }
@@ -92,7 +92,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
       "Manual data filtering",
       "Documentation support"
     ],
-    photoFilename: "prajna.jpg",
+    photoFilename: "prajna.webp",
     social: {
       github: "https://github.com/prajnadash73-netizen"
     }

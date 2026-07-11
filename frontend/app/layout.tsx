@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans, Space_Grotesk } from "next/font/google";
 import { Navbar } from "@/components/navigation/Navbar";
+import { RootJsonLd } from "@/components/JsonLd";
 import "./globals.css";
 
 const baseUrl =
@@ -81,7 +82,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "LiPy",
     description:
-      "An open platform for Odia handwritten character recognition, OCR, and dataset contribution.",
+      "LiPy is an open-source platform that uses deep learning to recognize handwritten Odia characters, build a crowdsourced dataset, and advance OCR research.",
     url: "/",
     siteName: "LiPy",
     images: [
@@ -89,7 +90,7 @@ export const metadata: Metadata = {
         url: "/og-ocr.png",
         width: 1200,
         height: 630,
-        alt: "LiPy Odia Handwriting Recognition Workspace",
+        alt: "LiPy Odia handwriting recognition web interface showing a character being analyzed by the deep learning OCR model",
       },
     ],
     locale: "en_US",
@@ -100,7 +101,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "LiPy",
     description:
-      "An open platform for Odia handwritten character recognition, OCR, and dataset contribution.",
+      "LiPy is an open-source platform that uses deep learning to recognize handwritten Odia characters, build a crowdsourced dataset, and advance OCR research.",
     images: ["/og-ocr.png"],
   },
 
@@ -126,6 +127,7 @@ export default function RootLayout({
       <body
         className={`${bodyFont.variable} ${displayFont.variable} ${monoFont.variable} font-sans antialiased`}
       >
+        <RootJsonLd />
         <Navbar />
         {children}
       </body>

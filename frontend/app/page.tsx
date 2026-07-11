@@ -1,22 +1,23 @@
 import { Metadata } from "next";
 import { OcrWorkspace } from "@/components/ocr/OcrWorkspace";
+import { HomeJsonLd } from "@/components/JsonLd";
 
 export const metadata: Metadata = {
   title: "Odia Handwriting Recognition",
 
   description:
-    "Recognize handwritten Odia characters using LiPy's deep learning OCR. Draw, upload, or capture an image to get instant predictions.",
+    "Draw or upload a handwritten Odia character and LiPy's deep learning OCR identifies it right away — free, no signup needed.",
 
   openGraph: {
     title: "Odia Handwriting Recognition",
     description:
-      "Recognize handwritten Odia characters using LiPy's deep learning OCR. Draw, upload, or capture an image to get instant predictions.",
+      "Draw or upload a handwritten Odia character and LiPy's deep learning OCR identifies it right away — free, no signup needed.",
     images: [
       {
         url: "/og-ocr.png",
         width: 1200,
         height: 630,
-        alt: "LiPy Odia Handwriting Recognition Workspace",
+        alt: "LiPy Odia handwriting recognition web interface showing a character being analyzed by the deep learning OCR model",
       },
     ],
   },
@@ -25,7 +26,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Odia Handwriting Recognition",
     description:
-      "Recognize handwritten Odia characters using LiPy's deep learning OCR. Draw, upload, or capture an image to get instant predictions.",
+      "Draw or upload a handwritten Odia character and LiPy's AI identifies it right away — a free OCR tool for everyone, no signup required.",
     images: ["/og-ocr.png"],
   },
 
@@ -35,5 +36,10 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <OcrWorkspace />;
+  return (
+    <>
+      <HomeJsonLd />
+      <OcrWorkspace />
+    </>
+  );
 }

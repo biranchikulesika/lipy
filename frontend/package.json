@@ -11,17 +11,18 @@
   "dependencies": {
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.107.0",
+    "@tailwindcss/postcss": "^4.3.2",
     "dexie": "^4.4.3",
     "file-saver": "^2.0.5",
     "jszip": "^3.10.1",
     "lucide-react": "^0.475.0",
-    "motion": "^12.0.0",
-    "next": "16.2.7",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "motion": "^12.42.2",
+    "next": "16.2.10",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
   },
   "overrides": {
-    "postcss": "8.5.10"
+    "postcss": "8.5.17"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^16.2.10",
@@ -31,9 +32,9 @@
     "@types/react-dom": "^19.2.0",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.39.4",
-    "eslint-config-next": "^16.2.7",
-    "postcss": "8.5.10",
-    "tailwindcss": "^3.4.17",
+    "eslint-config-next": "^16.2.10",
+    "postcss": "8.5.17",
+    "tailwindcss": "^4.3.2",
     "typescript": "^5.7.0"
   }
 }

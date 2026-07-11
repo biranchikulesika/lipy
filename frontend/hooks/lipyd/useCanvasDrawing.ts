@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-export default function useCanvasDrawing(canvasRef: React.RefObject<HTMLCanvasElement | null>, strokeWidth = 4) {
+export default function useCanvasDrawing(canvasRef: React.RefObject<HTMLCanvasElement | null>, strokeWidth = 6) {
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const drawingRef = useRef(false);
 

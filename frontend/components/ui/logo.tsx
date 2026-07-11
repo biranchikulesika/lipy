@@ -1,5 +1,21 @@
-export function Logo({ collapsed = false, suffix = '', className }: { collapsed?: boolean; suffix?: string; className?: string }) {
-  const sizeClass = className || (collapsed ? 'text-[16px]' : 'text-[16px] sm:text-[18px]');
+type LogoSize = 'sm' | 'md' | 'lg' | 'xl';
+
+interface LogoProps {
+  size?: LogoSize;
+  collapsed?: boolean;
+  suffix?: string;
+  className?: string;
+}
+
+const sizeMap: Record<LogoSize, string> = {
+  sm: 'text-sm sm:text-base',
+  md: 'text-xl sm:text-2xl font-bold',
+  lg: 'text-3xl sm:text-5xl font-black',
+  xl: 'text-4xl sm:text-5xl lg:text-6xl font-extrabold',
+};
+
+export function Logo({ size = 'sm', collapsed = false, suffix = '', className }: LogoProps) {
+  const sizeClass = className || sizeMap[size];
   return (
     <span className={`font-display font-bold tracking-[0.02em] transition-all duration-300 text-white ${sizeClass}`}>
       L

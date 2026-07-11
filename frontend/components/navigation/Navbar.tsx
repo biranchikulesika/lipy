@@ -209,6 +209,26 @@ export function Navbar() {
 											</Link>
 										</>
 									)}
+
+									<div className="my-1.5 h-px w-full bg-white/10" />
+
+									<div className="flex items-center justify-center gap-3 px-3 py-2">
+										<Link
+											href="/privacy"
+											className="text-[11px] text-slate-500 hover:text-slate-300 transition-colors"
+											onClick={() => setOpen(false)}
+										>
+											Privacy
+										</Link>
+										<span className="text-slate-700 text-[10px]">•</span>
+										<Link
+											href="/terms"
+											className="text-[11px] text-slate-500 hover:text-slate-300 transition-colors"
+											onClick={() => setOpen(false)}
+										>
+											Terms
+										</Link>
+									</div>
 								</nav>
 							</motion.div>
 						</div>

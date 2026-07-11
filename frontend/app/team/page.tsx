@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { TeamPanel } from "@/components/team/TeamPanel";
+import { TeamJsonLd } from "@/components/JsonLd";
 import { TEAM_MEMBERS } from "@/constants/team";
 import fs from "fs";
 import path from "path";
@@ -17,13 +18,13 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Meet the LiPy Team",
     description:
-      "Meet the students building LiPy, an open academic project for Odia handwritten character recognition.",
+      "Meet the five-member student team from Utkal University building LiPy, an open academic project for Odia handwritten character recognition and OCR.",
     images: [
       {
         url: "/og-team.png",
         width: 1200,
         height: 630,
-        alt: "The LiPy Project Team",
+        alt: "Five student team members from Utkal University behind the LiPy Odia handwritten character recognition project",
       },
     ],
   },
@@ -32,7 +33,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Meet the LiPy Team",
     description:
-      "Meet the students and contributors building LiPy, an open academic project for Odia handwritten character recognition.",
+      "Meet the five-member student team from Utkal University building LiPy, an open academic project for Odia handwritten character recognition and OCR.",
     images: ["/og-team.png"],
   },
 };
@@ -72,9 +73,12 @@ export default function TeamPage() {
   }
 
   return (
-    <TeamPanel
-      validPhotos={validPhotos}
-      members={shuffledMembers}
-    />
+    <>
+      <TeamJsonLd />
+      <TeamPanel
+        validPhotos={validPhotos}
+        members={shuffledMembers}
+      />
+    </>
   );
 }

@@ -14,7 +14,7 @@ function TeamMemberAvatar({ name, photoFilename, validPhotos, className = "h-16 
 	if (!isValidPhoto || error) {
 		return (
 			<div className={`flex shrink-0 items-center justify-center rounded-full bg-white/5 ${className}`}>
-				<span className="text-xl font-bold tracking-tight text-slate-400 text-slate-500">
+				<span className="text-xl font-bold tracking-tight text-slate-500">
 					{name.charAt(0)}
 				</span>
 			</div>
@@ -22,11 +22,12 @@ function TeamMemberAvatar({ name, photoFilename, validPhotos, className = "h-16 
 	}
 
 	return (
-		<div className={`relative flex shrink-0 overflow-hidden rounded-full border border-verdigris-900/10 bg-verdigris-100 border-white/10 bg-verdigris-800 ${className}`}>
+		<div className={`relative flex shrink-0 overflow-hidden rounded-full border border-white/10 bg-verdigris-800 ${className}`}>
 			<Image
 				src={`/team/${photoFilename}`}
 				alt={name}
 				fill
+				sizes="(max-width: 640px) 80px, 96px"
 				className="object-cover"
 				onError={() => setError(true)}
 			/>
@@ -171,7 +172,7 @@ export function TeamPanel({ validPhotos = [], members = TEAM_MEMBERS }: { validP
 						<span className="bg-clip-text text-transparent bg-gradient-to-r from-verdigris-400 to-[#d4a055]">
 							People Behind
 						</span>
-						<Logo className="text-3xl sm:text-5xl lg:text-6xl" />
+						<Logo size="xl" />
 					</h1>
 					<p className="mt-4 max-w-2xl text-sm leading-relaxed text-slate-450 sm:text-base">
 						LiPy is being developed by second-year students of the 5-Year Integrated MCA Programme
@@ -195,7 +196,7 @@ export function TeamPanel({ validPhotos = [], members = TEAM_MEMBERS }: { validP
 					</div>
 				</section>
 
-				<section className="mt-12 pt-12 border-t border-verdigris-900/10 border-white/10 w-full">
+				<section className="mt-12 pt-12 border-t border-white/10 w-full">
 					<div className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-6 w-full scrollbar-none sm:grid sm:grid-cols-3 sm:pb-0 justify-items-center">
 						<div className="flex flex-col items-center text-center p-4 sm:p-6 w-[70vw] max-w-[240px] sm:w-full sm:max-w-[320px] shrink-0 snap-center rounded-[16px] border border-verdigris-900/5 bg-verdigris-950/20 backdrop-blur-md shadow-sm hover:border-verdigris-500/20 transition-all duration-300">
 							<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-verdigris-500/10 text-indigo-400 ring-1 ring-inset ring-verdigris-400/20">

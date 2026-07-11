@@ -11,7 +11,7 @@ import { Trash2, SkipForward, Shuffle, Check } from 'lucide-react';
 
 export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { sessionConfig: any, onSessionConfigChange?: (cfg: any) => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [strokeWidth, setStrokeWidth] = useState(4);
+  const [strokeWidth, setStrokeWidth] = useState(6);
   const [strokePreviewWidth, setStrokePreviewWidth] = useState<number | null>(null);
   const { clearCanvas, getImageBlob } = useCanvasDrawing(canvasRef, strokeWidth);
   const [currentChar, setCurrentChar] = useState<OdiaCharacter | null>(sessionConfig.mode === 'mixed-random' ? null : sessionConfig.selected || odiaCharacters[0]);
@@ -113,8 +113,18 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
       }
       return null;
     };
+    const setCookie = (cname: string, cvalue: string, days = 365) => {
+      const d = new Date();
+      d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
+      document.cookie = `${cname}=${encodeURIComponent(cvalue)};expires=${d.toUTCString()};path=/`;
+    };
     const saved = getCookie('lipy_stroke_width');
-    if (saved) setStrokeWidth(Number(saved) || 16);
+    if (saved) {
+      setStrokeWidth(Number(saved) || 6);
+    } else {
+      // First visit: persist the default (6) so returning users get it
+      setCookie('lipy_stroke_width', '6');
+    }
 
     const onStrokeChange = (e: any) => {
       const next = Number(e?.detail?.strokeWidth);
@@ -262,17 +272,17 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
 
           {/* Target Character Overlay */}
           <div className={`absolute top-3 left-3 lg:top-4 lg:left-4 z-10 flex flex-col items-center justify-center rounded-xl bg-verdigris-800/85 border border-verdigris-700/55 shadow-sm p-1.5 w-14 h-14 lg:w-20 lg:h-20 pointer-events-none backdrop-blur-md transition-opacity duration-150 ${animating ? 'opacity-0' : 'opacity-100'}`}>
-            <span className="text-3xl lg:text-5xl leading-none text-slate-900 text-white font-bold select-none">
+            <span className="text-3xl lg:text-5xl leading-none text-white font-bold select-none">
               {currentChar ? currentChar.char : '…'}
             </span>
-            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-verdigris-800/90 bg-verdigris-200/90 text-white text-slate-900 text-[7px] lg:text-[9px] font-extrabold px-1.5 py-0.5 rounded-full tracking-widest uppercase shadow-sm whitespace-nowrap">
+            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-verdigris-200/90 text-slate-900 text-[7px] lg:text-[9px] font-extrabold px-1.5 py-0.5 rounded-full tracking-widest uppercase shadow-sm whitespace-nowrap">
               {currentChar?.id || 'LOAD'}
             </div>
           </div>
 
           {strokePreviewWidth != null && (
             <div
-              className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-verdigris-900 bg-white shadow-md opacity-30 transition-all duration-75"
+              className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-md opacity-30 transition-all duration-75"
               style={{ width: Math.max(10, strokePreviewWidth * 1.2), height: Math.max(10, strokePreviewWidth * 1.2) }}
             />
           )}
@@ -298,7 +308,7 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
             </button>
             {showStrokePanel && (
               <div className="absolute right-0 mt-2 lg:mt-3 w-[180px] lg:w-[220px] rounded-xl lg:rounded-2xl border border-verdigris-700 bg-verdigris-900 p-3 lg:p-5 shadow-2xl">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 text-slate-400 mb-2 lg:mb-4">Set Stroke Width</div>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2 lg:mb-4">Set Stroke Width</div>
                 <div className="flex items-center gap-3 lg:gap-4">
                   <input
                     type="range"
@@ -352,10 +362,10 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
 
         {/* Compact stats */}
         <div className="flex flex-col items-center justify-center pt-3 lg:pt-4 gap-2">
-          <div className="flex items-center gap-1 w-full max-w-[160px] h-1 bg-verdigris-100 bg-verdigris-800              rounded-full overflow-hidden">
+          <div className="flex items-center gap-1 w-full max-w-[160px] h-1 bg-verdigris-800 rounded-full overflow-hidden">
              <div className="h-full bg-verdigris-400 rounded-full" style={{ width: `${Math.min(100, completed % 100)}%` }} />
           </div>
-          <div className="flex items-center justify-center gap-2 text-[11px] font-bold tracking-widest uppercase text-slate-500 text-slate-400">
+          <div className="flex items-center justify-center gap-2 text-[11px] font-bold tracking-widest uppercase text-slate-400">
             <span>Done: <span className="text-white">{completed}</span></span>
             <span className="opacity-40">•</span>
             <span>Skipped: <span className="text-white">{skipped}</span></span>
