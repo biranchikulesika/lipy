@@ -1,4 +1,4 @@
-﻿import Dexie, { Table } from 'dexie';
+import Dexie, { Table } from 'dexie';
 
 export interface SampleRecord {
   id?: number;
@@ -79,6 +79,11 @@ export class LiPyDatabase extends Dexie {
       contributors: '++id,contributorId,sessionId,[contributorId+sessionId]',
       uploadQueue: 'clientSampleId,contributorId,sessionId,characterId,status,nextAttemptAt,updatedAt',
     });
+    this.version(5).stores({
+      samples: '++id,clientSampleId,characterId,contributorId,sessionId,filename,timestamp,syncStatus,uploadedAt,[characterId+contributorId+sessionId],[contributorId+syncStatus]',
+      contributors: '++id,contributorId,sessionId,[contributorId+sessionId]',
+      uploadQueue: 'clientSampleId,contributorId,sessionId,characterId,status,nextAttemptAt,updatedAt',
+    });
   }
 }
 
@@ -102,13 +107,11 @@ export async function saveSample(sample: Omit<SampleRecord, 'id'>) {
     uploadedAt: sample?.uploadedAt || null,
   };
   const id = await db.samples.add(record);
+  // Session statistics reset per session; lifetime statistics are incremented
+  // only after a sample has been successfully synchronized (see
+  // datasetSyncService.markUploaded -> incrementLifetimeCount).
   try {
-    const devKey = `lipy_device_sample_count_${record.contributorId}`;
     const sessKey = `lipy_session_sample_count_${record.contributorId}_${record.sessionId}`;
-    try {
-      const prevDev = Number(localStorage.getItem(devKey) || 0) || 0;
-      localStorage.setItem(devKey, String(prevDev + 1));
-    } catch (e) { }
     try {
       const prevSess = Number(localStorage.getItem(sessKey) || 0) || 0;
       localStorage.setItem(sessKey, String(prevSess + 1));
@@ -161,6 +164,126 @@ export async function getSampleById(id: number) {
 
 export async function getPendingUploadCount() {
   return db.uploadQueue.count();
+}
+
+/**
+ * Lifetime contribution count helpers.
+ *
+ * The lifetime count represents the total number of samples a contributor has
+ * *synchronized* (uploaded) across all sessions. It is stored in localStorage
+ * under `lipy_device_sample_count_{contributorId}` and is incremented only
+ * after a successful upload (see datasetSyncService.markUploaded). This
+ * ensures the count persists across sessions, only ever increases on sync,
+ * and is cleared by Reset Profile or by clearing browser storage.
+ */
+
+export function getLifetimeCount(contributorId: string): number {
+  if (!contributorId) return 0;
+  try {
+    const key = `lipy_device_sample_count_${String(contributorId).trim()}`;
+    return Number(localStorage.getItem(key) || 0) || 0;
+  } catch (e) {
+    return 0;
+  }
+}
+
+export function incrementLifetimeCount(contributorId: string): number {
+  if (!contributorId) return 0;
+  try {
+    const key = `lipy_device_sample_count_${String(contributorId).trim()}`;
+    const prev = Number(localStorage.getItem(key) || 0) || 0;
+    const next = prev + 1;
+    localStorage.setItem(key, String(next));
+    return next;
+  } catch (e) {
+    return 0;
+  }
+}
+
+export function clearLifetimeCount(contributorId: string) {
+  if (!contributorId) return;
+  try {
+    const key = `lipy_device_sample_count_${String(contributorId).trim()}`;
+    localStorage.removeItem(key);
+  } catch (e) { }
+}
+
+/**
+ * Counts ALL samples in the local IndexedDB for a given contributor (across
+ * all sessions, regardless of sync status).
+ */
+export async function getContributorSampleCount(contributorId: string): Promise<number> {
+  if (!contributorId) return 0;
+  try {
+    const cid = String(contributorId).trim();
+    return await db.samples.where('contributorId').equals(cid).count();
+  } catch (e) {
+    return 0;
+  }
+}
+
+/**
+ * Counts only *uploaded* samples in the local IndexedDB for a given
+ * contributor (across all sessions).  Used to reconcile the displayed
+ * lifetime contribution count so it reflects only successfully synchronized
+ * samples.
+ */
+export async function getUploadedSampleCount(contributorId: string): Promise<number> {
+  if (!contributorId) return 0;
+  try {
+    const cid = String(contributorId).trim();
+    return await db.samples.where({ contributorId: cid, syncStatus: 'uploaded' }).count();
+  } catch (e) {
+    return 0;
+  }
+}
+
+/**
+ * Clears ALL local data associated with a contributor profile:
+ * - Lifetime contribution count (localStorage)
+ * - Session config (localStorage)
+ * - Session sample counts (localStorage)
+ * - Last-sample timestamps (localStorage)
+ * - Scheduler state (localStorage)
+ * - Sample counter keys (localStorage)
+ * - IndexedDB samples, contributors, and uploadQueue tables
+ *
+ * After calling this the contributor profile is fully reset.
+ */
+export async function clearContributorData(contributorId: string) {
+  if (!contributorId) return;
+  const cid = String(contributorId).trim();
+
+  // 1. Remove known localStorage keys for this contributor
+  try {
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && (
+        k.startsWith(`lipy_device_sample_count_${cid}`) ||
+        k.startsWith(`lipy_session_sample_count_${cid}`) ||
+        k.startsWith(`lipy_sample_counter_${cid}`) ||
+        k.startsWith(`lipy_last_sample_ts_${cid}`) ||
+        k.startsWith(`lipy_last_export_ts_${cid}`) ||
+        k.startsWith(`lipy_mixed_scheduler_state_v1_${cid}`)
+      )) {
+        keysToRemove.push(k);
+      }
+    }
+    keysToRemove.forEach((k) => localStorage.removeItem(k));
+  } catch (e) { }
+
+  // 2. Remove session config (global, not contributor-scoped)
+  try { localStorage.removeItem('lipy_session_config'); } catch (e) { }
+
+  // 3. Clear IndexedDB tables for this contributor
+  try {
+    await db.transaction('rw', db.samples, db.contributors, db.uploadQueue, async () => {
+      await db.samples.where('contributorId').equals(cid).delete();
+      await db.contributors.where('contributorId').equals(cid).delete();
+      await db.uploadQueue.where('contributorId').equals(cid).delete();
+    });
+  } catch (e) { }
 }
 
 export default db;

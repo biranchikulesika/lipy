@@ -1,4 +1,4 @@
-import db, { getPendingUploadCount, updateSampleSyncState, SampleRecord } from './storageService';
+import db, { getPendingUploadCount, updateSampleSyncState, SampleRecord, incrementLifetimeCount } from './storageService';
 import { getSupabaseClient, isSupabaseConfigured } from './supabaseClient';
 import { odiaCharacters } from './odiaCharacters';
 import { ensureValidSessionId, isValidContributorName, isValidMode } from './validators';
@@ -286,6 +286,15 @@ async function markUploaded(item: any) {
     });
   }
   await db.uploadQueue.delete(item.clientSampleId);
+
+  // Increment the lifetime contribution count only after a successful upload.
+  // This ensures the lifetime stat reflects *synchronized* samples, not just
+  // locally-saved ones, and survives across sessions.
+  if (item?.contributorId) {
+    try {
+      incrementLifetimeCount(item.contributorId);
+    } catch (e) { }
+  }
 }
 
 async function markFailed(item: any, error: any) {

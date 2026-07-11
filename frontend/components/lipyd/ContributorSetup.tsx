@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import CharacterSearch from './CharacterSearch';
 import { generateSessionId } from '@/lib/lipyd/filenameService';
-import { getAllSamples, saveContributor } from '@/lib/lipyd/storageService';
+import { saveContributor, getLifetimeCount, clearContributorData, getUploadedSampleCount } from '@/lib/lipyd/storageService';
 import { OdiaCharacter } from '@/lib/lipyd/odiaCharacters';
 import { exportDataset } from '@/lib/lipyd/exportService';
 
@@ -76,6 +76,23 @@ export default function ContributorSetup({ onStart, isSearchFocused, onSearchFoc
   useEffect(() => {
     if (!contributorId) {
       try {
+        const savedId = getCookie('lipy_contributorId');
+        if (savedId) {
+          setContributorId(savedId);
+          return;
+        }
+      } catch (e) { }
+      try {
+        const raw = localStorage.getItem('lipy_session_config');
+        if (raw) {
+          const cfg = JSON.parse(raw);
+          if (cfg?.contributorId) {
+            setContributorId(cfg.contributorId);
+            return;
+          }
+        }
+      } catch (e) { }
+      try {
         const id = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `c_${Math.random().toString(36).slice(2, 9)}`;
         setContributorId(id);
       } catch (e) {
@@ -94,24 +111,14 @@ export default function ContributorSetup({ onStart, isSearchFocused, onSearchFoc
       }
 
       try {
-        const devKey = `lipy_device_sample_count_${String(contributorId || '').trim()}`;
-        const cachedDev = Number(localStorage.getItem(devKey) || 0) || 0;
-
-        const samples = await getAllSamples();
-        const dbCount = samples.filter((sample) => {
-          try {
-            const sCid = sample?.contributorId != null ? String(sample.contributorId).trim() : '';
-            const cCid = String(contributorId || '').trim();
-            return sCid && cCid && sCid === cCid;
-          } catch (e) {
-            return false;
-          }
-        }).length;
-
-        const count = Math.max(dbCount, cachedDev);
-        if (count > cachedDev) {
-            try { localStorage.setItem(devKey, String(count)); } catch(e) {}
-        }
+        // Lifetime count = successfully *synchronized* samples (durable across
+        // sessions).  We reconcile the localStorage cache with the IndexedDB
+        // uploaded count so the displayed number stays accurate even if one
+        // source was cleared.  Only uploaded samples count toward the lifetime
+        // total.
+        const cachedLifetime = getLifetimeCount(contributorId);
+        const uploadedCount = await getUploadedSampleCount(contributorId);
+        const count = Math.max(uploadedCount, cachedLifetime);
 
         if (mounted) setDeviceSampleCount(count);
       } catch (e) {
@@ -325,7 +332,7 @@ export default function ContributorSetup({ onStart, isSearchFocused, onSearchFoc
             <div className="text-base text-slate-400 mt-2">{leaveConfirmMsg || 'Clear saved contributor and start over?'}</div>
             <div className="mt-6 flex gap-3 justify-end">
               <button className="rounded-xl border border-verdigris-800 bg-verdigris-900 px-4 py-2 text-sm font-medium text-slate-300 hover:bg-verdigris-800" onClick={() => setShowLeaveConfirm(false)}>Cancel</button>
-              <button className="rounded-xl bg-verdigris-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-verdigris-200" onClick={() => { deleteCookie('lipy_name'); deleteCookie('lipy_contributorId'); setName(''); setContributorId(''); setEditing(true); setShowLeaveConfirm(false); }}>Confirm</button>
+              <button className="rounded-xl bg-verdigris-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-verdigris-200" onClick={() => { deleteCookie('lipy_name'); deleteCookie('lipy_contributorId'); clearContributorData(contributorId); setName(''); setContributorId(''); setEditing(true); setShowLeaveConfirm(false); }}>Confirm</button>
             </div>
           </div>
         </div>
