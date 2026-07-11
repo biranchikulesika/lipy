@@ -9,8 +9,9 @@ import {
   Loader2, ShieldAlert, KeyRound, Link as LinkIcon,
   Check, X, Mail, Shield, Fingerprint,
   Eye, EyeOff, ChevronRight, ChevronLeft, CircleCheck, CircleAlert,
-  Wand2, Lock, Unlink,
+  Wand2, Lock, Unlink, MonitorSmartphone, Globe, MapPin, LogOut,
 } from 'lucide-react';
+import { logSecurityEvent, logActiveSessionIfStale } from '@/app/admin/security-actions';
 
 // ─── Helpers ───
 
@@ -53,16 +54,19 @@ function getBrowserAndOS() {
   let browser = 'Other Browser';
   let os = 'Other OS';
   
-  if (ua.includes('Firefox')) browser = 'Firefox';
-  else if (ua.includes('Chrome')) browser = 'Chrome';
-  else if (ua.includes('Safari')) browser = 'Safari';
-  else if (ua.includes('Edge')) browser = 'Edge';
+  if (ua.includes('Firefox/') && !ua.includes('Seamonkey')) browser = 'Firefox';
+  else if (ua.includes('Edg/')) browser = 'Edge';
+  else if (ua.includes('OPR/') || ua.includes('Opera')) browser = 'Opera';
+  else if (ua.includes('Chrome/')) browser = 'Chrome';
+  else if (ua.includes('Safari/') && !ua.includes('Chrome')) browser = 'Safari';
 
-  if (ua.includes('Windows')) os = 'Windows';
-  else if (ua.includes('Mac OS') || ua.includes('Macintosh')) os = 'macOS';
-  else if (ua.includes('Linux')) os = 'Linux';
+  if (ua.includes('Windows NT 10')) os = 'Windows 11';
+  else if (ua.includes('Windows NT 6.1')) os = 'Windows 7';
+  else if (ua.includes('Windows')) os = 'Windows';
+  else if (ua.includes('Mac OS X')) os = 'macOS';
   else if (ua.includes('Android')) os = 'Android';
   else if (ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
+  else if (ua.includes('Linux')) os = 'Linux';
 
   return { browser, os };
 }
@@ -682,6 +686,7 @@ export function AuthSettings() {
   const [success, setSuccess] = useState<string | null>(null);
   const [pwModalOpen, setPwModalOpen] = useState(false);
   const [pendingUnlinkProvider, setPendingUnlinkProvider] = useState<string | null>(null);
+  const [passkeyCount, setPasskeyCount] = useState(0);
 
   const updateMaxCardHeight = useCallback(() => {
     if (typeof window === 'undefined') return;
@@ -727,41 +732,25 @@ export function AuthSettings() {
     return createClient();
   };
 
-  const fetchSecurityEvents = async (userId: string) => {
+  const fetchSecurityEvents = async (userId: string, email?: string) => {
     try {
       const supabase = getSupabase();
-      const { data, error: err } = await supabase
+      let query = supabase
         .from('security_events')
         .select('*')
-        .eq('user_id', userId)
         .order('created_at', { ascending: false })
         .limit(150);
+
+      if (email) {
+        query = query.or(`user_id.eq.${userId},and(event_type.eq.login_failed,metadata->>'email'.eq.${email})`);
+      } else {
+        query = query.eq('user_id', userId);
+      }
+
+      const { data, error: err } = await query;
       if (!err && data) {
         setSecurityEvents(data);
       }
-    } catch {
-      // Gracefully ignore if database table is not created yet
-    }
-  };
-
-  const logSecurityEvent = async (eventType: string, status: string, userId?: string) => {
-    try {
-      const supabase = getSupabase();
-      const targetUserId = userId || (await supabase.auth.getUser()).data.user?.id;
-      if (!targetUserId) return;
-
-      const details = getBrowserAndOS();
-      const deviceInfo = `${details.browser} on ${details.os}`;
-
-      await supabase.from('security_events').insert({
-        user_id: targetUserId,
-        event_type: eventType,
-        status: status,
-        device_info: deviceInfo,
-        ip_address: '127.0.0.1 (Localhost)',
-      });
-
-      fetchSecurityEvents(targetUserId);
     } catch {
       // Gracefully ignore if database table is not created yet
     }
@@ -794,25 +783,20 @@ export function AuthSettings() {
           setLastSignInAt(user.last_sign_in_at || '');
           setCreatedAt(user.created_at || '');
           
-          await fetchSecurityEvents(user.id);
+          await fetchSecurityEvents(user.id, user.email || undefined);
 
-          // Log active session if no active session log exists for last 12 hours
+          // Fetch registered passkeys
           try {
-            const { data: recentEvents } = await supabase
-              .from('security_events')
-              .select('*')
-              .eq('user_id', user.id)
-              .eq('event_type', 'Active Login Session')
-              .order('created_at', { ascending: false })
-              .limit(1);
+            const { data: passkeys } = await supabase.auth.passkey.list();
+            setPasskeyCount(Array.isArray(passkeys) ? passkeys.length : 0);
+          } catch {
+            setPasskeyCount(0);
+          }
 
-            const hoursSinceLastLog = recentEvents && recentEvents.length > 0
-              ? (Date.now() - new Date(recentEvents[0].created_at).getTime()) / (1000 * 60 * 60)
-              : 999;
-
-            if (hoursSinceLastLog > 12) {
-              await logSecurityEvent('Active Login Session', 'Success', user.id);
-            }
+          // Log active session if no active session log exists for last 12 hours (atomic check+insert)
+          try {
+            const didInsert = await logActiveSessionIfStale(user.id);
+            if (didInsert) fetchSecurityEvents(user.id, user.email || undefined);
           } catch {
             // Ignore if table is missing
           }
@@ -838,6 +822,7 @@ export function AuthSettings() {
         options: { redirectTo: window.location.href },
       });
       if (e) setError(e.message);
+      else logSecurityEvent('provider_link', { metadata: { provider } });
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Failed to link account.');
     }
@@ -857,7 +842,8 @@ export function AuthSettings() {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
           setIdentities(user.identities || []);
-          logSecurityEvent('Provider Unlink (' + identity.provider + ')', 'Success', user.id);
+          await logSecurityEvent('provider_unlink', { metadata: { provider: identity.provider } });
+          fetchSecurityEvents(user.id, user.email || undefined);
         }
       }
     } catch (e: unknown) {
@@ -886,12 +872,30 @@ export function AuthSettings() {
     setSuccess(null);
     try {
       const supabase = getSupabase();
-      if (!supabase.auth.passkey) throw new Error('Passkey API is not available in this SDK version.');
-      const { error: e } = await (supabase.auth.passkey as any).register();
-      if (e) setError(e.message);
-      else setSuccess('Passkey registered successfully!');
+      const { error: e } = await supabase.auth.registerPasskey();
+      if (e) {
+        setError(e.message || 'Passkey registration failed.');
+      } else {
+        setSuccess('Passkey registered successfully!');
+        try {
+          const { data: passkeys } = await supabase.auth.passkey.list();
+          setPasskeyCount(Array.isArray(passkeys) ? passkeys.length : 0);
+        } catch {
+          setPasskeyCount((c) => c + 1);
+        }
+      }
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Passkey registration failed or is unsupported.');
+      if (e instanceof Error) {
+        if (e.name === 'NotAllowedError') {
+          setError('Passkey registration was cancelled.');
+        } else if (e.message.includes('does not support WebAuthn')) {
+          setError('Your browser does not support passkeys.');
+        } else {
+          setError(e.message || 'Passkey registration failed.');
+        }
+      } else {
+        setError('Passkey registration failed or is unsupported.');
+      }
     } finally {
       setLoading(false);
     }
@@ -911,7 +915,7 @@ export function AuthSettings() {
           const supabase = getSupabase();
           supabase.auth.getUser().then((res: any) => {
             const user = res.data?.user;
-            if (user) fetchSecurityEvents(user.id);
+            if (user) fetchSecurityEvents(user.id, user.email || undefined);
           });
         }}
       />
@@ -999,11 +1003,15 @@ export function AuthSettings() {
                     </span>
                   </div>
                   <div className="flex items-center gap-2.5">
-                    <span className="w-5 h-5 rounded-md flex items-center justify-center shrink-0 border bg-stone-900/30 border-stone-800 text-stone-400">
-                      <X className="w-3.5 h-3.5" />
+                    <span className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 border ${
+                      passkeyCount > 0
+                        ? 'bg-emerald-950/20 border-emerald-900/40 text-emerald-400'
+                        : 'bg-stone-900/30 border-stone-800 text-stone-400'
+                    }`}>
+                      {passkeyCount > 0 ? <Check className="w-3.5 h-3.5" /> : <X className="w-3.5 h-3.5" />}
                     </span>
-                    <span className="text-stone-400 font-medium">
-                      Passkey Registered
+                    <span className={passkeyCount > 0 ? 'text-stone-300 font-medium' : 'text-stone-400 font-medium'}>
+                      Passkey{passkeyCount > 1 ? 's' : ''} Registered{passkeyCount > 0 ? ` (${passkeyCount})` : ''}
                     </span>
                   </div>
                 </div>
@@ -1121,6 +1129,57 @@ export function AuthSettings() {
           const effectiveCurrentPage = Math.min(Math.max(1, currentPage), Math.max(1, totalPages));
           const paginatedEvents = securityEvents.slice((effectiveCurrentPage - 1) * maxRows, effectiveCurrentPage * maxRows);
 
+          const formatEventType = (type: string) => {
+            const labels: Record<string, string> = {
+              login: 'Login',
+              logout: 'Logout',
+              auto_logout: 'Auto-Logged Out',
+              login_failed: 'Failed Login',
+              oauth_login: 'OAuth Login',
+              passkey_login: 'Passkey Login',
+              passkey_register: 'Passkey Register',
+              password_change: 'Password Changed',
+              password_reset: 'Password Reset',
+              provider_link: 'Provider Linked',
+              provider_unlink: 'Provider Unlinked',
+              active_session: 'Active Session',
+            };
+            return labels[type] || type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+          };
+
+          const getAuthMethodIcon = (event: { event_type: string; metadata?: Record<string, unknown> }) => {
+            const method = event.metadata?.method as string | undefined;
+            const provider = event.metadata?.provider as string | undefined;
+
+            if (event.event_type === 'oauth_login' || event.event_type === 'provider_link' || event.event_type === 'provider_unlink') {
+              if (provider === 'google') return <GoogleIcon className="w-3.5 h-3.5 shrink-0" />;
+              if (provider === 'github') return <GitHubIcon className="w-3.5 h-3.5 shrink-0" />;
+            }
+
+            if (method === 'passkey' || event.event_type === 'passkey_login' || event.event_type === 'passkey_register') {
+              return <Fingerprint className="w-3.5 h-3.5 shrink-0 text-violet-400" />;
+            }
+
+            if (event.event_type === 'active_session') {
+              return <Shield className="w-3.5 h-3.5 shrink-0 text-emerald-400" />;
+            }
+
+            if (event.event_type === 'logout') {
+              return <LogOut className="w-3.5 h-3.5 shrink-0 text-stone-400" />;
+            }
+
+            if (event.event_type === 'auto_logout') {
+              return <LogOut className="w-3.5 h-3.5 shrink-0 text-amber-400" />;
+            }
+
+            if (event.event_type === 'password_change' || event.event_type === 'password_reset') {
+              return <Lock className="w-3.5 h-3.5 shrink-0 text-amber-400" />;
+            }
+
+            // email/password login (default)
+            return <KeyRound className="w-3.5 h-3.5 shrink-0 text-blue-400" />;
+          };
+
           return (
             <motion.div
               initial={{ opacity: 0, y: 12 }}
@@ -1161,26 +1220,30 @@ export function AuthSettings() {
               </div>
 
               <div className="overflow-auto flex-1 min-h-0 w-full">
-                <table className="w-full text-left border-collapse text-sm min-w-[600px]">
+                <table className="w-full text-left border-collapse text-sm min-w-[700px]">
                   <thead>
                     <tr className="border-b border-stone-850 text-xs font-bold uppercase tracking-wider text-stone-500">
-                      <th className="pb-3 pr-4">Event Type</th>
+                      <th className="pb-3 pr-4">Event</th>
                       <th className="pb-3 px-4">Status</th>
-                      <th className="pb-3 px-4">Device & OS</th>
-                      <th className="pb-3 px-4">IP Address</th>
+                      <th className="pb-3 px-4"><span className="flex items-center gap-1"><Globe className="w-3 h-3" />Browser</span></th>
+                      <th className="pb-3 px-4"><span className="flex items-center gap-1"><MonitorSmartphone className="w-3 h-3" />Device</span></th>
+                      <th className="pb-3 px-4"><span className="flex items-center gap-1"><MapPin className="w-3 h-3" />IP Address</span></th>
                       <th className="pb-3 pl-4">Date & Time</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-stone-850/60">
                     {paginatedEvents.length > 0 ? (
                       paginatedEvents.map((event) => {
-                        const isSuccess = event.status.toLowerCase() === 'success';
-                        const isFailed = event.status.toLowerCase().startsWith('failed');
-                        const isCurrentSession = event.event_type === 'Active Login Session' && (Date.now() - new Date(event.created_at).getTime()) < 10 * 60 * 1000;
+                        const isSuccess = event.status?.toLowerCase() === 'success';
+                        const isFailed = event.status?.toLowerCase().startsWith('failed');
+                        const isAutoExpired = event.status === 'Auto-Expired';
+                        const isCurrentSession = event.event_type === 'active_session' && (Date.now() - new Date(event.created_at).getTime()) < 10 * 60 * 1000;
                         
                         let badgeBg = 'bg-stone-850 border-stone-750 text-stone-400';
                         if (isCurrentSession) {
                           badgeBg = 'bg-emerald-950/20 border-emerald-900/40 text-emerald-400';
+                        } else if (isAutoExpired) {
+                          badgeBg = 'bg-amber-950/20 border-amber-900/40 text-amber-400';
                         } else if (isSuccess) {
                           badgeBg = 'bg-blue-950/20 border-blue-900/40 text-blue-400';
                         } else if (isFailed) {
@@ -1189,24 +1252,30 @@ export function AuthSettings() {
 
                         return (
                           <tr key={event.id} className="text-stone-100">
-                            <td className="py-3 pr-4 flex items-center gap-2">
-                              {event.event_type === 'Active Login Session' && (
-                                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                              )}
-                              <span className="font-semibold text-stone-100">{event.event_type}</span>
+                            <td className="py-3 pr-4">
+                              <div className="flex items-center gap-2">
+                                {isCurrentSession && (
+                                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                                )}
+                                {getAuthMethodIcon(event)}
+                                <span className="font-semibold text-stone-100">{formatEventType(event.event_type)}</span>
+                              </div>
                             </td>
                             <td className="py-3 px-4">
                               <span className={`inline-flex items-center px-2 py-0.5 rounded border text-xs font-semibold ${badgeBg}`}>
                                 {isCurrentSession ? 'Current Session' : event.status}
                               </span>
                             </td>
-                            <td className="py-3 px-4 text-stone-300 font-medium">
-                              {event.device_info || 'Unknown Device'}
+                            <td className="py-3 px-4 text-stone-300 font-medium text-xs">
+                              {event.browser || '—'}
+                            </td>
+                            <td className="py-3 px-4 text-stone-300 font-medium text-xs">
+                              {event.os || '—'}
                             </td>
                             <td className="py-3 px-4 text-stone-400 font-mono text-xs">
                               {event.ip_address || 'Unknown IP'}
                             </td>
-                            <td className="py-3 pl-4 text-stone-500">
+                            <td className="py-3 pl-4 text-stone-500 text-xs">
                               {new Date(event.created_at).toLocaleString()}
                             </td>
                           </tr>

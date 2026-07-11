@@ -11,6 +11,7 @@ import { Logo } from '@/components/ui/logo';
 import { useFakeTyping } from '@/hooks/use-fake-typing';
 import { useAuthSequence } from '@/hooks/use-auth-sequence';
 import { authenticateUser } from './actions';
+import { logSecurityEvent } from '../security-actions';
 
 
 
@@ -169,6 +170,7 @@ function LoginContent() {
       setFailedAttempts(prev => prev + 1);
       setInvalidCredentials(true);
       setLoading(false);
+      logSecurityEvent('login_failed', { metadata: { method: 'oauth', provider, reason: signInError.message } }).catch(() => {});
       return;
     }
   };
@@ -177,12 +179,38 @@ function LoginContent() {
     setLoading(true);
     clearStatus();
 
-    // Standard passkey entry or authentication bypass
-    const texts = ["I'm Biranchi", "Yes, I'm Biranchi", "I love Biranchi"];
-    setFailedAttemptText(texts[Math.floor(Math.random() * texts.length)]);
-    setFailedAttempts(prev => prev + 1);
-    setInvalidCredentials(true);
-    setLoading(false);
+    if (!supabase) {
+      setEmailError("Supabase authentication is not configured in this environment.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const { error: passkeyError } = await supabase.auth.signInWithPasskey();
+
+      if (passkeyError) {
+        showFailureMessage();
+        setInvalidCredentials(true);
+        setLoading(false);
+        logSecurityEvent('login_failed', { metadata: { method: 'passkey', reason: passkeyError.message } }).catch(() => {});
+        return;
+      }
+
+      logSecurityEvent('passkey_login', { metadata: { method: 'passkey' } }).catch(() => {});
+      await runSuccessSequence();
+      router.push('/admin');
+      router.refresh();
+    } catch (e: unknown) {
+      setLoading(false);
+      if (e instanceof Error && e.name === 'NotAllowedError') {
+        return;
+      }
+      if (e instanceof Error && e.message.includes('does not support WebAuthn')) {
+        setEmailError('Your browser does not support passkeys.');
+        return;
+      }
+      setInvalidCredentials(true);
+    }
   };
 
   return (

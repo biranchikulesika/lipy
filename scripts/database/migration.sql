@@ -78,7 +78,13 @@ CREATE TABLE IF NOT EXISTS security_events (
   event_type  TEXT NOT NULL,
   status      TEXT,
   device_info TEXT,
+  browser     TEXT,
+  os          TEXT,
+  location    TEXT,
   ip_address  TEXT,
+  session_id  TEXT,
+  is_active   BOOLEAN DEFAULT false,
+  metadata    JSONB,
   created_at  TIMESTAMPTZ DEFAULT now()
 );
 
@@ -95,6 +101,8 @@ CREATE INDEX IF NOT EXISTS idx_lipy_contributors_last_seen ON lipy_contributors 
 CREATE INDEX IF NOT EXISTS idx_lipy_sessions_updated_at    ON lipy_sessions (updated_at DESC);
 CREATE INDEX IF NOT EXISTS idx_security_events_user_id     ON security_events (user_id);
 CREATE INDEX IF NOT EXISTS idx_security_events_created_at  ON security_events (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_security_events_event_type  ON security_events (event_type);
+CREATE INDEX IF NOT EXISTS idx_security_events_is_active   ON security_events (is_active) WHERE is_active = true;
 
 -- ─────────────────────────────────────────────────────────────────────
 -- 4. ROW LEVEL SECURITY

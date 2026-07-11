@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
+import { logSecurityEvent } from '@/app/admin/security-actions';
 
 // ─── Context for sidebar state ───
 const SidebarContext = createContext({ collapsed: false });
@@ -135,7 +136,10 @@ export function AdminShell({
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
     if (url && key) {
       const supabase = createClient();
-      await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut();
+      if (!error) {
+        logSecurityEvent('logout', { metadata: { method: 'manual' } }).catch(() => {});
+      }
     }
     router.push('/admin/login');
   };
