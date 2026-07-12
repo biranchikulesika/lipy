@@ -47,9 +47,9 @@ export function MobileStorySlide({ heading, body, image, isActive }: MobileStory
                         alt=""
                         loading="eager"
                         decoding="async"
-                        className="w-full h-full object-cover opacity-40 mix-blend-overlay"
+                        className="w-full h-full object-cover opacity-60 mix-blend-overlay blur-sm"
                     />
-                    <div className="absolute inset-0 bg-linear-to-t from-black via-zinc-950/80 to-black/60" />
+                    <div className="absolute inset-0 bg-linear-to-t from-black via-zinc-950/50 to-black/30" />
                 </div>
             )}
             {/* Gradient fallback — always visible behind the image, prevents blank flash */}

@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   LogOut, ArrowUpRight, ShieldCheck, BarChart3, Database,
-  Menu, X, ChevronRight,
+  Menu, X, ChevronRight, ShieldAlert,
   Loader2,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -55,6 +55,7 @@ const NAV_ITEMS = [
     items: [
       { href: '/admin/dataset', label: 'Dataset Viewer', icon: Database, enabled: true },
       { href: '/admin/settings', label: 'Authentication', icon: ShieldCheck, enabled: true },
+      { href: '/admin/verification', label: 'Verification', icon: ShieldAlert, enabled: true },
     ],
   },
 ];

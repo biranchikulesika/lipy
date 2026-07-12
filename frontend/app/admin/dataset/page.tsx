@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import { createClient } from '@/lib/supabase/client';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Database, Search, Trash2, Filter, Download,
@@ -13,6 +13,17 @@ import Link from 'next/link';
 import { AdminShell } from '@/components/admin/AdminShell';
 import { useAdminRole } from '@/components/admin/AdminShell';
 import { odiaCharacters } from '@/lib/lipyd/odiaCharacters';
+
+// Sentinel UUID used by the auto-verification service to mark samples verified by
+// the LiPy recognition pipeline. The UI displays a user-friendly label instead of
+// the raw UUID hash.
+const VERIFICATION_SERVICE_UUID = '00000000-0000-0000-0000-000000000000';
+
+function formatVerifier(uuid: string | null): string {
+  if (!uuid) return '';
+  if (uuid === VERIFICATION_SERVICE_UUID) return 'Auto-Verification Service';
+  return `${uuid.slice(0, 8)}...`;
+}
 
 function cleanStoragePath(path: string): string {
   if (!path) return '';
@@ -28,8 +39,6 @@ function cleanStoragePath(path: string): string {
   }
   return clean;
 }
-
-let localSupabaseClient: any = null;
 
 interface SampleRecord {
   id: string;
@@ -131,7 +140,8 @@ function DatasetViewerContent() {
     contributors: 0
   });
 
-  // Initialize Supabase client
+  // Initialize Supabase client — uses the shared singleton from @/lib/supabase/client
+  // to avoid multiple GoTrueClient instances sharing the same browser storage key.
   useEffect(() => {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
@@ -140,10 +150,7 @@ function DatasetViewerContent() {
       setLoading(false);
       return;
     }
-    if (!localSupabaseClient) {
-      localSupabaseClient = createSupabaseClient(url, key);
-    }
-    setSupabase(localSupabaseClient);
+    setSupabase(createClient());
   }, []);
 
   useEffect(() => {
@@ -1478,8 +1485,12 @@ function DatasetViewerContent() {
                         <User className="w-3.5 h-3.5" />
                         <span className="text-xs">Verified By</span>
                       </div>
-                      <code className="text-[10px] font-mono bg-stone-100 dark:bg-stone-850 px-1.5 py-0.5 rounded text-amber-600 dark:text-amber-400">
-                        {selectedSample.verified_by.slice(0, 8)}...
+                      <code className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
+                        selectedSample.verified_by === VERIFICATION_SERVICE_UUID
+                          ? 'bg-emerald-950/20 text-emerald-400 border border-emerald-900/40'
+                          : 'bg-stone-100 dark:bg-stone-850 text-amber-600 dark:text-amber-400'
+                      }`}>
+                        {formatVerifier(selectedSample.verified_by)}
                       </code>
                     </div>
                     )}

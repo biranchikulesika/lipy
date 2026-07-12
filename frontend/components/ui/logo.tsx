@@ -8,7 +8,7 @@ interface LogoProps {
 }
 
 const sizeMap: Record<LogoSize, string> = {
-  sm: 'text-sm sm:text-base',
+  sm: 'text-lg sm:text-xl',
   md: 'text-xl sm:text-2xl font-bold',
   lg: 'text-3xl sm:text-5xl font-black',
   xl: 'text-4xl sm:text-5xl lg:text-6xl font-extrabold',

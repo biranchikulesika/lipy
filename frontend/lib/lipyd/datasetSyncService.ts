@@ -6,7 +6,38 @@ import { ensureValidSessionId, isValidContributorName, isValidMode } from './val
 const STORAGE_BUCKET = 'lipy-samples';
 const MAX_BLOB_BYTES = 4 * 1024 * 1024;
 const MAX_RETRY_ATTEMPTS = 10;
+const VERIFICATION_API_MAX_RETRIES = 3;
 const characterIds = new Set(odiaCharacters.map((item) => item.id));
+
+// Check if the verification API should be used.
+// The verification API needs the LiPy model endpoint to function.
+// In Next.js client components, NEXT_PUBLIC_* are replaced at build time.
+function isVerificationApiConfigured(): boolean {
+  return Boolean(process.env.NEXT_PUBLIC_API_URL);
+}
+
+// Get the verification API URL (always on the same origin)
+function getVerificationApiUrl(): string {
+  if (typeof window !== 'undefined') {
+    return `${window.location.origin}/api/lipyd/verify`;
+  }
+  return '/api/lipyd/verify';
+}
+
+// Helper to convert Blob to base64 string
+function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const result = reader.result as string;
+      // Strip the Data URL prefix (e.g., "data:image/png;base64,")
+      const base64 = result.split(',')[1] || result;
+      resolve(base64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
 
 const listeners = new Set<Function>();
 let processingPromise: Promise<void> | null = null;
@@ -359,7 +390,18 @@ async function scheduleNextProcessing() {
   scheduleProcessing(delay);
 }
 
+/**
+ * Upload a single item via the verification API (server-side validation + storage).
+ * Falls back to direct Supabase upload if the API is not configured.
+ */
 async function uploadSingleItem(client: any, item: any) {
+  // If verification API is configured, route through it for server-side validation
+  if (isVerificationApiConfigured()) {
+    await uploadViaVerificationApi(item);
+    return;
+  }
+
+  // Fallback: direct upload to Supabase (legacy path)
   const uploadResult = await client.storage.from(STORAGE_BUCKET).upload(item.storagePath, item.blob, {
     contentType: item.mimeType || 'image/png',
     upsert: true,
@@ -367,6 +409,59 @@ async function uploadSingleItem(client: any, item: any) {
   if (uploadResult.error) throw uploadResult.error;
 
   await upsertRemoteMetadata(client, item, item.storagePath);
+}
+
+/**
+ * Upload a sample through the verification API endpoint.
+ * The API handles model prediction, confidence check, character matching,
+ * ban detection, and Supabase storage/database operations.
+ *
+ * This is the preferred path when the verification API is configured.
+ */
+async function uploadViaVerificationApi(item: any) {
+  const apiUrl = getVerificationApiUrl();
+
+  // Convert the blob to base64 for JSON transport
+  const imageBase64 = await blobToBase64(item.blob);
+
+  const payload = {
+    image: imageBase64,
+    mimeType: item.mimeType || 'image/png',
+    expectedCharacterId: item.characterId,
+    expectedCharacter: item.character,
+    contributorId: item.contributorId,
+    contributorName: item.contributorName,
+    sessionId: item.sessionId,
+    mode: item.mode,
+    clientSampleId: item.clientSampleId,
+    sampleNumber: item.sampleNumber,
+    filename: item.filename,
+    timestamp: item.timestamp,
+  };
+
+  const response = await fetch(apiUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Verification API returned status ${response.status}`);
+  }
+
+  const result = await response.json();
+
+  if (!result.accepted) {
+    // The API rejected the sample. Use a generic failure message.
+    // The sample may be retried, but after max retries it will be discarded.
+    throw new Error('Unable to process this submission. Please try again.');
+  }
+
+  // Sample was accepted — it's now stored in Supabase with status "verified"
+  return result;
 }
 
 async function getOrderedQueueItems() {
@@ -415,6 +510,25 @@ export async function processUploadQueue() {
 
       const nextAttempt = item.nextAttemptAt ? new Date(item.nextAttemptAt).getTime() : 0;
       if (nextAttempt && nextAttempt > Date.now()) continue;
+
+      // Use lower max retries for API-verified submissions to avoid
+      // re-sending rejected samples indefinitely
+      const maxRetries = isVerificationApiConfigured()
+        ? VERIFICATION_API_MAX_RETRIES
+        : MAX_RETRY_ATTEMPTS;
+
+      if (item.attempts >= maxRetries) {
+        await db.uploadQueue.delete(item.clientSampleId);
+        if (item.sampleId) {
+          await updateSampleSyncState(item.sampleId, {
+            syncStatus: 'pending',
+            uploadStatus: 'failed',
+            uploadAttempts: item.attempts,
+            uploadError: 'Submission rejected after max retries',
+          });
+        }
+        continue;
+      }
 
       try {
         await uploadSingleItem(client, item);

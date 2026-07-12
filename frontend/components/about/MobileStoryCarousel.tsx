@@ -8,7 +8,7 @@ import { MobileStorySlide } from "./MobileStorySlide";
 import { STORIES_DATA } from "../../constants/about";
 
 const STORY_DURATION = 5000;
-const SLIDE_TRANSITION = 0.1;
+const SLIDE_TRANSITION = 0.45;
 const PROGRESS_INTERVAL = 50;
 
 export function MobileStoryCarousel() {
@@ -257,7 +257,7 @@ export function MobileStoryCarousel() {
                         <div key={index} className="h-1 flex-1 bg-white/20 rounded-full overflow-hidden relative">
                             <div
                                 ref={(el) => { progressBarsRef.current[index] = el; }}
-                                className="absolute top-0 left-0 w-full h-full bg-white rounded-full origin-left"
+                                className="absolute top-0 left-0 w-full h-full bg-white rounded-full origin-left transition-transform duration-75 ease-linear"
                                 style={{ transform: "scaleX(0)", willChange: "transform" }}
                             />
                         </div>
