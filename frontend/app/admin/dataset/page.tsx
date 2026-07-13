@@ -288,7 +288,13 @@ function DatasetViewerContent() {
 
       // Apply status filter
       if (selectedStatus) {
-        query = query.eq('status', selectedStatus);
+        if (selectedStatus === 'auto') {
+          query = query.eq('status', 'verified').eq('verified_by', VERIFICATION_SERVICE_UUID);
+        } else if (selectedStatus === 'manual') {
+          query = query.eq('status', 'verified').neq('verified_by', VERIFICATION_SERVICE_UUID).not('verified_by', 'is', null);
+        } else {
+          query = query.eq('status', selectedStatus);
+        }
       }
 
       // Apply date filters
@@ -849,6 +855,8 @@ function DatasetViewerContent() {
                   setSelectedStatus(prev => {
                     if (prev === '') return 'verified';
                     if (prev === 'verified') return 'unverified';
+                    if (prev === 'unverified') return 'auto';
+                    if (prev === 'auto') return 'manual';
                     return '';
                   });
                   setCurrentPage(1);
@@ -858,19 +866,31 @@ function DatasetViewerContent() {
                     ? 'bg-stone-50 dark:bg-stone-900/40 border-stone-200 dark:border-stone-800 text-stone-400 hover:text-stone-600 dark:hover:text-stone-300'
                     : selectedStatus === 'verified'
                     ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-bold'
+                    : selectedStatus === 'auto'
+                    ? 'bg-violet-500/10 border-violet-500/30 text-violet-600 dark:text-violet-400 font-bold'
+                    : selectedStatus === 'manual'
+                    ? 'bg-sky-500/10 border-sky-500/30 text-sky-600 dark:text-sky-400 font-bold'
                     : 'bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400 font-bold'
                 }`}
                 title={
                   selectedStatus === ''
-                    ? "Status: All (Click to show Verified only)"
+                    ? 'Status: All'
                     : selectedStatus === 'verified'
-                    ? "Status: Verified Only (Click to show Unverified only)"
-                    : "Status: Unverified Only (Click to show All)"
+                    ? 'Status: Verified Only'
+                    : selectedStatus === 'unverified'
+                    ? 'Status: Unverified Only'
+                    : selectedStatus === 'auto'
+                    ? 'Status: Auto-Verified (LiPy Model)'
+                    : 'Status: Manually Verified'
                 }
               >
                 <Check className="w-4 h-4" />
                 <span className="text-[11px] ml-1.5 hidden sm:inline select-none">
-                  {selectedStatus === '' ? 'All Status' : selectedStatus === 'verified' ? 'Verified Only' : 'Unverified Only'}
+                  {selectedStatus === '' ? 'All Status'
+                    : selectedStatus === 'verified' ? 'Verified'
+                    : selectedStatus === 'unverified' ? 'Unverified'
+                    : selectedStatus === 'auto' ? 'Auto-Verified'
+                    : 'Manual'}
                 </span>
               </button>
 
@@ -1021,17 +1041,25 @@ function DatasetViewerContent() {
                           type="button"
                           onClick={() => setMobileFilterDraft((prev) => ({
                             ...prev,
-                            selectedStatus: prev.selectedStatus === '' ? 'verified' : prev.selectedStatus === 'verified' ? 'unverified' : '',
+                            selectedStatus: prev.selectedStatus === '' ? 'verified' : prev.selectedStatus === 'verified' ? 'unverified' : prev.selectedStatus === 'unverified' ? 'auto' : prev.selectedStatus === 'auto' ? 'manual' : '',
                           }))}
                           className={`flex h-11 w-full items-center rounded-xl border pl-9 pr-3 text-left text-sm font-medium transition-colors ${
                             mobileFilterDraft.selectedStatus === ''
                               ? 'border-stone-200 bg-stone-50 text-stone-600 dark:border-stone-800 dark:bg-stone-900/40 dark:text-stone-300'
                               : mobileFilterDraft.selectedStatus === 'verified'
                               ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
+                              : mobileFilterDraft.selectedStatus === 'auto'
+                              ? 'border-violet-500/30 bg-violet-500/10 text-violet-700 dark:text-violet-400'
+                              : mobileFilterDraft.selectedStatus === 'manual'
+                              ? 'border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-400'
                               : 'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400'
                           }`}
                         >
-                          {mobileFilterDraft.selectedStatus === '' ? 'All Status' : mobileFilterDraft.selectedStatus === 'verified' ? 'Verified Only' : 'Unverified Only'}
+                          {mobileFilterDraft.selectedStatus === '' ? 'All Status'
+                            : mobileFilterDraft.selectedStatus === 'verified' ? 'Verified Only'
+                            : mobileFilterDraft.selectedStatus === 'unverified' ? 'Unverified Only'
+                            : mobileFilterDraft.selectedStatus === 'auto' ? 'Auto-Verified'
+                            : 'Manual Only'}
                         </button>
                       </div>
 
@@ -1361,6 +1389,13 @@ function DatasetViewerContent() {
                   {sample.character_text}
                 </span>
 
+                {/* Auto-verified badge */}
+                {sample.status === 'verified' && sample.verified_by === VERIFICATION_SERVICE_UUID && (
+                  <span className="absolute bottom-1 left-1 text-[8px] font-bold leading-none select-none z-10 px-1 py-0.5 rounded bg-violet-500/20 text-violet-600 dark:text-violet-400 border border-violet-500/20">
+                    AI
+                  </span>
+                )}
+
                 {/* Drawing Image */}
                 {sample.signedUrl ? (
                   <img
@@ -1456,11 +1491,17 @@ function DatasetViewerContent() {
                         <span className="text-xs">Verification Status</span>
                       </div>
                       <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                        selectedSample.status === 'verified' 
-                          ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' 
+                        selectedSample.status === 'verified'
+                          ? selectedSample.verified_by === VERIFICATION_SERVICE_UUID
+                            ? 'bg-violet-500/10 text-violet-600 dark:text-violet-400'
+                            : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
                           : 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
                       }`}>
-                        {selectedSample.status === 'verified' ? 'Verified' : 'Unverified'}
+                        {selectedSample.status === 'verified'
+                          ? selectedSample.verified_by === VERIFICATION_SERVICE_UUID
+                            ? 'Auto-Verified'
+                            : 'Verified'
+                          : 'Unverified'}
                       </span>
                     </div>
 
@@ -1483,15 +1524,19 @@ function DatasetViewerContent() {
                     <div className="flex justify-between items-center p-2.5 bg-stone-50 dark:bg-stone-900/30 rounded-xl">
                       <div className="flex items-center gap-2 text-stone-400 dark:text-stone-500">
                         <User className="w-3.5 h-3.5" />
-                        <span className="text-xs">Verified By</span>
+                        <span className="text-xs">
+                          {selectedSample.verified_by === VERIFICATION_SERVICE_UUID ? 'Verified By' : 'Verified By'}
+                        </span>
                       </div>
-                      <code className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
+                      <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
                         selectedSample.verified_by === VERIFICATION_SERVICE_UUID
-                          ? 'bg-emerald-950/20 text-emerald-400 border border-emerald-900/40'
+                          ? 'bg-violet-950/20 text-violet-400 border border-violet-900/40'
                           : 'bg-stone-100 dark:bg-stone-850 text-amber-600 dark:text-amber-400'
                       }`}>
-                        {formatVerifier(selectedSample.verified_by)}
-                      </code>
+                        {selectedSample.verified_by === VERIFICATION_SERVICE_UUID
+                          ? 'LiPy Model'
+                          : formatVerifier(selectedSample.verified_by)}
+                      </span>
                     </div>
                     )}
 

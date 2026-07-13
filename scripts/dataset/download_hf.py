@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
-from scripts.common.git_utils importensure_nested_repo  # noqa: E402
+from scripts.common.git_utils import ensure_nested_repo  # noqa: E402
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]

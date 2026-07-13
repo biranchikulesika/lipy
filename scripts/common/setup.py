@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import argparse
 import subprocess
 import sys
 from pathlib import Path
@@ -15,50 +14,74 @@ MODEL_PATH = PROJECT_ROOT / "models" / "model.keras"
 
 
 def has_files(path: Path) -> bool:
-    return path.exists() and any(item.name != ".cache" for item in path.iterdir())
+    """Check if a directory exists and contains non-cache files."""
+    if not path.exists():
+        return False
+    return any(item.name != ".cache" for item in path.iterdir())
 
 
 def is_git_worktree(path: Path) -> bool:
+    """Check if path is the root of a Git repository."""
     if not path.exists():
         return False
-    result = subprocess.run(
-        ["git", "rev-parse", "--show-toplevel"],
-        cwd=path,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL,
-        text=True,
-        check=False,
-    )
-    if result.returncode != 0:
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            cwd=path,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            check=False,
+            timeout=10,
+        )
+        if result.returncode != 0:
+            return False
+        return Path(result.stdout.strip()).resolve() == path.resolve()
+    except (subprocess.TimeoutExpired, OSError):
         return False
-    return Path(result.stdout.strip()).resolve() == path.resolve()
 
 
 def run_script(relative_path: str) -> None:
+    """Run a Python script from the project root."""
     script_path = PROJECT_ROOT / relative_path
-    subprocess.run([sys.executable, str(script_path)], cwd=PROJECT_ROOT, check=True)
+    if not script_path.is_file():
+        print(f"Error: script not found: {script_path}", file=sys.stderr)
+        sys.exit(1)
+    result = subprocess.run(
+        [sys.executable, str(script_path)],
+        cwd=PROJECT_ROOT,
+    )
+    if result.returncode != 0:
+        print(f"Error: {relative_path} failed (exit code {result.returncode})", file=sys.stderr)
+        sys.exit(result.returncode)
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Download missing dataset/ and models/ working copies.")
-    parser.parse_args()
+    print("LiPy Project Setup")
+    print("=" * 40)
 
+    # ── Dataset ──
     dataset_root = PROJECT_ROOT / "dataset"
-    model_root = PROJECT_ROOT / "models"
-
     if has_files(DEFAULT_DATASET_FOLDER) and is_git_worktree(dataset_root):
-        print("Dataset already exists; skipping Hugging Face dataset download.")
+        print("[OK] Dataset already exists.")
     else:
-        print("Dataset missing or not a nested repo; preparing Hugging Face dataset repo.")
+        print("[..] Preparing dataset from Hugging Face...")
         run_script("scripts/dataset/download_hf.py")
 
+    # ── Model ──
+    model_root = PROJECT_ROOT / "models"
     if MODEL_PATH.is_file() and is_git_worktree(model_root):
-        print("Model already exists; skipping Hugging Face model download.")
+        print("[OK] Model already exists.")
     else:
-        print("Model missing or not a nested repo; preparing Hugging Face model repo.")
+        print("[..] Preparing model from Hugging Face...")
         run_script("scripts/model/download_hf.py")
 
-    print("✓ Dataset repository ready\n✓ Model repository ready\n\nProject initialization completed.\n\nNext steps:\n\n1. Train the model\n2. Start the backend\n3. Start the frontend")
+    print("\n" + "=" * 40)
+    print("Setup complete.")
+    print("\nNext steps:")
+    print("  1. Train the model")
+    print("  2. Start the backend")
+    print("  3. Start the frontend")
 
 
 if __name__ == "__main__":

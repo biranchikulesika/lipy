@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
-from scripts.common.git_utils importcommit_and_push, ensure_nested_repo  # noqa: E402
+from scripts.common.git_utils import commit_and_push, ensure_nested_repo, run_git  # noqa: E402
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -29,6 +29,10 @@ def main() -> None:
     if missing:
         print(f"Error: missing required model artifacts: {', '.join(missing)}", file=sys.stderr)
         sys.exit(1)
+
+    # Pull before push to avoid conflicts
+    print("Pulling latest changes from remote...")
+    run_git(["pull", "--rebase"], model_dir, retries=3)
 
     commit_and_push(model_dir, args.message)
 
