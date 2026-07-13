@@ -18,8 +18,8 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
   const [showStrokePanel, setShowStrokePanel] = useState(false);
   const strokeWrapperRef = useRef<HTMLDivElement>(null);
   const [animating, setAnimating] = useState(false);
-  const [savedToast, setSavedToast] = useState(false);
-  const savedToastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [hasDrawing, setHasDrawing] = useState(false);
+  const [emptyPrompt, setEmptyPrompt] = useState(false);
   const autoBatchDoneRef = useRef(false);
 
   // Transition helper
@@ -73,16 +73,22 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
     return () => clearTimeout(timer);
   }, [sessionConfig?.contributorId]);
 
+  // Track whether the user has drawn anything — disables Save on empty canvas
   useEffect(() => {
-    function handleDocClick(e: any) {
-      try {
-        if (strokeWrapperRef.current && !strokeWrapperRef.current.contains(e.target)) {
-          setShowStrokePanel(false);
-        }
-      } catch (err) { }
-    }
-    document.addEventListener('click', handleDocClick);
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const onPointer = () => setHasDrawing(true);
+    canvas.addEventListener('pointerdown', onPointer);
+    return () => canvas.removeEventListener('pointerdown', onPointer);
+  }, []);
 
+  // Wrapper around clearCanvas that also resets the drawing state
+  const handleClear = () => {
+    clearCanvas();
+    setHasDrawing(false);
+  };
+
+  useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) return;
       if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
@@ -91,7 +97,7 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
         if (btn && !btn.hasAttribute('disabled')) btn.click();
       } else if (e.key === 'Escape') {
         e.preventDefault();
-        clearCanvas();
+        handleClear();
       } else if (e.key.toLowerCase() === 's') {
         e.preventDefault();
         const btn = document.getElementById('skip-btn');
@@ -102,7 +108,6 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
-      document.removeEventListener('click', handleDocClick);
     };
   }, [clearCanvas]);
 
@@ -168,6 +173,13 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
   async function handleSave() {
     if (!currentChar) return;
 
+    // Don't save an empty canvas — show a transient prompt instead
+    if (!hasDrawing) {
+      setEmptyPrompt(true);
+      setTimeout(() => setEmptyPrompt(false), 1800);
+      return;
+    }
+
     const blob = await getImageBlob();
     const sid = sessionConfig.sessionId || 'S01';
     const clientSampleId = createClientSampleId();
@@ -188,10 +200,7 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
     await queueSampleUpload(sampleRecord as any, blob);
     await schedulerService.recordCharacterOutcome(sessionConfig, currentChar, 'completed');
     try { window.dispatchEvent(new CustomEvent('lipy:samples-updated')); } catch (e) { }
-    if (savedToastTimer.current) clearTimeout(savedToastTimer.current);
-    setSavedToast(true);
-    savedToastTimer.current = setTimeout(() => setSavedToast(false), 1200);
-    clearCanvas();
+    handleClear();
     if (sessionConfig.mode === 'mixed-random') {
       transitionTo(async () => {
         const nextCharacter = await schedulerService.getNextCharacter(sessionConfig);
@@ -204,7 +213,7 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
     if (!currentChar) return;
 
     await schedulerService.recordCharacterOutcome(sessionConfig, currentChar, 'skipped');
-    clearCanvas();
+    handleClear();
     if (sessionConfig.mode === 'mixed-random') {
       transitionTo(async () => {
         const nextCharacter = await schedulerService.getNextCharacter(sessionConfig);
@@ -287,14 +296,14 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
               <span>Random</span>
             </button>
           ) : (
-            <button className="rounded-xl border border-verdigris-700/20 bg-verdigris-950/40 py-3 lg:py-3.5 text-xs lg:text-sm font-semibold text-slate-200 hover:bg-verdigris-900/50 hover:text-white transition active:scale-95 flex items-center justify-center gap-1.5" onClick={clearCanvas}>
+            <button className="rounded-xl border border-verdigris-700/20 bg-verdigris-950/40 py-3 lg:py-3.5 text-xs lg:text-sm font-semibold text-slate-200 hover:bg-verdigris-900/50 hover:text-white transition active:scale-95 flex items-center justify-center gap-1.5" onClick={handleClear}>
               <Trash2 className="h-3.5 w-3.5 shrink-0" />
               <span>Clear</span>
             </button>
           )}
 
           {sessionConfig && sessionConfig.mode === 'single-character' ? (
-            <button className="rounded-xl border border-verdigris-700/20 bg-verdigris-950/40 py-3 lg:py-3.5 text-xs lg:text-sm font-semibold text-slate-200 hover:bg-verdigris-900/50 hover:text-white transition active:scale-95 flex items-center justify-center gap-1.5" onClick={clearCanvas}>
+            <button className="rounded-xl border border-verdigris-700/20 bg-verdigris-950/40 py-3 lg:py-3.5 text-xs lg:text-sm font-semibold text-slate-200 hover:bg-verdigris-900/50 hover:text-white transition active:scale-95 flex items-center justify-center gap-1.5" onClick={handleClear}>
               <Trash2 className="h-3.5 w-3.5 shrink-0" />
               <span>Clear</span>
             </button>
@@ -305,17 +314,17 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
             </button>
           )}
 
-          <button id="save-next-btn" className="rounded-xl bg-linear-to-r from-verdigris-500 to-verdigris-600 hover:from-verdigris-600 hover:to-verdigris-700 py-3 lg:py-3.5 text-xs lg:text-sm font-semibold text-white transition-all active:scale-95 flex items-center justify-center gap-1.5 disabled:opacity-50 shadow-sm border border-verdigris-600/10" onClick={handleSave} disabled={!currentChar || animating}>
+          <button id="save-next-btn" className="rounded-xl bg-linear-to-r from-verdigris-500 to-verdigris-600 hover:from-verdigris-600 hover:to-verdigris-700 py-3 lg:py-3.5 text-xs lg:text-sm font-semibold text-white transition-all active:scale-95 flex items-center justify-center gap-1.5 disabled:opacity-50 shadow-sm border border-verdigris-600/10" onClick={handleSave} disabled={!currentChar || animating || !hasDrawing}>
             <Check className="h-4 w-4 shrink-0" />
             <span>{sessionConfig && sessionConfig.mode === 'single-character' ? 'Save' : 'Save & Next'}</span>
           </button>
         </div>
 
-        {/* Generic saved toast — no verification status exposed */}
-        {savedToast && (
+        {/* Transient prompt when user clicks Save on an empty canvas */}
+        {emptyPrompt && (
           <div className="fixed inset-x-0 bottom-8 z-60 flex justify-center pointer-events-none animate-in fade-in slide-in-from-bottom-4">
-            <div className="rounded-2xl bg-verdigris-800/90 px-6 py-3 text-sm font-bold text-verdigris-200 shadow-xl backdrop-blur-sm">
-              Saved!
+            <div className="rounded-2xl bg-amber-900/90 px-6 py-3 text-sm font-bold text-amber-200 shadow-xl backdrop-blur-sm">
+              Please draw the character first
             </div>
           </div>
         )}

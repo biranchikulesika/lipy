@@ -26,6 +26,7 @@ import { createClient } from '@supabase/supabase-js';
 import {
   MIN_VERIFICATION_CONFIDENCE,
   TRUST_SCORE_INITIAL,
+  shouldVerify,
 } from '@/constants/LiPy';
 import { odiaCharacters } from './odiaCharacters';
 
@@ -93,6 +94,7 @@ export interface VerificationContext {
   supabase: SupabaseClientShim;
   config: {
     minConfidence: number;
+    verificationMode: 'full' | 'skip';
   };
 }
 
@@ -419,19 +421,25 @@ const acceptanceStage: VerificationStage = {
 
       // 3. Upsert contributor record with updated state
       const now = nowIso();
+      const isFullVerification = ctx.config.verificationMode === 'full';
+
       const contributorPayload: Record<string, unknown> = {
         contributor_id: req.contributorId,
         contributor_name: req.contributorName,
         last_seen_at: now,
-        total_verified: (ctx.contributor?.totalVerified ?? 0) + 1,
-        invalid_streak: 0,
-        last_verified_at: now,
-        last_invalid_at: ctx.contributor?.lastInvalidAt ?? null,
-        trust_score: Math.min(100, (ctx.contributor?.trustScore ?? TRUST_SCORE_INITIAL) + 1),
       };
 
-      if (ctx.contributor?.bannedUntil) {
-        contributorPayload.banned_until = null;
+      if (isFullVerification) {
+        // Full verification: count as verified, reset streak, boost trust
+        contributorPayload.total_verified = (ctx.contributor?.totalVerified ?? 0) + 1;
+        contributorPayload.invalid_streak = 0;
+        contributorPayload.last_verified_at = now;
+        contributorPayload.last_invalid_at = ctx.contributor?.lastInvalidAt ?? null;
+        contributorPayload.trust_score = Math.min(100, (ctx.contributor?.trustScore ?? TRUST_SCORE_INITIAL) + 1);
+
+        if (ctx.contributor?.bannedUntil) {
+          contributorPayload.banned_until = null;
+        }
       }
 
       const contributorResult = await supabase
@@ -461,7 +469,8 @@ const acceptanceStage: VerificationStage = {
         console.error('Session upsert failed:', String(sessionResult.error));
       }
 
-      // 5. Insert sample record with verified status
+      // 5. Insert sample record with appropriate status
+      const isVerified = isFullVerification;
       const samplePayload: Record<string, unknown> = {
         client_sample_id: req.clientSampleId,
         contributor_id: req.contributorId,
@@ -476,9 +485,9 @@ const acceptanceStage: VerificationStage = {
         storage_path: storagePath,
         blob_bytes: blob.size,
         mime_type: req.mimeType || 'image/png',
-        status: 'verified',
-        verified_by: VERIFICATION_SERVICE_UUID,
-        verified_at: now,
+        status: isVerified ? 'verified' : 'unverified',
+        verified_by: isVerified ? VERIFICATION_SERVICE_UUID : null,
+        verified_at: isVerified ? now : null,
         upload_status: 'uploaded',
         retry_count: 0,
         metadata: {
@@ -488,8 +497,8 @@ const acceptanceStage: VerificationStage = {
           mode: req.mode,
           characterId: req.expectedCharacterId,
           character: req.expectedCharacter,
-          verifiedBy: 'verification_service',
-          verifiedAt: now,
+          verifiedBy: isVerified ? 'verification_service' : 'skip_verification',
+          verifiedAt: isVerified ? now : null,
           confidence: ctx.prediction?.confidence ?? null,
           predictedCharacter: ctx.prediction?.character ?? null,
         },
@@ -643,27 +652,19 @@ export function clearVerificationLogs(): void {
 // ─── Pipeline execution ───
 
 /**
- * The default verification pipeline, ordered by execution.
- * New stages can be inserted at any position.
- */
-const DEFAULT_PIPELINE: VerificationStage[] = [
-  banCheckStage,
-  modelPredictionStage,
-  confidenceCheckStage,
-  characterMatchStage,
-  acceptanceStage,
-];
-
-/**
  * Run the verification pipeline for a given request.
  *
+ * The pipeline is built dynamically based on the character ID:
+ *   - Characters in the skip-verification set skip model stages
+ *     and are stored directly as 'unverified'.
+ *   - All other characters go through the full pipeline:
+ *     ban_check → model_prediction → confidence_check → character_match → acceptance
+ *
  * @param request - The verification request containing image and metadata
- * @param pipeline - Optional custom pipeline (defaults to DEFAULT_PIPELINE)
  * @returns VerificationResult with acceptance decision
  */
 export async function verifySample(
   request: VerificationRequest,
-  pipeline: VerificationStage[] = DEFAULT_PIPELINE,
 ): Promise<VerificationResult> {
   const startTime = Date.now();
   const supabase = getSupabaseClient();
@@ -677,6 +678,7 @@ export async function verifySample(
     supabase,
     config: {
       minConfidence: MIN_VERIFICATION_CONFIDENCE,
+      verificationMode: shouldVerify(request.expectedCharacterId) ? 'full' : 'skip',
     },
   };
 
@@ -692,7 +694,14 @@ export async function verifySample(
   let failedStage = '';
   let failedReason = '';
 
-  for (const stage of pipeline) {
+  // Build pipeline dynamically based on verification mode
+  const stages: VerificationStage[] = [banCheckStage];
+  if (context.config.verificationMode === 'full') {
+    stages.push(modelPredictionStage, confidenceCheckStage, characterMatchStage);
+  }
+  stages.push(acceptanceStage);
+
+  for (const stage of stages) {
     try {
       const result = await stage.execute(context);
 
@@ -702,7 +711,7 @@ export async function verifySample(
         break;
       }
 
-      // If acceptance stage passed, the sample is fully verified and stored
+      // If acceptance stage passed, the sample is fully stored
       if (stage.name === 'acceptance') {
         finalAccepted = true;
         finalMessage = 'Sample submitted successfully.';

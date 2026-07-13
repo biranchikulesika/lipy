@@ -45,3 +45,53 @@ export const TRUST_BAN_THRESHOLD = Number(
 
 /** Trust score penalty applied per rejected submission. */
 export const TRUST_PENALTY = -5;
+
+// ─── Skip Verification Classes ───
+// Characters in this set bypass the model verification pipeline entirely
+// and are stored directly as 'unverified'. This is useful for classes the
+// model isn't trained to recognise yet or for future dataset collection.
+//
+// To add classes, either:
+//   1. Add the character ID (e.g. 'DIGIT_0') to the DEFAULT_SKIP set below
+//   2. Set env LIPY_SKIP_VERIFICATION to a comma-separated list of IDs
+//      (e.g. LIPY_SKIP_VERIFICATION="DIGIT_0,DIGIT_1,CONS_UNKNOWN")
+
+let _skipCache: Set<string> | null = null;
+
+function buildSkipSet(): Set<string> {
+  const set = new Set<string>([
+    // Digits — model is not yet capable of recognising these
+    'DIGIT_0', 'DIGIT_1', 'DIGIT_2', 'DIGIT_3', 'DIGIT_4',
+    'DIGIT_5', 'DIGIT_6', 'DIGIT_7', 'DIGIT_8', 'DIGIT_9',
+  ]);
+
+  // Allow extension via environment variable (comma-separated IDs)
+  try {
+    const envVal = typeof process !== 'undefined'
+      ? (process.env.NEXT_PUBLIC_LIPY_SKIP_VERIFICATION || process.env.LIPY_SKIP_VERIFICATION || '')
+      : '';
+    if (envVal) {
+      envVal.split(',').map((s) => s.trim()).filter(Boolean).forEach((id) => set.add(id));
+    }
+  } catch { /* env not available */ }
+
+  return set;
+}
+
+/**
+ * Returns the set of character IDs that should skip model verification.
+ * Cached after first call.
+ */
+export function getSkipVerificationClasses(): Set<string> {
+  if (!_skipCache) _skipCache = buildSkipSet();
+  return _skipCache;
+}
+
+/**
+ * Returns true if the given character ID should go through the full
+ * model verification pipeline. Returns false for characters that should
+ * skip verification and be stored as 'unverified'.
+ */
+export function shouldVerify(characterId: string): boolean {
+  return !getSkipVerificationClasses().has(characterId);
+}
