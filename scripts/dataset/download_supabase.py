@@ -148,9 +148,7 @@ def download_single_image(
     if not filename or not storage_path:
         return "skipped_invalid", "Missing filename or storage_path"
 
-    char_dir = output_dir / character_text
-    char_dir.mkdir(parents=True, exist_ok=True)
-    local_path = char_dir / filename
+    local_path = output_dir / filename
 
     if not force and local_path.is_file() and local_path.stat().st_size > 0:
         return "skipped_exists", filename
