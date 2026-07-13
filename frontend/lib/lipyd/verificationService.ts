@@ -25,11 +25,7 @@
 import { createClient } from '@supabase/supabase-js';
 import {
   MIN_VERIFICATION_CONFIDENCE,
-  MAX_INVALID_STREAK,
-  TEMP_BAN_DURATION_HOURS,
   TRUST_SCORE_INITIAL,
-  TRUST_BAN_THRESHOLD,
-  TRUST_PENALTY,
 } from '@/constants/LiPy';
 import { odiaCharacters } from './odiaCharacters';
 
@@ -97,8 +93,6 @@ export interface VerificationContext {
   supabase: SupabaseClientShim;
   config: {
     minConfidence: number;
-    maxInvalidStreak: number;
-    banDurationHours: number;
   };
 }
 
@@ -552,53 +546,6 @@ async function getContributorState(
   }
 }
 
-// ─── Invalid streak / ban update ───
-
-async function recordInvalidSubmission(
-  supabase: SupabaseClientShim,
-  contributorId: string,
-  contributorName: string,
-  currentStreak: number,
-  currentTrustScore: number,
-): Promise<{ newStreak: number; banApplied: boolean }> {
-  const newStreak = currentStreak + 1;
-  const newTrustScore = Math.max(0, currentTrustScore + TRUST_PENALTY);
-  const now = nowIso();
-  let banApplied = false;
-
-  const payload: Record<string, unknown> = {
-    contributor_id: contributorId,
-    contributor_name: contributorName,
-    last_seen_at: now,
-    invalid_streak: newStreak,
-    last_invalid_at: now,
-    trust_score: newTrustScore,
-  };
-
-  if (newStreak >= MAX_INVALID_STREAK || newTrustScore < TRUST_BAN_THRESHOLD) {
-    const banUntil = new Date(Date.now() + TEMP_BAN_DURATION_HOURS * 60 * 60 * 1000).toISOString();
-    payload.banned_until = banUntil;
-    banApplied = true;
-  }
-
-  // Read current total_rejected to increment it
-  try {
-    const { data: existing } = await supabase
-      .from('lipy_contributors')
-      .select('total_rejected')
-      .eq('contributor_id', contributorId)
-      .single();
-
-    payload.total_rejected = (existing ? Number((existing as Record<string, unknown>).total_rejected ?? 0) : 0) + 1;
-  } catch {
-    payload.total_rejected = 1;
-  }
-
-  await supabase.from('lipy_contributors').upsert(payload, { onConflict: 'contributor_id' });
-
-  return { newStreak, banApplied };
-}
-
 // ─── Internal logging ───
 // Logs are kept in-memory for instant access AND persisted to the
 // verification_logs table in Supabase for durability across restarts.
@@ -730,8 +677,6 @@ export async function verifySample(
     supabase,
     config: {
       minConfidence: MIN_VERIFICATION_CONFIDENCE,
-      maxInvalidStreak: MAX_INVALID_STREAK,
-      banDurationHours: TEMP_BAN_DURATION_HOURS,
     },
   };
 
@@ -746,8 +691,6 @@ export async function verifySample(
   let finalMessage = 'Unable to process this submission. Please try again.';
   let failedStage = '';
   let failedReason = '';
-  let banApplied = false;
-  let newStreak = context.contributor?.invalidStreak ?? 0;
 
   for (const stage of pipeline) {
     try {
@@ -756,24 +699,6 @@ export async function verifySample(
       if (!result.passed) {
         failedStage = stage.name;
         failedReason = result.reason || 'Stage failed';
-
-        // Record failure for abuse tracking (skip for ban_check — they're already banned)
-        if (stage.name !== 'ban_check') {
-          try {
-            const streakResult = await recordInvalidSubmission(
-              supabase,
-              request.contributorId,
-              request.contributorName,
-              context.contributor?.invalidStreak ?? 0,
-              context.contributor?.trustScore ?? TRUST_SCORE_INITIAL,
-            );
-            newStreak = streakResult.newStreak;
-            banApplied = streakResult.banApplied;
-          } catch {
-            // Non-critical
-          }
-        }
-
         break;
       }
 
@@ -785,30 +710,8 @@ export async function verifySample(
     } catch (error) {
       failedStage = stage.name;
       failedReason = error instanceof Error ? error.message : 'Stage threw exception';
-
-      if (stage.name !== 'ban_check') {
-        try {
-          const streakResult = await recordInvalidSubmission(
-            supabase,
-            request.contributorId,
-            request.contributorName,
-            context.contributor?.invalidStreak ?? 0,
-            context.contributor?.trustScore ?? TRUST_SCORE_INITIAL,
-          );
-          newStreak = streakResult.newStreak;
-          banApplied = streakResult.banApplied;
-        } catch {
-          // Non-critical
-        }
-      }
-
       break;
     }
-  }
-
-  // For ban_check failures, keep the original streak (not incremented again)
-  if (!finalAccepted && failedStage === 'ban_check') {
-    newStreak = context.contributor?.invalidStreak ?? 0;
   }
 
   const processingTimeMs = Date.now() - startTime;
@@ -821,8 +724,8 @@ export async function verifySample(
     predictedCharacter: context.prediction?.character ?? null,
     confidence: context.prediction?.confidence ?? null,
     accepted: finalAccepted,
-    invalidStreakAfterRequest: newStreak,
-    temporaryBanApplied: banApplied,
+    invalidStreakAfterRequest: context.contributor?.invalidStreak ?? 0,
+    temporaryBanApplied: false,
     processingTimeMs,
     stage: failedStage || 'complete',
     reason: failedReason || (finalAccepted ? 'accepted' : 'unknown'),

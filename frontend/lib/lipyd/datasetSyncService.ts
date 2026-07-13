@@ -21,11 +21,17 @@ const REJECTED_MARKER = '__rejected__';
 
 // Maximum number of automatic batch re-verify attempts per sample.
 // After this many failed re-verifications, the sample is left alone
-// until the contributor manually retries via the review panel.
+// and the definitive rejection penalty is applied via the reject API.
 const MAX_AUTO_VERIFY_ATTEMPTS = 2;
 
 function getAutoVerifyKey(contributorId: string, clientSampleId: string): string {
   return `lipy_auto_reverify_${contributorId}_${clientSampleId}`;
+}
+
+// localStorage key for tracking which samples have been reported to the
+// reject API. This prevents redundant network calls across page loads.
+function getReportedRejectKey(contributorId: string, clientSampleId: string): string {
+  return `lipy_reject_reported_${contributorId}_${clientSampleId}`;
 }
 
 // Check if the verification API should be used.
@@ -693,9 +699,14 @@ export async function clearFailedSample(sampleId: number): Promise<boolean> {
 }
 
 /**
+/**
  * Batch re-verify all verification-failed samples for a contributor.
  * Runs automatically on startup and respects per-sample retry limits
  * tracked in localStorage to avoid infinite re-verify loops.
+ *
+ * When a sample's auto-retries are exhausted, the definitive rejection
+ * penalty is applied via the reject API (idempotent). This ensures
+ * contributors are only penalised once per failed sample, not per attempt.
  *
  * @returns Stats about how many samples were re-queued for verification.
  */
@@ -727,6 +738,14 @@ export async function batchReverifyAllFailed(
       } catch { /* localStorage unavailable */ }
 
       if (attempts >= MAX_AUTO_VERIFY_ATTEMPTS) {
+        // Retries exhausted — apply definitive rejection penalty once
+        reportDefinitiveRejection(
+          contributorId,
+          sample.contributorName || 'Anonymous',
+          sample.clientSampleId,
+        ).catch(() => {
+          /* Non-critical — will retry on next page load */
+        });
         result.skipped++;
         continue;
       }
@@ -749,6 +768,41 @@ export async function batchReverifyAllFailed(
   }
 
   return result;
+}
+
+/**
+ * Report a verification-failed sample to the reject API for definitive
+ * penalty processing (one penalty per sample, regardless of how many
+ * attempts it took to exhaust retries).
+ *
+ * Uses a localStorage guard to avoid redundant network calls to the
+ * server (the API itself is also idempotent via an in-memory set).
+ */
+async function reportDefinitiveRejection(
+  contributorId: string,
+  contributorName: string,
+  clientSampleId: string,
+): Promise<void> {
+  // Skip if already reported on this device
+  const reportedKey = getReportedRejectKey(contributorId, clientSampleId);
+  try {
+    if (localStorage.getItem(reportedKey) === '1') return;
+  } catch { /* localStorage unavailable — proceed */ }
+
+  try {
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const response = await fetch(`${origin}/api/lipyd/verify/reject`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ contributorId, contributorName, clientSampleId }),
+    });
+
+    if (response.ok) {
+      try { localStorage.setItem(reportedKey, '1'); } catch { /* ok */ }
+    }
+  } catch {
+    // Network error — will retry on next page load
+  }
 }
 
 export async function bootDatasetSync() {
