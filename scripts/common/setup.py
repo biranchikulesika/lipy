@@ -8,9 +8,8 @@ import sys
 from pathlib import Path
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_DATASET_FOLDER = PROJECT_ROOT / "dataset" / "complete_dataset"
-MODEL_PATH = PROJECT_ROOT / "models" / "model.keras"
 
 
 def has_files(path: Path) -> bool:
@@ -67,14 +66,6 @@ def main() -> None:
     else:
         print("[..] Preparing dataset from Hugging Face...")
         run_script("scripts/dataset/download_hf.py")
-
-    # ── Model ──
-    model_root = PROJECT_ROOT / "models"
-    if MODEL_PATH.is_file() and is_git_worktree(model_root):
-        print("[OK] Model already exists.")
-    else:
-        print("[..] Preparing model from Hugging Face...")
-        run_script("scripts/model/download_hf.py")
 
     print("\n" + "=" * 40)
     print("Setup complete.")

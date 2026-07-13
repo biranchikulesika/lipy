@@ -39,12 +39,6 @@ Download the latest dataset:
 python scripts/dataset/download_hf.py
 ```
 
-Download the latest model:
-
-```bash
-python scripts/model/download_hf.py
-```
-
 Validate assets:
 
 ```bash
