@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Bootstrap nested local data/model working copies."""
+"""Set up LiPy folder structure after cloning from GitHub."""
 
 from __future__ import annotations
 
@@ -9,17 +9,15 @@ from pathlib import Path
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_DATASET_FOLDER = PROJECT_ROOT / "dataset" / "complete_dataset"
+DATASET_DIR = PROJECT_ROOT / "dataset"
+COMPLETE_DATASET_DIR = DATASET_DIR / "complete_dataset"
+MODELS_DIR = PROJECT_ROOT / "models"
+
+DATASET_REPO_ID = "biranchikulesika/lipy"
+MODEL_REPO_ID = "biranchikulesika/lipy"
 
 
-def has_files(path: Path) -> bool:
-    """Check if a directory exists and contains non-cache files."""
-    if not path.exists():
-        return False
-    return any(item.name != ".cache" for item in path.iterdir())
-
-
-def is_git_worktree(path: Path) -> bool:
+def is_git_repo(path: Path) -> bool:
     """Check if path is the root of a Git repository."""
     if not path.exists():
         return False
@@ -40,36 +38,34 @@ def is_git_worktree(path: Path) -> bool:
         return False
 
 
-def run_script(relative_path: str) -> None:
-    """Run a Python script from the project root."""
-    script_path = PROJECT_ROOT / relative_path
-    if not script_path.is_file():
-        print(f"Error: script not found: {script_path}", file=sys.stderr)
-        sys.exit(1)
-    result = subprocess.run(
-        [sys.executable, str(script_path)],
-        cwd=PROJECT_ROOT,
-    )
-    if result.returncode != 0:
-        print(f"Error: {relative_path} failed (exit code {result.returncode})", file=sys.stderr)
-        sys.exit(result.returncode)
+def init_hf_repo(local_dir: Path, repo_id: str, repo_type: str) -> None:
+    """Initialize a directory as a nested HF git working copy."""
+    local_dir.mkdir(parents=True, exist_ok=True)
+    if is_git_repo(local_dir):
+        return
+
+    print(f"  Initializing {local_dir.name}/ as HF {repo_type} repo...")
+    url = f"https://huggingface.co/datasets/{repo_id}" if repo_type == "dataset" else f"https://huggingface.co/{repo_id}"
+    subprocess.run(["git", "init"], cwd=local_dir, check=True)
+    subprocess.run(["git", "remote", "add", "origin", url], cwd=local_dir, check=True)
 
 
 def main() -> None:
     print("LiPy Project Setup")
     print("=" * 40)
 
-    # ── Dataset ──
-    dataset_root = PROJECT_ROOT / "dataset"
-    if has_files(DEFAULT_DATASET_FOLDER) and is_git_worktree(dataset_root):
-        print("[OK] Dataset already exists.")
-    else:
-        print("[..] Preparing dataset from Hugging Face...")
-        run_script("scripts/dataset/download_hf.py")
+    print("\n[1/2] Setting up dataset/...")
+    init_hf_repo(DATASET_DIR, DATASET_REPO_ID, "dataset")
+    COMPLETE_DATASET_DIR.mkdir(parents=True, exist_ok=True)
+
+    print("[2/2] Setting up models/...")
+    init_hf_repo(MODELS_DIR, MODEL_REPO_ID, "model")
 
     print("\n" + "=" * 40)
-    print("Setup complete.")
-    print("\nNext steps:")
+    print("Setup complete. Now pull assets from Hugging Face:\n")
+    print("  cd dataset && hf pull && cd ..")
+    print("  cd models  && hf pull && cd ..")
+    print("\nThen start the app:")
     print("  1. Train the model")
     print("  2. Start the backend")
     print("  3. Start the frontend")

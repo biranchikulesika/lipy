@@ -1,6 +1,6 @@
 # Scripts
 
-This directory contains utility scripts used to manage LiPy datasets, trained models, and local project setup.
+This directory contains utility scripts used to manage LiPy datasets and project setup.
 
 ## Structure
 
@@ -9,10 +9,7 @@ common/
     Shared utilities
 
 dataset/
-    Dataset download, upload, validation
-
-model/
-    Model download, upload, validation
+    Dataset download
 ```
 
 ## Installation
@@ -23,34 +20,58 @@ Install the required Python dependency:
 pip install -r scripts/requirements.txt
 ```
 
-Git must also be installed and available in your system `PATH`.
+Git and the Hugging Face CLI (`hf`) must also be installed and available in your system `PATH`.
 
 ## Workflow
 
-Initialize the project:
+### 1. Clone from GitHub
+
+```bash
+git clone https://github.com/biranchikulesika/lipy.git
+cd lipy
+```
+
+### 2. Set up folder structure
 
 ```bash
 python scripts/common/setup.py
 ```
 
-Download the latest dataset:
+### 3. Pull assets from Hugging Face
 
 ```bash
-python scripts/dataset/download_hf.py
+cd dataset && hf pull && cd ..
+cd models  && hf pull && cd ..
 ```
 
-Validate assets:
+### 4. Dataset maintenance
+
+Download new samples from Supabase:
 
 ```bash
-python scripts/dataset/validate.py
-python scripts/model/validate.py
+python scripts/dataset/download_supabase.py
 ```
 
-Upload updated assets:
+Create zip and push updated dataset to HF:
 
 ```bash
-python scripts/dataset/upload_hf.py
-python scripts/model/upload_hf.py
+cd dataset
+rm -f complete_dataset.zip
+zip -r complete_dataset.zip complete_dataset/
+git add complete_dataset.zip README.md .gitattributes
+git commit -m "Update dataset snapshot"
+git push origin main
+cd ..
+```
+
+### 5. Model maintenance
+
+Push updated model to HF:
+
+```bash
+cd models
+hf upload .
+cd ..
 ```
 
 Each subdirectory contains its own README with additional details.
