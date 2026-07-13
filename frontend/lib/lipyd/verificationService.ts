@@ -1,33 +1,17 @@
 /**
  * Verification Service
  *
- * Modular verification pipeline for validating handwriting samples before
- * they enter the dataset. Designed so new verification stages can be
- * inserted without changing the upload API.
+ * Always accepts and stores samples to Supabase. If the LiPy model produces a
+ * high-confidence prediction that matches the expected character, the sample
+ * is marked as `verified`. Otherwise it's saved as `unverified`.
  *
- * Current stages:
- *   1. Ban check        — reject if contributor is temporarily banned
- *   2. Model prediction  — run LiPy recognition model
- *   3. Confidence check  — reject if below threshold
- *   4. Character match   — reject if predicted ≠ expected
- *   5. Acceptance        — store in Supabase, update contributor state
- *
- * Future stages (just add to the pipeline array):
- *   - duplicate image detection
- *   - blank canvas detection
- *   - excessive stroke detection
- *   - AI-generated image detection
- *   - contributor reputation weighting
- *   - manual review queue
- *   - ensemble model verification
+ * Stages:
+ *   1. Model prediction  — run LiPy recognition model
+ *   2. Acceptance        — always store in Supabase; decide verified/unverified
  */
 
 import { createClient } from '@supabase/supabase-js';
-import {
-  MIN_VERIFICATION_CONFIDENCE,
-  TRUST_SCORE_INITIAL,
-  shouldVerify,
-} from '@/constants/LiPy';
+import { MIN_VERIFICATION_CONFIDENCE } from '@/constants/LiPy';
 import { odiaCharacters } from './odiaCharacters';
 
 // ─── Types ───
@@ -50,12 +34,6 @@ export interface VerificationRequest {
 export interface VerificationResult {
   accepted: boolean;
   message: string;
-  details?: {
-    predictedCharacter?: string;
-    predictedCharacterId?: string;
-    confidence?: number;
-    reason?: string;
-  };
 }
 
 export interface VerificationLogEntry {
@@ -65,8 +43,6 @@ export interface VerificationLogEntry {
   predictedCharacter: string | null;
   confidence: number | null;
   accepted: boolean;
-  invalidStreakAfterRequest: number;
-  temporaryBanApplied: boolean;
   processingTimeMs: number;
   stage?: string;
   reason?: string;
@@ -89,23 +65,16 @@ export interface VerificationContext {
   request: VerificationRequest;
   contributor: ContributorState | null;
   prediction: ModelPrediction | null;
-  logs: VerificationLogEntry[];
   startTime: number;
   supabase: SupabaseClientShim;
   config: {
     minConfidence: number;
-    verificationMode: 'full' | 'skip';
   };
 }
 
 export interface ContributorState {
   contributorId: string;
-  invalidStreak: number;
-  bannedUntil: string | null;
-  trustScore: number;
   totalVerified: number;
-  totalRejected: number;
-  lastInvalidAt: string | null;
   lastVerifiedAt: string | null;
 }
 
@@ -211,40 +180,21 @@ function buildStoragePath(request: VerificationRequest): string {
 // ─── Stage implementations ───
 
 /**
- * Stage 0: Check if the contributor is temporarily banned.
- */
-const banCheckStage: VerificationStage = {
-  name: 'ban_check',
-  async execute(ctx: VerificationContext): Promise<VerificationStageResult> {
-    if (!ctx.contributor) {
-      return { passed: true };
-    }
-
-    if (!ctx.contributor.bannedUntil) {
-      return { passed: true };
-    }
-
-    const bannedUntil = new Date(ctx.contributor.bannedUntil).getTime();
-    const now = Date.now();
-
-    if (now < bannedUntil) {
-      return { passed: false, reason: 'Contributor is temporarily banned' };
-    }
-
-    return { passed: true };
-  },
-};
-
-/**
  * Stage 1: Run the LiPy recognition model on the image.
  * Calls the same /predict endpoint used by the OCR feature.
+ * Always returns passed: true — prediction failures are recorded
+ * but don't block acceptance; the sample is saved as 'unverified'.
  */
 const modelPredictionStage: VerificationStage = {
   name: 'model_prediction',
   async execute(ctx: VerificationContext): Promise<VerificationStageResult> {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '');
+
+    // If the model API is unavailable, log the error and let the sample
+    // fall through to acceptance as 'unverified'.
     if (!apiUrl) {
-      return { passed: false, reason: 'Model API URL is not configured' };
+      console.warn('Model API URL not configured — saving sample as unverified');
+      return { passed: true };
     }
 
     try {
@@ -266,7 +216,8 @@ const modelPredictionStage: VerificationStage = {
       });
 
       if (!response.ok) {
-        return { passed: false, reason: `Model API returned status ${response.status}` };
+        console.warn(`Model API returned status ${response.status} — saving sample as unverified`);
+        return { passed: true };
       }
 
       const rawPrediction = (await response.json()) as {
@@ -309,86 +260,54 @@ const modelPredictionStage: VerificationStage = {
       return { passed: true };
     } catch (error) {
       const msg = error instanceof Error ? error.message : 'Model prediction failed';
-      return { passed: false, reason: msg };
-    }
-  },
-};
-
-/**
- * Stage 2: Check that model confidence exceeds the minimum threshold.
- */
-const confidenceCheckStage: VerificationStage = {
-  name: 'confidence_check',
-  async execute(ctx: VerificationContext): Promise<VerificationStageResult> {
-    if (!ctx.prediction) {
-      return { passed: false, reason: 'No prediction available' };
-    }
-
-    if (ctx.prediction.confidence < ctx.config.minConfidence) {
-      return {
-        passed: false,
-        reason: `Confidence ${(ctx.prediction.confidence * 100).toFixed(1)}% below minimum ${(ctx.config.minConfidence * 100).toFixed(0)}%`,
-      };
-    }
-
-    return { passed: true };
-  },
-};
-
-/**
- * Stage 3: Check that the predicted character matches the expected character.
- *
- * Matching is attempted in this priority order:
- *   1. Character ID match — predicted character ID === expected character ID
- *   2. Character text match — predicted character text === expected character text
- *   3. Label fallback — predicted label resolves to expected character ID
- */
-const characterMatchStage: VerificationStage = {
-  name: 'character_match',
-  async execute(ctx: VerificationContext): Promise<VerificationStageResult> {
-    if (!ctx.prediction) {
-      return { passed: false, reason: 'No prediction available' };
-    }
-
-    const expectedId = ctx.request.expectedCharacterId;
-    const predictedId = ctx.prediction.characterId;
-    const predictedChar = ctx.prediction.character;
-
-    // 1. Match by character ID (most reliable)
-    if (predictedId && predictedId === expectedId) {
+      console.warn(`Model prediction error: ${msg} — saving sample as unverified`);
       return { passed: true };
     }
-
-    // 2. Match by character text with Unicode normalization
-    if (predictedChar && ctx.request.expectedCharacter) {
-      // Normalize both to NFC to avoid Unicode form mismatch
-      const normalizedPredicted = predictedChar.normalize('NFC');
-      const normalizedExpected = ctx.request.expectedCharacter.normalize('NFC');
-      if (normalizedPredicted === normalizedExpected) {
-        return { passed: true };
-      }
-    }
-
-    // 3. Try matching by prediction label via top_predictions if available
-    const raw = ctx.prediction.raw as Record<string, unknown> | null;
-    if (raw?.top_predictions && Array.isArray(raw.top_predictions)) {
-      for (const entry of raw.top_predictions) {
-        const label = String(entry?.label ?? '');
-        if (label && findIdByLabel(label) === expectedId) {
-          return { passed: true };
-        }
-      }
-    }
-
-    return {
-      passed: false,
-      reason: 'Predicted character does not match expected',
-    };
   },
 };
 
 /**
- * Stage 4 (Final): Store the verified sample in Supabase Storage + Database.
+ * Helper: determine if a model prediction passes verification checks.
+ * Checks confidence threshold and character match.
+ */
+function doesPredictionPass(
+  prediction: ModelPrediction | null,
+  expectedCharacterId: string,
+  expectedCharacter: string,
+  minConfidence: number,
+): boolean {
+  if (!prediction) return false;
+  if (prediction.confidence < minConfidence) return false;
+
+  const predictedId = prediction.characterId;
+  const predictedChar = prediction.character;
+
+  // 1. Match by character ID (most reliable)
+  if (predictedId && predictedId === expectedCharacterId) return true;
+
+  // 2. Match by character text with Unicode normalization
+  if (predictedChar && expectedCharacter) {
+    const normalizedPredicted = predictedChar.normalize('NFC');
+    const normalizedExpected = expectedCharacter.normalize('NFC');
+    if (normalizedPredicted === normalizedExpected) return true;
+  }
+
+  // 3. Try matching by prediction label via top_predictions
+  const raw = prediction.raw as Record<string, unknown> | null;
+  if (raw?.top_predictions && Array.isArray(raw.top_predictions)) {
+    for (const entry of raw.top_predictions) {
+      const label = String(entry?.label ?? '');
+      if (label && findIdByLabel(label) === expectedCharacterId) return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Stage 2 (Final): Store the sample in Supabase Storage + Database.
+ * Always saves the sample — the `verified` status depends on whether the
+ * model prediction passed confidence and character match checks.
  */
 const acceptanceStage: VerificationStage = {
   name: 'acceptance',
@@ -419,32 +338,26 @@ const acceptanceStage: VerificationStage = {
         return { passed: false, reason: `Storage upload failed: ${uploadResult.error.message}` };
       }
 
-      // 3. Upsert contributor record with updated state
+      // 3. Upsert contributor record — track last seen and verified count
       const now = nowIso();
-      const isFullVerification = ctx.config.verificationMode === 'full';
+      const modelPassed = doesPredictionPass(
+        ctx.prediction,
+        req.expectedCharacterId,
+        req.expectedCharacter,
+        ctx.config.minConfidence,
+      );
+      // isVerified = model prediction passed (confidence + character match)
+      const isVerified = modelPassed;
 
-      // Always include all stats fields with proper defaults so new
-      // contributors are fully initialised and existing values persist.
       const contributorPayload: Record<string, unknown> = {
         contributor_id: req.contributorId,
         contributor_name: req.contributorName,
         last_seen_at: now,
-        total_rejected: ctx.contributor?.totalRejected ?? 0,
-        invalid_streak: ctx.contributor?.invalidStreak ?? 0,
-        trust_score: ctx.contributor?.trustScore ?? TRUST_SCORE_INITIAL,
       };
 
-      if (isFullVerification) {
-        // Full verification: count as verified, reset streak, boost trust
+      if (isVerified) {
         contributorPayload.total_verified = (ctx.contributor?.totalVerified ?? 0) + 1;
-        contributorPayload.invalid_streak = 0;
         contributorPayload.last_verified_at = now;
-        contributorPayload.last_invalid_at = ctx.contributor?.lastInvalidAt ?? null;
-        contributorPayload.trust_score = Math.min(100, (ctx.contributor?.trustScore ?? TRUST_SCORE_INITIAL) + 1);
-
-        if (ctx.contributor?.bannedUntil) {
-          contributorPayload.banned_until = null;
-        }
       }
 
       const contributorResult = await supabase
@@ -475,7 +388,6 @@ const acceptanceStage: VerificationStage = {
       }
 
       // 5. Insert sample record with appropriate status
-      const isVerified = isFullVerification;
       const samplePayload: Record<string, unknown> = {
         client_sample_id: req.clientSampleId,
         contributor_id: req.contributorId,
@@ -502,7 +414,7 @@ const acceptanceStage: VerificationStage = {
           mode: req.mode,
           characterId: req.expectedCharacterId,
           character: req.expectedCharacter,
-          verifiedBy: isVerified ? 'verification_service' : 'skip_verification',
+          verifiedBy: isVerified ? 'verification_service' : 'unverified',
           verifiedAt: isVerified ? now : null,
           confidence: ctx.prediction?.confidence ?? null,
           predictedCharacter: ctx.prediction?.character ?? null,
@@ -537,9 +449,7 @@ async function getContributorState(
   try {
     const { data, error } = await supabase
       .from('lipy_contributors')
-      .select(
-        'contributor_id, invalid_streak, banned_until, trust_score, total_verified, total_rejected, last_invalid_at, last_verified_at',
-      )
+      .select('contributor_id, total_verified, last_verified_at')
       .eq('contributor_id', contributorId)
       .single();
 
@@ -547,12 +457,7 @@ async function getContributorState(
 
     return {
       contributorId: String(data.contributor_id ?? ''),
-      invalidStreak: Number(data.invalid_streak ?? 0),
-      bannedUntil: data.banned_until ? String(data.banned_until) : null,
-      trustScore: Number(data.trust_score ?? 0),
       totalVerified: Number(data.total_verified ?? 0),
-      totalRejected: Number(data.total_rejected ?? 0),
-      lastInvalidAt: data.last_invalid_at ? String(data.last_invalid_at) : null,
       lastVerifiedAt: data.last_verified_at ? String(data.last_verified_at) : null,
     };
   } catch {
@@ -581,8 +486,6 @@ async function persistLogToSupabase(entry: VerificationLogEntry): Promise<void> 
       predicted_character: entry.predictedCharacter ?? null,
       confidence: entry.confidence ?? null,
       accepted: entry.accepted,
-      invalid_streak_after_request: entry.invalidStreakAfterRequest,
-      temporary_ban_applied: entry.temporaryBanApplied,
       processing_time_ms: entry.processingTimeMs,
       stage: entry.stage ?? null,
       reason: entry.reason ?? null,
@@ -635,8 +538,6 @@ export async function getPersistedLogs(limit = 200): Promise<VerificationLogEntr
       predictedCharacter: row.predicted_character ? String(row.predicted_character) : null,
       confidence: row.confidence != null ? Number(row.confidence) : null,
       accepted: Boolean(row.accepted),
-      invalidStreakAfterRequest: Number(row.invalid_streak_after_request ?? 0),
-      temporaryBanApplied: Boolean(row.temporary_ban_applied),
       processingTimeMs: Number(row.processing_time_ms ?? 0),
       stage: row.stage ? String(row.stage) : undefined,
       reason: row.reason ? String(row.reason) : undefined,
@@ -659,11 +560,9 @@ export function clearVerificationLogs(): void {
 /**
  * Run the verification pipeline for a given request.
  *
- * The pipeline is built dynamically based on the character ID:
- *   - Characters in the skip-verification set skip model stages
- *     and are stored directly as 'unverified'.
- *   - All other characters go through the full pipeline:
- *     ban_check → model_prediction → confidence_check → character_match → acceptance
+ * The pipeline always runs model prediction, then stores the sample.
+ * If the prediction passes confidence + character match checks, the sample
+ * is stored as 'verified'; otherwise it's stored as 'unverified'.
  *
  * @param request - The verification request containing image and metadata
  * @returns VerificationResult with acceptance decision
@@ -678,12 +577,10 @@ export async function verifySample(
     request,
     contributor: null,
     prediction: null,
-    logs: [],
     startTime,
     supabase,
     config: {
       minConfidence: MIN_VERIFICATION_CONFIDENCE,
-      verificationMode: shouldVerify(request.expectedCharacterId) ? 'full' : 'skip',
     },
   };
 
@@ -699,12 +596,8 @@ export async function verifySample(
   let failedStage = '';
   let failedReason = '';
 
-  // Build pipeline dynamically based on verification mode
-  const stages: VerificationStage[] = [banCheckStage];
-  if (context.config.verificationMode === 'full') {
-    stages.push(modelPredictionStage, confidenceCheckStage, characterMatchStage);
-  }
-  stages.push(acceptanceStage);
+  // Build pipeline: always run model prediction, then always accept
+  const stages: VerificationStage[] = [modelPredictionStage, acceptanceStage];
 
   for (const stage of stages) {
     try {
@@ -738,8 +631,6 @@ export async function verifySample(
     predictedCharacter: context.prediction?.character ?? null,
     confidence: context.prediction?.confidence ?? null,
     accepted: finalAccepted,
-    invalidStreakAfterRequest: context.contributor?.invalidStreak ?? 0,
-    temporaryBanApplied: false,
     processingTimeMs,
     stage: failedStage || 'complete',
     reason: failedReason || (finalAccepted ? 'accepted' : 'unknown'),

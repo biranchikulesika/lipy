@@ -132,6 +132,22 @@ function DatasetViewerContent() {
   const [bulkActionLoading, setBulkActionLoading] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [confirmModalAction, setConfirmModalAction] = useState<'verify' | 'unverify' | 'delete' | null>(null);
+  
+  // Delete contributor state
+  const [deleteContributorConfirmId, setDeleteContributorConfirmId] = useState<string | null>(null);
+  const [deletingContributor, setDeletingContributor] = useState(false);
+
+  // Resolve the selected contributor's display name from the contributors list
+  const selectedContributorName = selectedContributor
+    ? contributors.find(c => c.id === selectedContributor)?.name || selectedContributor
+    : '';
+
+  // Track whether non-contributor filters are active — if so, the grid may be
+  // empty due to those filters rather than the contributor having zero samples.
+  const hasNonContributorFilters = !!(
+    selectedCharacter || selectedType || selectedMode || selectedStatus ||
+    startDate || endDate || searchQuery.trim()
+  );
   const [stats, setStats] = useState({
     total: 0,
     contributors: 0
@@ -205,47 +221,64 @@ function DatasetViewerContent() {
   // Fetch metrics & stats
   const fetchStats = useCallback(async (client: any) => {
     try {
-      // 1. Get total counts
+      // 1. Get total sample count
       const { count: total, error: err1 } = await client
         .from('lipy_samples')
         .select('*', { count: 'exact', head: true });
         
       if (err1) throw err1;
 
-      // 2. Get contributors who have at least 1 sample (with count)
-      const { data: contribData, error: err2 } = await client
+      // 2. Fetch deduplicated contributor list from both lipy_samples
+      //    (contributors with samples) and lipy_contributors (all profiles).
+      //    Uses high limit to avoid PostgREST's 1000-row default.
+      const contributorMap = new Map<string, { name: string }>();
+
+      // 2a. Contributors with samples in lipy_samples
+      const { data: sampleContribs, error: err2 } = await client
         .from('lipy_samples')
         .select('contributor_id, contributor_name')
-        .not('storage_path', 'is', null);
-      
-      if (err2) throw err2;
+        .not('storage_path', 'is', null)
+        .limit(100000);
 
-      let uniqueContributors = 0;
-      const uniqueContribsMap = new Map<string, { name: string; count: number }>();
-
-      if (contribData) {
-        contribData.forEach((d: any) => {
+      if (err2) {
+        console.error('Error fetching sample contributors:', err2);
+      } else if (sampleContribs) {
+        for (const d of sampleContribs as Array<Record<string, unknown>>) {
           if (d.contributor_id) {
-            const existing = uniqueContribsMap.get(d.contributor_id);
-            if (existing) {
-              existing.count++;
-            } else {
-              uniqueContribsMap.set(d.contributor_id, { name: d.contributor_name || d.contributor_id, count: 1 });
+            const name = String(d.contributor_name || '').trim() || String(d.contributor_id);
+            contributorMap.set(String(d.contributor_id), { name });
+          }
+        }
+      }
+
+      // 2b. All profiles from lipy_contributors (zero-sample contributors)
+      const { data: profileContribs, error: err3 } = await client
+        .from('lipy_contributors')
+        .select('contributor_id, contributor_name');
+
+      if (err3) {
+        console.error('Error fetching contributor profiles:', err3);
+      } else if (profileContribs) {
+        for (const d of profileContribs as Array<Record<string, unknown>>) {
+          if (d.contributor_id) {
+            const cid = String(d.contributor_id);
+            if (!contributorMap.has(cid)) {
+              const name = String(d.contributor_name || '').trim() || cid;
+              contributorMap.set(cid, { name });
             }
           }
-        });
-        // Only keep contributors with at least 1 image
-        const list = Array.from(uniqueContribsMap.entries())
-          .filter(([, v]) => v.count > 0)
-          .map(([id, v]) => ({ id, name: v.name }))
-          .sort((a, b) => a.name.localeCompare(b.name));
-        uniqueContributors = list.length;
-        setContributors(list);
+        }
       }
+
+      const list = Array.from(contributorMap.entries())
+        .map(([id, v]) => ({ id, name: v.name }))
+        .sort((a, b) => a.name.localeCompare(b.name));
+
+      setContributors(list);
 
       setStats({
         total: total || 0,
-        contributors: uniqueContributors
+        contributors: list.length,
       });
     } catch (error: any) {
       console.error('Error fetching dataset stats:', error?.message || error);
@@ -687,6 +720,38 @@ function DatasetViewerContent() {
       alert('Failed to delete samples. Check console.');
     } finally {
       setBulkActionLoading(false);
+    }
+  };
+
+  // Delete a contributor and all associated traces
+  const handleDeleteContributor = async () => {
+    if (!supabase || !selectedContributor || deletingContributor) return;
+    setDeletingContributor(true);
+
+    try {
+      const resp = await fetch('/api/lipyd/delete-contributor', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contributorId: selectedContributor }),
+      });
+
+      const result = await resp.json();
+
+      if (!resp.ok || !result.success) {
+        throw new Error(result.message || 'Failed to delete contributor');
+      }
+
+      // Refresh everything
+      setSelectedContributor('');
+      setCurrentPage(1);
+      setDeleteContributorConfirmId(null);
+      fetchSamples();
+      fetchStats(supabase);
+    } catch (error: any) {
+      console.error('Error deleting contributor:', error);
+      alert('Failed to delete contributor. Check console for details.');
+    } finally {
+      setDeletingContributor(false);
     }
   };
 
@@ -1354,6 +1419,70 @@ function DatasetViewerContent() {
             >
               Reset All Filters
             </button>
+
+            {/* Contributor delete option — only shown when a specific contributor is selected */}
+            {/* and no other filters would be hiding their samples */}
+            {selectedContributor && !deleteContributorConfirmId && (
+              <div className="pt-5 border-t border-stone-200 dark:border-stone-800">
+                {hasNonContributorFilters ? (
+                  <>
+                    <p className="text-[11px] text-stone-500 dark:text-stone-400 mb-3 leading-relaxed">
+                      Other filters may be hiding this contributor&apos;s samples. Try clearing filters first.
+                    </p>
+                    <button
+                      onClick={handleResetFilters}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/20 hover:bg-amber-100 dark:hover:bg-amber-950/40 text-amber-600 dark:text-amber-400 text-xs font-bold border border-amber-100 dark:border-amber-950/30 transition-all"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5" />
+                      Clear All Filters
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-[11px] text-stone-500 dark:text-stone-400 mb-3 leading-relaxed">
+                      This contributor is registered in the database but has no saved samples.
+                    </p>
+                    <button
+                      onClick={() => setDeleteContributorConfirmId(selectedContributor)}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-red-50 dark:bg-red-950/20 hover:bg-red-100 dark:hover:bg-red-950/40 text-red-600 dark:text-red-400 text-xs font-bold border border-red-100 dark:border-red-950/30 transition-all"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      Delete {selectedContributorName} permanently
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* Delete contributor confirmation */}
+            {deleteContributorConfirmId && (
+              <div className="pt-5 border-t border-stone-200 dark:border-stone-800">
+                <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded-xl p-4 space-y-3">
+                  <div className="flex gap-2 items-start text-left">
+                    <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                    <p className="text-xs text-red-700 dark:text-red-300 leading-relaxed">
+                      This will permanently delete <strong>{selectedContributorName}</strong> and all associated samples, sessions, and verification logs. This action cannot be undone.
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleDeleteContributor}
+                      disabled={deletingContributor}
+                      className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-colors disabled:opacity-50"
+                    >
+                      {deletingContributor ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                      Yes, Delete Permanently
+                    </button>
+                    <button
+                      onClick={() => setDeleteContributorConfirmId(null)}
+                      className="px-3 py-2 border border-stone-200 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-900 rounded-lg text-xs font-semibold transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <div ref={gridContainerRef} className="grid grid-cols-[repeat(auto-fill,minmax(96px,1fr))] gap-3">

@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
-  ShieldAlert, AlertTriangle, CheckCircle2, XCircle,
-  Clock, UserCheck, Ban, TrendingUp, Loader2,
+  ShieldAlert, AlertTriangle, CheckCircle2,
+  Clock, UserCheck, TrendingUp, Loader2,
   ChevronDown, Search, RefreshCw, Activity,
   Users, Fingerprint,
 } from 'lucide-react';
@@ -18,8 +18,6 @@ interface VerificationLogEntry {
   predictedCharacter: string | null;
   confidence: number | null;
   accepted: boolean;
-  invalidStreakAfterRequest: number;
-  temporaryBanApplied: boolean;
   processingTimeMs: number;
   stage?: string;
   reason?: string;
@@ -28,12 +26,7 @@ interface VerificationLogEntry {
 interface ContributorStats {
   contributor_id: string;
   contributor_name: string;
-  invalid_streak: number;
-  banned_until: string | null;
-  trust_score: number;
   total_verified: number;
-  total_rejected: number;
-  last_invalid_at: string | null;
   last_verified_at: string | null;
   last_seen_at: string | null;
 }
@@ -41,8 +34,6 @@ interface ContributorStats {
 interface ApiResponse {
   logs: VerificationLogEntry[];
   contributors: ContributorStats[];
-  totalBanned: number;
-  totalWithStreak: number;
   timestamp: string;
 }
 
@@ -61,21 +52,6 @@ function formatTimeAgo(iso: string): string {
   } catch {
     return '';
   }
-}
-
-function isBanned(contributor: ContributorStats): boolean {
-  if (!contributor.banned_until) return false;
-  return new Date(contributor.banned_until).getTime() > Date.now();
-}
-
-function getBanRemaining(contributor: ContributorStats): string {
-  if (!contributor.banned_until) return '';
-  const diff = new Date(contributor.banned_until).getTime() - Date.now();
-  if (diff <= 0) return '';
-  const hours = Math.floor(diff / 3600000);
-  const mins = Math.floor((diff % 3600000) / 60000);
-  if (hours > 0) return `${hours}h ${mins}m remaining`;
-  return `${mins}m remaining`;
 }
 
 // ─── Stat Card ───
@@ -120,16 +96,11 @@ function StatCard({
 
 // ─── Status Badge ───
 
-function StatusBadge({ accepted }: { accepted: boolean }) {
-  return accepted ? (
+function StatusBadge() {
+  return (
     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950/20 border border-emerald-900/40 text-emerald-400 uppercase tracking-wider shrink-0">
       <CheckCircle2 className="w-3 h-3" />
-      Accepted
-    </span>
-  ) : (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-950/20 border border-rose-900/40 text-rose-400 uppercase tracking-wider shrink-0">
-      <XCircle className="w-3 h-3" />
-      Rejected
+      Processed
     </span>
   );
 }
@@ -143,9 +114,7 @@ export function VerificationDashboard() {
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
-  const [showOnlyBanned, setShowOnlyBanned] = useState(false);
-  const [showOnlyWithStreak, setShowOnlyWithStreak] = useState(false);
-  const [logFilter, setLogFilter] = useState<'all' | 'accepted' | 'rejected'>('all');
+  const [showOnlyVerified, setShowOnlyVerified] = useState(false);
   const [showContributors, setShowContributors] = useState(true);
 
   const fetchData = useCallback(async () => {
@@ -177,19 +146,16 @@ export function VerificationDashboard() {
 
   // Filter contributors
   const filteredContributors = data?.contributors.filter((c) => {
-    const nameMatch =
+    return (
       !searchQuery ||
       c.contributor_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.contributor_id?.toLowerCase().includes(searchQuery.toLowerCase());
-    const banMatch = showOnlyBanned ? isBanned(c) : true;
-    const streakMatch = showOnlyWithStreak ? (c.invalid_streak ?? 0) > 0 : true;
-    return nameMatch && banMatch && streakMatch;
+      c.contributor_id?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
   }) ?? [];
 
   // Filter logs
   const filteredLogs = data?.logs.filter((l) => {
-    if (logFilter === 'accepted') return l.accepted;
-    if (logFilter === 'rejected') return !l.accepted;
+    if (showOnlyVerified) return l.accepted;
     return true;
   }) ?? [];
 
@@ -247,8 +213,6 @@ export function VerificationDashboard() {
     );
   }
 
-  const currentlyBanned = data?.contributors.filter((c) => isBanned(c)) ?? [];
-  const streakContributors = data?.contributors.filter((c) => (c.invalid_streak ?? 0) > 0) ?? [];
   const lastRefreshed = data?.timestamp ? formatTimeAgo(data.timestamp) : '';
 
   return (
@@ -290,21 +254,6 @@ export function VerificationDashboard() {
           icon={Users}
           color="bg-blue-950/30 text-blue-500"
           delay={0.05}
-        />
-        <StatCard
-          label="Currently Banned"
-          value={currentlyBanned.length}
-          icon={Ban}
-          color="bg-red-950/30 text-red-500"
-          subtitle={currentlyBanned.length > 0 ? `${data?.totalBanned ?? 0} total bans` : undefined}
-          delay={0.1}
-        />
-        <StatCard
-          label="With Invalid Streak"
-          value={streakContributors.length}
-          icon={AlertTriangle}
-          color="bg-amber-950/30 text-amber-500"
-          delay={0.15}
         />
         <StatCard
           label="Verifications"
@@ -350,7 +299,7 @@ export function VerificationDashboard() {
                 transition={{ duration: 0.2 }}
                 className="overflow-hidden"
               >
-                {/* Filters */}
+                {/* Search */}
                 <div className="px-4 pb-3 flex flex-wrap items-center gap-2 border-b border-stone-900">
                   <div className="relative flex-1 min-w-36">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-stone-500 pointer-events-none" />
@@ -362,138 +311,59 @@ export function VerificationDashboard() {
                       className="w-full bg-stone-900/40 border border-stone-800 rounded-lg pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500/30 text-stone-200 placeholder-stone-500"
                     />
                   </div>
-                  <button
-                    onClick={() => { setShowOnlyBanned(!showOnlyBanned); setShowOnlyWithStreak(false); }}
-                    className={`px-2.5 py-1.5 rounded-lg text-[10px] font-semibold border transition-colors ${
-                      showOnlyBanned
-                        ? 'bg-red-950/20 border-red-900/40 text-red-400'
-                        : 'bg-stone-900/40 border-stone-800 text-stone-400 hover:text-stone-300'
-                    }`}
-                  >
-                    <Ban className="w-3 h-3 inline mr-1" />
-                    Banned
-                  </button>
-                  <button
-                    onClick={() => { setShowOnlyWithStreak(!showOnlyWithStreak); setShowOnlyBanned(false); }}
-                    className={`px-2.5 py-1.5 rounded-lg text-[10px] font-semibold border transition-colors ${
-                      showOnlyWithStreak
-                        ? 'bg-amber-950/20 border-amber-900/40 text-amber-400'
-                        : 'bg-stone-900/40 border-stone-800 text-stone-400 hover:text-stone-300'
-                    }`}
-                  >
-                    <AlertTriangle className="w-3 h-3 inline mr-1" />
-                    Streaks
-                  </button>
                 </div>
 
-                {/* Contributor List — all stats visible inline, no expand needed */}
+                {/* Contributor List */}
                 <div className="divide-y divide-stone-900/50 max-h-96 overflow-y-auto">
                   {filteredContributors.length === 0 ? (
                     <div className="p-8 text-center text-stone-500 text-xs">
-                      {searchQuery || showOnlyBanned || showOnlyWithStreak
+                      {searchQuery
                         ? 'No contributors match the current filters.'
                         : 'No contributors found.'}
                     </div>
                   ) : (
-                    filteredContributors.map((contributor) => {
-                      const banned = isBanned(contributor);
-                      const hasStreak = (contributor.invalid_streak ?? 0) > 0;
-                      const trustLevel = contributor.trust_score ?? 0;
+                    filteredContributors.map((contributor) => (
+                      <div key={contributor.contributor_id} className="group px-4 py-2.5 hover:bg-stone-900/20 transition-colors">
+                        <div className="flex items-center gap-3 min-w-0">
+                          {/* Status dot */}
+                          <div className="w-2.5 h-2.5 rounded-full shrink-0 bg-emerald-500" />
 
-                      return (
-                        <div key={contributor.contributor_id} className="group px-4 py-2.5 hover:bg-stone-900/20 transition-colors">
-                          <div className="flex items-center gap-3 min-w-0">
-                            {/* Status dot */}
-                            <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-                              banned
-                                ? 'bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.4)]'
-                                : hasStreak
-                                  ? 'bg-amber-500'
-                                  : 'bg-emerald-500'
-                            }`} />
-
-                            {/* Name + ID */}
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <span className="text-sm font-semibold text-stone-200 truncate max-w-32 sm:max-w-48 group-hover:text-stone-100 transition-colors">
-                                  {contributor.contributor_name || 'Anonymous'}
+                          {/* Name + ID */}
+                          <div className="min-w-0 flex-1">
+                            <span className="text-sm font-semibold text-stone-200 truncate max-w-32 sm:max-w-48 group-hover:text-stone-100 transition-colors">
+                              {contributor.contributor_name || 'Anonymous'}
+                            </span>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-[10px] font-mono text-stone-500 truncate max-w-28 sm:max-w-44" title={contributor.contributor_id}>
+                                <Fingerprint className="w-2.5 h-2.5 inline mr-0.5 opacity-60" />
+                                {contributor.contributor_id}
+                              </span>
+                              {contributor.last_seen_at && (
+                                <span className="text-[9px] text-stone-600 whitespace-nowrap">
+                                  <Clock className="w-2.5 h-2.5 inline mr-0.5 opacity-50" />
+                                  {formatTimeAgo(contributor.last_seen_at)}
                                 </span>
-                                {banned && (
-                                  <span className="text-[9px] font-bold text-red-400 bg-red-950/20 px-1.5 py-0.5 rounded border border-red-900/40 uppercase leading-none">
-                                    Banned
-                                  </span>
-                                )}
-                              </div>
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <span className="text-[10px] font-mono text-stone-500 truncate max-w-28 sm:max-w-44" title={contributor.contributor_id}>
-                                  <Fingerprint className="w-2.5 h-2.5 inline mr-0.5 opacity-60" />
-                                  {contributor.contributor_id}
+                              )}
+                              {contributor.last_verified_at && (
+                                <span className="text-[9px] text-emerald-700 whitespace-nowrap">
+                                  <CheckCircle2 className="w-2.5 h-2.5 inline mr-0.5" />
+                                  Verified {formatTimeAgo(contributor.last_verified_at)}
                                 </span>
-                                {contributor.last_seen_at && (
-                                  <span className="text-[9px] text-stone-600 whitespace-nowrap">
-                                    <Clock className="w-2.5 h-2.5 inline mr-0.5 opacity-50" />
-                                    {formatTimeAgo(contributor.last_seen_at)}
-                                  </span>
-                                )}
-                                {contributor.last_verified_at && (
-                                  <span className="text-[9px] text-emerald-700 whitespace-nowrap">
-                                    <CheckCircle2 className="w-2.5 h-2.5 inline mr-0.5" />
-                                    Verified {formatTimeAgo(contributor.last_verified_at)}
-                                  </span>
-                                )}
-                                {contributor.last_invalid_at && (
-                                  <span className="text-[9px] text-rose-700 whitespace-nowrap">
-                                    <XCircle className="w-2.5 h-2.5 inline mr-0.5" />
-                                    Invalid {formatTimeAgo(contributor.last_invalid_at)}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-
-                            {/* Stats pills — always visible */}
-                            <div className="flex items-center gap-1.5 shrink-0 flex-wrap justify-end">
-                              <StatPill
-                                label="V"
-                                value={contributor.total_verified ?? 0}
-                                color="text-emerald-400 bg-emerald-950/20"
-                              />
-                              <StatPill
-                                label="R"
-                                value={contributor.total_rejected ?? 0}
-                                color="text-rose-400 bg-rose-950/20"
-                              />
-                              <StatPill
-                                label="S"
-                                value={contributor.invalid_streak ?? 0}
-                                color={hasStreak ? 'text-amber-400 bg-amber-950/20' : 'text-stone-500 bg-stone-900/40'}
-                              />
-                              <StatPill
-                                label="T"
-                                value={trustLevel}
-                                color={trustLevel >= 80
-                                  ? 'text-emerald-400 bg-emerald-950/20'
-                                  : trustLevel >= 40
-                                    ? 'text-amber-400 bg-amber-950/20'
-                                    : 'text-stone-500 bg-stone-900/40'
-                                }
-                              />
+                              )}
                             </div>
                           </div>
 
-                          {/* Ban notice for banned contributors */}
-                          {banned && (
-                            <div className="mt-1.5 ml-6 text-[10px] text-red-400/70 flex items-center gap-1.5">
-                              <Ban className="w-3 h-3" />
-                              Banned until {new Date(contributor.banned_until!).toLocaleDateString('en-IN', {
-                                day: 'numeric', month: 'short', year: 'numeric',
-                                hour: '2-digit', minute: '2-digit',
-                              })}
-                              <span className="text-red-300/50 font-normal">({getBanRemaining(contributor)})</span>
-                            </div>
-                          )}
+                          {/* Verified count */}
+                          <div className="shrink-0">
+                            <StatPill
+                              label="V"
+                              value={contributor.total_verified ?? 0}
+                              color="text-emerald-400 bg-emerald-950/20"
+                            />
+                          </div>
                         </div>
-                      );
-                    })
+                      </div>
+                    ))
                   )}
                 </div>
               </motion.div>
@@ -520,21 +390,16 @@ export function VerificationDashboard() {
                 {filteredLogs.length} events
               </span>
             </div>
-            <div className="flex items-center gap-1 bg-stone-900/40 rounded-lg p-0.5">
-              {(['all', 'accepted', 'rejected'] as const).map((f) => (
-                <button
-                  key={f}
-                  onClick={() => setLogFilter(f)}
-                  className={`px-2.5 py-1 rounded-md text-[10px] font-semibold transition-all ${
-                    logFilter === f
-                      ? 'bg-stone-800 text-stone-200 shadow-sm'
-                      : 'text-stone-500 hover:text-stone-300'
-                  }`}
-                >
-                  {f === 'all' ? 'All' : f === 'accepted' ? 'Accepted' : 'Rejected'}
-                </button>
-              ))}
-            </div>
+            <button
+              onClick={() => setShowOnlyVerified(!showOnlyVerified)}
+              className={`px-2.5 py-1 rounded-md text-[10px] font-semibold transition-all ${
+                showOnlyVerified
+                  ? 'bg-stone-800 text-stone-200 shadow-sm'
+                  : 'text-stone-500 hover:text-stone-300'
+              }`}
+            >
+              {showOnlyVerified ? 'Verified Only' : 'All Events'}
+            </button>
           </div>
 
           {/* Log entries */}
@@ -558,9 +423,7 @@ export function VerificationDashboard() {
                   >
                     {/* Timeline dot */}
                     <div className="flex flex-col items-center gap-1 pt-1 shrink-0">
-                      <div className={`w-2 h-2 rounded-full ${
-                        log.accepted ? 'bg-emerald-500' : 'bg-rose-500'
-                      }`} />
+                      <div className="w-2 h-2 rounded-full bg-emerald-500" />
                       {idx < filteredLogs.length - 1 && (
                         <div className="w-px flex-1 bg-stone-900/60 min-h-4" />
                       )}
@@ -582,7 +445,7 @@ export function VerificationDashboard() {
                             </>
                           )}
                         </div>
-                        <StatusBadge accepted={log.accepted} />
+                        <StatusBadge />
                       </div>
                       <div className="flex items-center gap-2.5 text-[10px] text-stone-500 mt-1 flex-wrap">
                         {log.confidence != null && (
@@ -594,9 +457,6 @@ export function VerificationDashboard() {
                         <span className="opacity-60">{formatTimeAgo(log.timestamp)}</span>
                         {log.stage && log.stage !== 'complete' && (
                           <span className="text-stone-600 font-mono text-[9px]">stage: {log.stage}</span>
-                        )}
-                        {log.temporaryBanApplied && (
-                          <span className="text-red-500/80 font-semibold">+ban</span>
                         )}
                       </div>
                     </div>

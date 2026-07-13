@@ -4,7 +4,7 @@ import useCanvasDrawing from '@/hooks/lipyd/useCanvasDrawing';
 import { odiaCharacters, OdiaCharacter } from '@/lib/lipyd/odiaCharacters';
 import { saveSample } from '@/lib/lipyd/storageService';
 import { generateFilename } from '@/lib/lipyd/filenameService';
-import { createClientSampleId, queueSampleUpload, batchReverifyAllFailed, bootDatasetSync, processUploadQueue } from '@/lib/lipyd/datasetSyncService';
+import { createClientSampleId, queueSampleUpload, bootDatasetSync, processUploadQueue } from '@/lib/lipyd/datasetSyncService';
 import schedulerService from '@/lib/lipyd/randomCharacterService';
 import { Trash2, SkipForward, Shuffle, Check } from 'lucide-react';
 
@@ -63,7 +63,7 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
 
     const timer = setTimeout(async () => {
       try {
-        await batchReverifyAllFailed(sessionConfig.contributorId);
+        // No batch re-verify needed — all samples are now saved to DB
         try { window.dispatchEvent(new CustomEvent('lipy:samples-updated')); } catch {}
       } catch {
         // Silently retry in background — never expose to user

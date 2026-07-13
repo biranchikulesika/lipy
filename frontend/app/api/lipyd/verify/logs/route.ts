@@ -24,12 +24,7 @@ import { getVerificationLogs, getPersistedLogs } from '@/lib/lipyd/verificationS
 interface ContributorRow {
   contributor_id: string;
   contributor_name: string;
-  invalid_streak: number;
-  banned_until: string | null;
-  trust_score: number;
   total_verified: number;
-  total_rejected: number;
-  last_invalid_at: string | null;
   last_verified_at: string | null;
   last_seen_at: string | null;
 }
@@ -81,7 +76,7 @@ export async function GET(request: NextRequest) {
     const { data: contributors, error: contribError } = await adminClient
       .from('lipy_contributors')
       .select(
-        'contributor_id, contributor_name, invalid_streak, banned_until, trust_score, total_verified, total_rejected, last_invalid_at, last_verified_at, last_seen_at',
+        'contributor_id, contributor_name, total_verified, last_verified_at, last_seen_at',
       )
       .order('last_seen_at', { ascending: false })
       .limit(200);
@@ -91,14 +86,6 @@ export async function GET(request: NextRequest) {
     }
 
     const contributorStats: ContributorRow[] = (contributors || []) as unknown as ContributorRow[];
-
-    const now = new Date().toISOString();
-    const totalBanned = contributorStats.filter(
-      (c) => c.banned_until && c.banned_until > now,
-    ).length;
-    const totalWithStreak = contributorStats.filter(
-      (c) => (c.invalid_streak ?? 0) > 0,
-    ).length;
 
     // 3. Get verification logs — merge persisted (Supabase) with in-memory for freshness
     // The persisted logs provide historical depth, while in-memory covers the latest
@@ -124,9 +111,7 @@ export async function GET(request: NextRequest) {
       {
         logs: mergedLogs.slice(0, 200),
         contributors: contributorStats,
-        totalBanned,
-        totalWithStreak,
-        timestamp: now,
+        timestamp: new Date().toISOString(),
       },
       { status: 200 },
     );

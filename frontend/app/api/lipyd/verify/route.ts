@@ -31,9 +31,8 @@
  *   message: "Unable to process this submission. Please try again."
  * }
  *
- * Both success and failure return HTTP 200 to prevent information leakage.
- * Only the `accepted` field and generic message differ.
- *
+ * Both success and failure return HTTP 200. The pipeline now stores every
+ * sample; failures only occur on actual storage or database errors.
  * Internal errors (500) are returned only for server configuration issues.
  */
 
@@ -107,8 +106,8 @@ export async function POST(request: NextRequest) {
       timestamp: body.timestamp,
     });
 
-    // Always return HTTP 200 — even for rejected samples.
-    // The frontend only sees the generic response.
+    // Always return HTTP 200. The pipeline now stores every sample;
+    // failures only occur on actual storage/database errors.
     return NextResponse.json(
       {
         accepted: result.accepted,

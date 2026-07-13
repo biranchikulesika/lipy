@@ -24,16 +24,12 @@ interface VerificationSummary {
   acceptedCount: number;
   rejectedCount: number;
   avgConfidence: number | null;
-  totalBanned: number;
-  contributorsWithStreak: number;
 }
 
 interface TopContributor {
   contributor_id: string;
   contributor_name: string;
   total_verified: number;
-  total_rejected: number;
-  trust_score: number;
 }
 
 interface PerCharacterCount {
@@ -269,7 +265,7 @@ export function StatsDashboard() {
       const logsResponse = await fetch('/api/lipyd/verify/logs');
       let verificationSummary: VerificationSummary = {
         logCount: 0, acceptedCount: 0, rejectedCount: 0,
-        avgConfidence: null, totalBanned: 0, contributorsWithStreak: 0,
+        avgConfidence: null,
       };
 
       if (logsResponse.ok) {
@@ -290,8 +286,6 @@ export function StatsDashboard() {
           acceptedCount: accepted,
           rejectedCount: logEntries.length - accepted,
           avgConfidence: avgConf,
-          totalBanned: logsData.totalBanned ?? 0,
-          contributorsWithStreak: logsData.totalWithStreak ?? 0,
         };
 
         // Top contributors by total_verified
@@ -517,22 +511,7 @@ export function StatsDashboard() {
               delay={0.35}
               compact
             />
-            <StatCard
-              label="Currently Banned"
-              value={verification?.totalBanned ?? 0}
-              icon={AlertTriangle}
-              color="bg-red-950/30 text-red-500"
-              delay={0.4}
-              compact
-            />
-            <StatCard
-              label="With Streaks"
-              value={verification?.contributorsWithStreak ?? 0}
-              icon={Users}
-              color="bg-amber-950/30 text-amber-500"
-              delay={0.45}
-              compact
-            />
+
             <div className="bg-[#0F0F0F] border border-stone-900 rounded-xl p-4 flex flex-col items-center justify-center">
               {acceptanceRate != null ? (
                 <RingStat value={verification?.acceptedCount ?? 0} max={verification?.logCount ?? 1} label="Acceptance Rate" color="text-emerald-500" size="sm" />
@@ -667,8 +646,6 @@ export function StatsDashboard() {
                 <span className="w-6 text-center shrink-0">#</span>
                 <span className="flex-1 min-w-0">Contributor</span>
                 <span className="w-16 text-right shrink-0">Verified</span>
-                <span className="w-14 text-right shrink-0 hidden sm:block">Rejected</span>
-                <span className="w-12 text-right shrink-0 hidden sm:block">Trust</span>
               </div>
 
               {topContributors.map((c, i) => (
@@ -686,16 +663,6 @@ export function StatsDashboard() {
                   </div>
                   <div className="w-16 text-right shrink-0">
                     <span className="text-sm font-bold text-emerald-400">{c.total_verified}</span>
-                  </div>
-                  <div className="w-14 text-right shrink-0 hidden sm:block">
-                    <span className="text-sm font-bold text-rose-400">{c.total_rejected}</span>
-                  </div>
-                  <div className="w-12 text-right shrink-0 hidden sm:block">
-                    <span className={`text-xs font-bold ${
-                      c.trust_score >= 80 ? 'text-emerald-400' : c.trust_score >= 40 ? 'text-amber-400' : 'text-rose-400'
-                    }`}>
-                      {c.trust_score}
-                    </span>
                   </div>
                 </div>
               ))}
