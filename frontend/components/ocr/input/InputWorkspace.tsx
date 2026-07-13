@@ -50,7 +50,7 @@ export function InputWorkspace({
 							exit={{ opacity: 0, y: 10, scale: 0.95 }}
 							role="status"
 							aria-live="polite"
-							className="pointer-events-none absolute inset-x-0 bottom-2 z-20 flex flex-col items-center justify-center overflow-hidden rounded-2xl border border-rose-400/20 bg-rose-950/95 px-4 py-3 text-center shadow-lg backdrop-blur-md"
+							className="pointer-events-none absolute inset-x-0 bottom-2 z-10 flex flex-col items-center justify-center overflow-hidden rounded-2xl border border-rose-400/20 bg-rose-950/95 px-4 py-3 text-center shadow-lg backdrop-blur-md"
 						>
 							<div className="flex items-center justify-center gap-2 mb-1 text-rose-400">
 								<AlertCircle className="h-4 w-4" />

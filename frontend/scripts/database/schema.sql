@@ -29,14 +29,14 @@ CREATE TABLE IF NOT EXISTS lipy_contributors (
   -- ── Verification & anti-abuse columns ──
   invalid_streak INTEGER DEFAULT 0,
   banned_until TIMESTAMPTZ,
-  trust_score INTEGER DEFAULT 0,
+  trust_score INTEGER DEFAULT 100,
   total_verified INTEGER DEFAULT 0,
   total_rejected INTEGER DEFAULT 0,
   last_invalid_at TIMESTAMPTZ,
   last_verified_at TIMESTAMPTZ
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS lipi_contributors_contributor_id_key
+CREATE UNIQUE INDEX IF NOT EXISTS lipy_contributors_contributor_id_key
   ON lipy_contributors (contributor_id);
 
 CREATE INDEX IF NOT EXISTS idx_lipy_contributors_last_seen
@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS lipy_sessions (
   metadata JSONB NOT NULL DEFAULT '{}'::jsonb
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS lipi_sessions_contributor_id_session_id_key
+CREATE UNIQUE INDEX IF NOT EXISTS lipy_sessions_contributor_id_session_id_key
   ON lipy_sessions (contributor_id, session_id);
 
 CREATE INDEX IF NOT EXISTS idx_lipy_sessions_updated_at
@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS lipy_samples (
   character_text TEXT NOT NULL,
   sample_number INTEGER NOT NULL,
   filename TEXT NOT NULL,
-  storage_bucket TEXT NOT NULL DEFAULT 'lipi-samples',
+  storage_bucket TEXT NOT NULL DEFAULT 'lipy-samples',
   storage_path TEXT NOT NULL,
   blob_bytes INTEGER NOT NULL,
   mime_type TEXT NOT NULL DEFAULT 'image/png',
@@ -96,10 +96,10 @@ CREATE TABLE IF NOT EXISTS lipy_samples (
   verified_at TIMESTAMPTZ
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS lipi_samples_client_sample_id_key
+CREATE UNIQUE INDEX IF NOT EXISTS lipy_samples_client_sample_id_key
   ON lipy_samples (client_sample_id);
 
-CREATE UNIQUE INDEX IF NOT EXISTS lipi_samples_storage_path_key
+CREATE UNIQUE INDEX IF NOT EXISTS lipy_samples_storage_path_key
   ON lipy_samples (storage_path);
 
 CREATE INDEX IF NOT EXISTS idx_lipy_samples_contributor_id
@@ -123,13 +123,13 @@ CREATE INDEX IF NOT EXISTS idx_lipy_samples_created_at
 CREATE INDEX IF NOT EXISTS idx_lipy_samples_verified_by
   ON lipy_samples (verified_by);
 
-CREATE INDEX IF NOT EXISTS lipi_samples_contributor_session_idx
+CREATE INDEX IF NOT EXISTS lipy_samples_contributor_session_idx
   ON lipy_samples (contributor_id, session_id);
 
-CREATE INDEX IF NOT EXISTS lipi_samples_uploaded_at_idx
+CREATE INDEX IF NOT EXISTS lipy_samples_uploaded_at_idx
   ON lipy_samples (uploaded_at DESC NULLS LAST);
 
-CREATE INDEX IF NOT EXISTS lipi_samples_character_idx
+CREATE INDEX IF NOT EXISTS lipy_samples_character_idx
   ON lipy_samples (character_id);
 
 -- ─── verification_logs ───

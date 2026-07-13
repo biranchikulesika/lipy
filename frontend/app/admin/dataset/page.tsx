@@ -28,9 +28,6 @@ function formatVerifier(uuid: string | null): string {
 function cleanStoragePath(path: string): string {
   if (!path) return '';
   let clean = path.trim();
-  if (clean.startsWith('lipi-samples/')) {
-    clean = clean.substring('lipi-samples/'.length);
-  }
   if (clean.startsWith('lipy-samples/')) {
     clean = clean.substring('lipy-samples/'.length);
   }
@@ -140,6 +137,9 @@ function DatasetViewerContent() {
     contributors: 0
   });
 
+  const gridContainerRef = useRef<HTMLDivElement>(null);
+  const [gridColumns, setGridColumns] = useState(6);
+
   // Initialize Supabase client — uses the shared singleton from @/lib/supabase/client
   // to avoid multiple GoTrueClient instances sharing the same browser storage key.
   useEffect(() => {
@@ -168,6 +168,21 @@ function DatasetViewerContent() {
       setShowMobileTopControls(true);
       lastScrollTopRef.current = 0;
     }
+  }, [isMobileView]);
+
+  // Track grid columns for pagination rounding
+  useEffect(() => {
+    const el = gridContainerRef.current;
+    if (!el) return;
+    const observe = () => {
+      const w = el.clientWidth;
+      const cols = Math.max(1, Math.floor((w + 12) / (96 + 12)));
+      setGridColumns(cols);
+    };
+    observe();
+    const ro = new ResizeObserver(observe);
+    ro.observe(el);
+    return () => ro.disconnect();
   }, [isMobileView]);
 
   const handleMobileScroll = (event: React.UIEvent<HTMLDivElement>) => {
@@ -298,21 +313,21 @@ function DatasetViewerContent() {
       // Pagination only on desktop; mobile loads the full filtered list for scrolling.
       const { data, count, error } = isMobileView
         ? await query
-        : await query.range((currentPage - 1) * ITEMS_PER_PAGE, (currentPage - 1) * ITEMS_PER_PAGE + ITEMS_PER_PAGE - 1);
+        : await query.range((currentPage - 1) * itemsPerPage, (currentPage - 1) * itemsPerPage + itemsPerPage - 1);
 
       if (error) throw error;
 
       const fetchedSamples: SampleRecord[] = data || [];
       setTotalCount(count || 0);
 
-      // Generate signed URLs for the private bucket files
+      // Generate signed URLs via server-side API (service role key, no CORS/auth issues)
       if (fetchedSamples.length > 0) {
         try {
-          // Group samples by bucket to handle multiple buckets dynamically
+          // Group samples by bucket
           const bucketToPaths = new Map<string, string[]>();
           fetchedSamples.forEach(sample => {
             if (sample.storage_path) {
-              const bucketName = sample.storage_bucket || 'lipi-samples';
+              const bucketName = sample.storage_bucket || 'lipy-samples';
               const cleanPath = cleanStoragePath(sample.storage_path);
               if (!bucketToPaths.has(bucketName)) {
                 bucketToPaths.set(bucketName, []);
@@ -321,23 +336,24 @@ function DatasetViewerContent() {
             }
           });
 
-          // Request signed URLs in parallel for each bucket
+          // Request signed URLs from server API for each bucket
           const signedUrlsPromises = Array.from(bucketToPaths.entries()).map(async ([bucketName, paths]) => {
-            const { data, error } = await supabase.storage
-              .from(bucketName)
-              .createSignedUrls(paths, 3600); // 1 hour expiry
-            
-            if (error) {
-              console.error(`Signed URLs error for bucket ${bucketName}:`, error);
+            const resp = await fetch('/api/storage/signed-urls', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ bucket: bucketName, paths, expiresIn: 3600 }),
+            });
+            if (!resp.ok) {
+              console.error(`Signed URLs API error for bucket ${bucketName}: ${resp.status}`);
               return [];
             }
-            return (data || []).map((item: any) => ({ ...item, bucketName }));
+            const json = await resp.json();
+            return (json.urls || []).map((item: any) => ({ ...item, bucketName }));
           });
 
           const results = await Promise.all(signedUrlsPromises);
           const flatResults = results.flat();
 
-          // Create a composite map using bucket:path as key
           const urlMap = new Map<string, string>();
           flatResults.forEach((item: any) => {
             const sUrl = item.signedURL || item.signedUrl;
@@ -352,41 +368,20 @@ function DatasetViewerContent() {
 
           fetchedSamples.forEach(sample => {
             if (sample.storage_path) {
-              const bucketName = sample.storage_bucket || 'lipi-samples';
+              const bucketName = sample.storage_bucket || 'lipy-samples';
               const cleanPath = cleanStoragePath(sample.storage_path);
               const key = `${bucketName}:${cleanPath}`;
               const signed = urlMap.get(key);
               if (signed) {
                 sample.signedUrl = signed;
-              } else {
-                // Fallback to public URL constructor
-                sample.signedUrl = supabase.storage.from(bucketName).getPublicUrl(cleanPath).data.publicUrl;
               }
             }
           });
         } catch (err) {
           console.error('Error generating signed URLs:', err);
-          fetchedSamples.forEach(sample => {
-            if (sample.storage_path) {
-              const bucketName = sample.storage_bucket || 'lipi-samples';
-              const cleanPath = cleanStoragePath(sample.storage_path);
-              sample.signedUrl = supabase.storage.from(bucketName).getPublicUrl(cleanPath).data.publicUrl;
-            }
-          });
         }
       }
 
-      console.log('=== DEBUG: fetchSamples ===');
-      console.log('Fetched samples count:', fetchedSamples.length);
-      if (fetchedSamples.length > 0) {
-        console.log('First sample:', {
-          id: fetchedSamples[0].id,
-          char: fetchedSamples[0].character_text,
-          bucket: fetchedSamples[0].storage_bucket,
-          path: fetchedSamples[0].storage_path,
-          signedUrl: fetchedSamples[0].signedUrl
-        });
-      }
       setSamples(fetchedSamples);
       setSelectedIds([]); // Clear selections on page/filter change
     } catch (error: any) {
@@ -727,7 +722,10 @@ function DatasetViewerContent() {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
   };
 
-  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+  const itemsPerPage = isMobileView
+    ? 9999
+    : Math.ceil(ITEMS_PER_PAGE / gridColumns) * gridColumns;
+  const totalPages = Math.ceil(totalCount / itemsPerPage);
 
   if (!isConfigured) {
     return (
@@ -941,7 +939,7 @@ function DatasetViewerContent() {
 
         <AnimatePresence>
           {mobilePanel && (
-            <div className="fixed inset-0 z-70 md:hidden" role="dialog" aria-modal="true">
+            <div className="fixed inset-0 z-30 md:hidden" role="dialog" aria-modal="true">
               <motion.button
                 type="button"
                 initial={{ opacity: 0 }}
@@ -1110,7 +1108,7 @@ function DatasetViewerContent() {
                 </span>
               ) : (
                 <span>
-                  Showing <span className="font-bold text-stone-800 dark:text-stone-200">{Math.min(totalCount, ITEMS_PER_PAGE * (currentPage - 1) + 1)}-{Math.min(totalCount, ITEMS_PER_PAGE * currentPage)}</span> of <span className="font-bold text-stone-800 dark:text-stone-200">{totalCount}</span> samples
+                  Showing <span className="font-bold text-stone-800 dark:text-stone-200">{Math.min(totalCount, itemsPerPage * (currentPage - 1) + 1)}-{Math.min(totalCount, itemsPerPage * currentPage)}</span> of <span className="font-bold text-stone-800 dark:text-stone-200">{totalCount}</span> samples
                 </span>
               )
             )}
@@ -1234,7 +1232,7 @@ function DatasetViewerContent() {
         </div>
 
         {isMobileView && selectedIds.length > 0 && (
-          <div className="fixed inset-x-0 bottom-0 z-60 border-t border-stone-200 bg-white/95 px-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-3 shadow-[0_-10px_30px_rgba(0,0,0,0.08)] backdrop-blur dark:border-stone-900 dark:bg-[#0B0B0B]/95">
+          <div className="fixed inset-x-0 bottom-0 z-20 border-t border-stone-200 bg-white/95 px-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-3 shadow-[0_-10px_30px_rgba(0,0,0,0.08)] backdrop-blur dark:border-stone-900 dark:bg-[#0B0B0B]/95">
             <div className="mb-2 flex items-center justify-between gap-2 px-1">
               <p className="text-[11px] font-semibold text-stone-500 dark:text-stone-400">
                 {selectedIds.length} selected
@@ -1330,20 +1328,20 @@ function DatasetViewerContent() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(96px,1fr))] gap-3">
+          <div ref={gridContainerRef} className="grid grid-cols-[repeat(auto-fill,minmax(96px,1fr))] gap-3">
             {samples.map((sample) => (
               <motion.div
                 key={sample.id}
                 layoutId={`card-${sample.id}`}
-                className={`group relative bg-white dark:bg-[#0F0F0F] border rounded-xl p-2 flex flex-col items-center cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden ${
+                className={`group relative w-full aspect-square bg-stone-50 dark:bg-[#121212] rounded-lg flex items-center justify-center overflow-hidden cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 border ${
                   selectedIds.includes(sample.id)
-                    ? 'border-amber-500 dark:border-amber-400 bg-amber-50/10 dark:bg-amber-400/5 shadow-sm'
+                    ? 'border-amber-500 dark:border-amber-400 shadow-sm'
                     : 'border-stone-200 dark:border-stone-900 hover:border-amber-500/50 dark:hover:border-amber-400/50'
                 }`}
                 onClick={() => {
                   if (selectionMode) {
                     const isSelected = selectedIds.includes(sample.id);
-                    setSelectedIds(prev => 
+                    setSelectedIds(prev =>
                       isSelected ? prev.filter(id => id !== sample.id) : [...prev, sample.id]
                     );
                   } else {
@@ -1351,34 +1349,33 @@ function DatasetViewerContent() {
                   }
                 }}
               >
-
-                {/* Drawing Image container */}
-                <div className="w-20 h-20 bg-stone-50 dark:bg-[#121212] rounded-lg mt-1 flex items-center justify-center overflow-hidden border border-stone-100 dark:border-stone-900 relative">
-                  {sample.signedUrl ? (
-                    <img
-                      src={sample.signedUrl}
-                      alt={sample.character_text}
-                      className="w-full h-full object-contain p-1 select-none pointer-events-none dark:invert"
-                      loading="lazy"
-                      referrerPolicy="no-referrer"
-                    />
-                  ) : (
-                    <Loader2 className="w-4 h-4 animate-spin text-stone-400" />
-                  )}
-                </div>
-
-                {/* Character Indicator */}
-                <div className="w-full text-center mt-2 select-none">
-                  <span className={`text-base font-bold transition-colors ${
+                {/* Character label */}
+                <span
+                  className={`absolute top-1 right-1.5 text-lg font-bold leading-none select-none z-10 drop-shadow ${
                     sample.status === 'verified'
-                      ? 'text-emerald-500 dark:text-emerald-400 font-extrabold'
+                      ? 'text-emerald-500 dark:text-emerald-400'
                       : 'text-stone-400 dark:text-stone-600'
                   }`}
                   title={sample.status === 'verified' ? 'Verified character' : 'Unverified character'}
-                  >
-                    {sample.character_text}
-                  </span>
-                </div>
+                >
+                  {sample.character_text}
+                </span>
+
+                {/* Drawing Image */}
+                {sample.signedUrl ? (
+                  <img
+                    src={sample.signedUrl}
+                    alt={sample.character_text}
+                    className="w-full h-full object-contain p-1.5 select-none pointer-events-none dark:invert"
+                    loading="lazy"
+                    referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <Loader2 className="w-4 h-4 animate-spin text-stone-400" />
+                )}
               </motion.div>
             ))}
           </div>
@@ -1395,7 +1392,7 @@ function DatasetViewerContent() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30"
                 onClick={() => {
                   setSelectedSample(null);
                   setDeleteConfirmId(null);
@@ -1408,7 +1405,7 @@ function DatasetViewerContent() {
                 animate={{ x: 0 }}
                 exit={{ x: '100%' }}
                 transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-                className="fixed top-0 right-0 bottom-0 w-full sm:w-112.5 bg-white dark:bg-[#0D0D0D] border-l border-stone-200 dark:border-stone-900 z-50 p-6 flex flex-col shadow-2xl overflow-y-auto"
+                className="fixed top-0 right-0 bottom-0 w-full sm:w-112.5 bg-white dark:bg-[#0D0D0D] border-l border-stone-200 dark:border-stone-900 z-40 p-6 flex flex-col shadow-2xl overflow-y-auto"
               >
                 {/* Header */}
                 <div className="flex items-center justify-between pb-4 border-b border-stone-150 dark:border-stone-900">
@@ -1436,6 +1433,9 @@ function DatasetViewerContent() {
                         alt=""
                         className="w-full h-full object-contain p-2 dark:invert"
                         referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
                       />
                     ) : (
                       <Loader2 className="w-6 h-6 animate-spin text-stone-400" />

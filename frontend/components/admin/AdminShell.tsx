@@ -78,7 +78,7 @@ function LipyLogo({ collapsed }: { collapsed: boolean }) {
 function NavTooltip({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="relative group/tip">
-      {children}              <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-stone-800 text-stone-200 text-xs font-medium rounded-lg opacity-0 pointer-events-none group-hover/tip:opacity-100 transition-opacity whitespace-nowrap z-50 shadow-lg">
+      {children}              <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-stone-800 text-stone-200 text-xs font-medium rounded-lg opacity-0 pointer-events-none group-hover/tip:opacity-100 transition-opacity whitespace-nowrap z-70 shadow-lg">
         {label}
         <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-stone-800" />
       </div>
@@ -256,7 +256,7 @@ export function AdminShell({
       <div className="min-h-dvh sm:h-dvh bg-[#070707] text-[#F5F5F5] font-sans selection:bg-blue-900 flex flex-col overflow-x-hidden overflow-y-auto sm:overflow-hidden">
 
         {/* Mobile Top Bar */}
-        <header className="sticky top-0 z-50 h-14 border-b border-stone-900 bg-[#0A0A0A]/95 backdrop-blur-xl md:hidden">
+        <header className="sticky top-0 z-20 h-14 border-b border-stone-900 bg-[#0A0A0A]/95 backdrop-blur-xl md:hidden">
           <div className="flex h-full items-center justify-between px-4 sm:px-6">
             <Link href="/admin" className="flex items-center">
               <LipyLogo collapsed={false} />
@@ -266,7 +266,7 @@ export function AdminShell({
               aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={mobileOpen}
               onClick={() => setMobileOpen((value) => !value)}
-              className={`relative z-80 flex h-10 w-10 items-center justify-center rounded-xl transition-all active:scale-95 ${mobileOpen ? 'bg-white/10 text-white ring-1 ring-white/10' : 'text-stone-400 hover:bg-white/5 hover:text-white'}`}
+              className={`relative flex h-10 w-10 items-center justify-center rounded-xl transition-all active:scale-95 ${mobileOpen ? 'bg-white/10 text-white ring-1 ring-white/10' : 'text-stone-400 hover:bg-white/5 hover:text-white'}`}
             >
               <motion.div
                 initial={false}
@@ -342,7 +342,7 @@ export function AdminShell({
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="fixed inset-0 top-14 bg-black/30 backdrop-blur-sm z-40 md:hidden"
+                  className="fixed inset-0 top-14 bg-black/30 backdrop-blur-sm z-30 md:hidden"
                   onClick={() => setMobileOpen(false)}
                 />
                 <motion.div
@@ -351,7 +351,7 @@ export function AdminShell({
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -8, scale: 0.98 }}
                   transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                  className="fixed right-3 top-[3.9rem] z-50 w-60 max-w-[calc(100vw-1.5rem)] rounded-xl border border-stone-800 bg-[#0A0A0A]/95 p-2 shadow-2xl backdrop-blur-xl md:hidden"
+                  className="fixed right-3 top-[3.9rem] z-40 w-60 max-w-[calc(100vw-1.5rem)] rounded-xl border border-stone-800 bg-[#0A0A0A]/95 p-2 shadow-2xl backdrop-blur-xl md:hidden"
                 >
                   <nav className="flex flex-col gap-1" aria-label="Mobile navigation">
                     {NAV_ITEMS.map((group) => (

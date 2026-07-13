@@ -27,6 +27,9 @@ import {
   MIN_VERIFICATION_CONFIDENCE,
   MAX_INVALID_STREAK,
   TEMP_BAN_DURATION_HOURS,
+  TRUST_SCORE_INITIAL,
+  TRUST_BAN_THRESHOLD,
+  TRUST_PENALTY,
 } from '@/constants/LiPy';
 import { odiaCharacters } from './odiaCharacters';
 
@@ -375,7 +378,7 @@ const acceptanceStage: VerificationStage = {
         invalid_streak: 0,
         last_verified_at: now,
         last_invalid_at: ctx.contributor?.lastInvalidAt ?? null,
-        trust_score: Math.min(100, (ctx.contributor?.trustScore ?? 0) + 1),
+        trust_score: Math.min(100, (ctx.contributor?.trustScore ?? TRUST_SCORE_INITIAL) + 1),
       };
 
       if (ctx.contributor?.bannedUntil) {
@@ -501,8 +504,10 @@ async function recordInvalidSubmission(
   contributorId: string,
   contributorName: string,
   currentStreak: number,
+  currentTrustScore: number,
 ): Promise<{ newStreak: number; banApplied: boolean }> {
   const newStreak = currentStreak + 1;
+  const newTrustScore = Math.max(0, currentTrustScore + TRUST_PENALTY);
   const now = nowIso();
   let banApplied = false;
 
@@ -512,9 +517,10 @@ async function recordInvalidSubmission(
     last_seen_at: now,
     invalid_streak: newStreak,
     last_invalid_at: now,
+    trust_score: newTrustScore,
   };
 
-  if (newStreak >= MAX_INVALID_STREAK) {
+  if (newStreak >= MAX_INVALID_STREAK || newTrustScore < TRUST_BAN_THRESHOLD) {
     const banUntil = new Date(Date.now() + TEMP_BAN_DURATION_HOURS * 60 * 60 * 1000).toISOString();
     payload.banned_until = banUntil;
     banApplied = true;
@@ -704,6 +710,7 @@ export async function verifySample(
               request.contributorId,
               request.contributorName,
               context.contributor?.invalidStreak ?? 0,
+              context.contributor?.trustScore ?? TRUST_SCORE_INITIAL,
             );
             newStreak = streakResult.newStreak;
             banApplied = streakResult.banApplied;
@@ -731,6 +738,7 @@ export async function verifySample(
             request.contributorId,
             request.contributorName,
             context.contributor?.invalidStreak ?? 0,
+            context.contributor?.trustScore ?? TRUST_SCORE_INITIAL,
           );
           newStreak = streakResult.newStreak;
           banApplied = streakResult.banApplied;

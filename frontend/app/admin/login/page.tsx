@@ -236,7 +236,7 @@ function LoginContent() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="hidden md:block absolute top-8 left-8 z-50"
+            className="hidden md:block absolute top-8 left-8 z-20"
           >
             <Link
               href="/"
@@ -485,7 +485,7 @@ function LoginContent() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50"
+                className="fixed inset-0 bg-black/40 backdrop-blur-sm z-30"
                 onClick={() => setNotRegisteredPopup({ show: false, provider: '' })}
               />
               <motion.div

@@ -1,5 +1,21 @@
 @import "tailwindcss";
 
+/*
+ * Z-Index Scale (Tailwind z-{n} tokens):
+ *   z-0   — base layer (canvas, backgrounds)
+ *   z-10  — content stacking (inline overlays, error messages)
+ *   z-20  — sticky bars (headers, bottom bars)
+ *   z-30  — overlay backdrops, mobile menus, dropdowns
+ *   z-40  — popovers, sidebars, panels
+ *   z-50  — modals (confirmation dialogs, auth popups)
+ *   z-60  — toasts, floating action buttons
+ *   z-70  — tooltips, nav tooltips
+ *   z-80  — fullscreen overlays (story carousel, skeleton loaders)
+ *
+ * The `.panel` utility uses `isolation: isolate` to create a local
+ * stacking context so nested z-index values don't leak.
+ */
+
 @theme {
   --color-verdigris-50: #edf7f6;
   --color-verdigris-100: #dbf0ed;

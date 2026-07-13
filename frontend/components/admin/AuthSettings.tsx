@@ -1445,7 +1445,7 @@ export function AuthSettings() {
               {/* Filter Dropdowns (rendered inside motion.div so they're in the IIFE scope) */}
               {activeDropdown && dropdownPos && (
                 <div
-                  className="fixed z-50 bg-[#0A0A0A] border border-stone-800 rounded-xl shadow-xl py-1 min-w-45 max-h-60 overflow-auto"
+                  className="fixed z-40 bg-[#0A0A0A] border border-stone-800 rounded-xl shadow-xl py-1 min-w-45 max-h-60 overflow-auto"
                   style={{ top: dropdownPos.top, left: dropdownPos.left }}
                   onClick={(e) => e.stopPropagation()}
                 >

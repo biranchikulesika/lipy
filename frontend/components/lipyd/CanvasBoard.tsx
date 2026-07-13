@@ -373,14 +373,15 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
             {(() => {
               const dot = <span className="opacity-40">•</span>;
               if (syncState.lastError) {
+                const isRejected = syncState.lastError === '__rejected__';
                 return (
                   <>
                     {dot}
                     <span
-                      className="text-rose-400 cursor-help underline decoration-dotted underline-offset-2"
-                      title={syncState.lastError}
+                      className={`${isRejected ? 'text-amber-400' : 'text-rose-400'} cursor-help underline decoration-dotted underline-offset-2`}
+                      title={isRejected ? 'Submission rejected by server' : syncState.lastError}
                     >
-                      Sync failed
+                      {isRejected ? 'Invalid' : 'Sync failed'}
                     </span>
                     {syncState.pendingCount > 0 && (
                       <span className="text-slate-400">, {syncState.pendingCount} pending</span>
@@ -415,7 +416,7 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
         </div>
 
         {invalidMsg && (
-          <div className="fixed inset-x-0 bottom-8 z-50 flex justify-center pointer-events-none animate-in fade-in slide-in-from-bottom-4">
+          <div className="fixed inset-x-0 bottom-8 z-60 flex justify-center pointer-events-none animate-in fade-in slide-in-from-bottom-4">
             <div className="rounded-2xl bg-verdigris-900 px-6 py-3 text-sm font-bold text-white shadow-xl">
               {invalidMsg}
             </div>

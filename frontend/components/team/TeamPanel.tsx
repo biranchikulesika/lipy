@@ -98,7 +98,7 @@ function TeamMemberCard({ member, validPhotos, isFlipped, onFlip }: { member: Te
 			</div>
 
 			{/* Static Bottom Section (Social Links) */}				<div
-				className="relative z-20 flex h-17 shrink-0 items-center justify-center gap-4 border-t border-white/5 w-full bg-verdigris-950/60 backdrop-blur-md rounded-b-[15px]"
+				className="relative flex h-17 shrink-0 items-center justify-center gap-4 border-t border-white/5 w-full bg-verdigris-950/60 backdrop-blur-md rounded-b-[15px]"
 			>
 				{member.social?.github && (
 					<a

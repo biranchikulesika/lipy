@@ -378,7 +378,7 @@ export function OcrWorkspace() {
 			</div>
 
 			{/* Bottom Right Floating Menu */}
-			<div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 lg:hidden z-50 flex flex-col items-end" ref={menuRef}>
+			<div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 lg:hidden z-60 flex flex-col items-end" ref={menuRef}>
 				{isMenuOpen && (
 					<div className="mb-2 w-40 overflow-hidden rounded-2xl border border-white/10 bg-verdigris-950/90 p-1 shadow-lg backdrop-blur-md animate-in fade-in slide-in-from-bottom-2">
 						{INPUT_MODES.map((mode) => (

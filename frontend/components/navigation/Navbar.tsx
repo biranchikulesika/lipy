@@ -69,7 +69,7 @@ export function Navbar() {
 	const externalLinks = MAIN_NAVIGATION.filter(item => item.isExternal);
 
 	return (
-		<header className="sticky top-0 z-50 h-18 border-b border-white/5 bg-[#0a0a0a]/90 backdrop-blur-xl supports-backdrop-filter:bg-[#0a0a0a]/70">
+		<header className="sticky top-0 z-20 h-18 border-b border-white/5 bg-[#0a0a0a]/90 backdrop-blur-xl supports-backdrop-filter:bg-[#0a0a0a]/70">
 			<div className="mx-auto flex h-full max-w-375 items-center justify-between px-4 sm:px-6 lg:px-8">
 				<Link
 					href={pathname === "/lipyd" ? "/lipyd" : "/"}
@@ -124,7 +124,7 @@ export function Navbar() {
 						aria-label={open ? "Close menu" : "Open menu"}
 						aria-expanded={open}
 						onClick={() => setOpen(!open)}
-						className={`relative z-80 flex h-10 w-10 items-center justify-center rounded-xl transition-all active:scale-95 ${open ? 'bg-white/10 text-white ring-1 ring-white/10' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}
+						className={`relative flex h-10 w-10 items-center justify-center rounded-xl transition-all active:scale-95 ${open ? 'bg-white/10 text-white ring-1 ring-white/10' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}
 					>
 						<motion.div
 							initial={false}
@@ -147,7 +147,7 @@ export function Navbar() {
 
 				<AnimatePresence>
 					{open && (
-						<div className="fixed inset-0 top-18 z-70 lg:hidden" role="dialog" aria-modal="true">
+						<div className="fixed inset-0 top-18 z-30 lg:hidden" role="dialog" aria-modal="true">
 							<motion.div
 								initial={{ opacity: 0 }}
 								animate={{ opacity: 1 }}

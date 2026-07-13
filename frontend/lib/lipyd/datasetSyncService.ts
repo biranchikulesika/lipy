@@ -9,6 +9,8 @@ const MAX_RETRY_ATTEMPTS = 10;
 const VERIFICATION_API_MAX_RETRIES = 3;
 const characterIds = new Set(odiaCharacters.map((item) => item.id));
 
+const REJECTED_MARKER = '__rejected__';
+
 // Check if the verification API should be used.
 // The verification API needs the LiPy model endpoint to function.
 // In Next.js client components, NEXT_PUBLIC_* are replaced at build time.
@@ -331,6 +333,23 @@ async function markUploaded(item: any) {
 async function markFailed(item: any, error: any) {
   const err = error as Error;
   const message = err?.message || String(error || 'Upload failed');
+  const isRejection = message === REJECTED_MARKER;
+
+  // Rejected entries are discarded immediately — no retries
+  if (isRejection) {
+    await db.uploadQueue.delete(item.clientSampleId);
+    if (item.sampleId) {
+      await updateSampleSyncState(item.sampleId, {
+        syncStatus: 'pending',
+        uploadStatus: 'failed',
+        uploadAttempts: (item.attempts || 0) + 1,
+        uploadError: 'Rejected',
+      });
+    }
+    await refreshState({ lastError: REJECTED_MARKER, syncing: false });
+    return;
+  }
+
   const attempts = (item.attempts || 0) + 1;
   const delay = getRetryDelayMs(attempts);
 
@@ -455,9 +474,7 @@ async function uploadViaVerificationApi(item: any) {
   const result = await response.json();
 
   if (!result.accepted) {
-    // The API rejected the sample. Use a generic failure message.
-    // The sample may be retried, but after max retries it will be discarded.
-    throw new Error('Unable to process this submission. Please try again.');
+    throw new Error(REJECTED_MARKER);
   }
 
   // Sample was accepted — it's now stored in Supabase with status "verified"
