@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
-"""Commit and push the nested dataset repo to Hugging Face."""
+"""Upload dataset/ to Hugging Face via the HF CLI."""
 
 from __future__ import annotations
 
 import argparse
 import os
+import subprocess
 import sys
 import zipfile
 from pathlib import Path
-
-sys.path.append(str(Path(__file__).resolve().parents[2]))
-from scripts.common.git_utils import commit_and_push, ensure_nested_repo, run_git  # noqa: E402
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -43,26 +41,50 @@ def zip_samples(dataset_dir: Path) -> None:
             zip_path.unlink()
 
 
+def check_hf_auth() -> None:
+    """Verify Hugging Face CLI is authenticated."""
+    result = subprocess.run(["hf", "auth", "whoami"], capture_output=True, text=True)
+    if result.returncode != 0:
+        print("Error: Hugging Face CLI is not authenticated.", file=sys.stderr)
+        print("Run the following command to log in:", file=sys.stderr)
+        print("  hf auth login", file=sys.stderr)
+        sys.exit(1)
+
+
+def upload_to_hf(local_dir: Path, repo_id: str, repo_type: str, message: str) -> None:
+    """Run hf upload to push files to Hugging Face."""
+    cmd = [
+        "hf", "upload", repo_id,
+        str(local_dir), ".",
+        "--repo-type", repo_type,
+        "--commit-message", message,
+        "--include", "complete_dataset/**",
+        "--include", "mini_dataset/**",
+        "--include", "*.zip",
+        "--include", "README.md",
+    ]
+    print(f"Running: {' '.join(cmd)}")
+    result = subprocess.run(cmd, cwd=local_dir)
+    if result.returncode != 0:
+        print(f"Error: hf upload failed with exit code {result.returncode}", file=sys.stderr)
+        sys.exit(result.returncode)
+
+
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Commit and push dataset/ to a Hugging Face Dataset repo.")
+    parser = argparse.ArgumentParser(description="Upload dataset/ to a Hugging Face Dataset repo.")
     parser.add_argument("--repo-id", default=os.getenv("HF_DATASET_REPO_ID", "biranchikulesika/lipy"), help="Hugging Face dataset repo id.")
-    parser.add_argument(
-        "--dataset-dir",
-        default=str(PROJECT_ROOT / "dataset"),
-        help="Local nested Git working copy for the dataset repo.",
-    )
+    parser.add_argument("--dataset-dir", default=str(PROJECT_ROOT / "dataset"), help="Local dataset directory.")
     parser.add_argument("--message", default="Upload LiPy dataset snapshot", help="Hub commit message.")
     args = parser.parse_args()
 
     dataset_dir = Path(args.dataset_dir).resolve()
-    ensure_nested_repo(dataset_dir, args.repo_id, "dataset")
+    if not dataset_dir.is_dir():
+        print(f"Error: {dataset_dir} does not exist.", file=sys.stderr)
+        sys.exit(1)
 
-    # Pull before push to avoid conflicts
-    print("Pulling latest changes from remote...")
-    run_git(["pull", "--rebase"], dataset_dir, retries=3)
-
+    check_hf_auth()
     zip_samples(dataset_dir)
-    commit_and_push(dataset_dir, args.message)
+    upload_to_hf(dataset_dir, args.repo_id, "dataset", args.message)
 
 
 if __name__ == "__main__":

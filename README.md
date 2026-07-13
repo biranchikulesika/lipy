@@ -138,13 +138,21 @@ Install the shared script dependencies.
 pip install -r scripts/requirements.txt
 ```
 
+Authenticate with Hugging Face (required for uploading datasets and models).
+
+```bash
+hf auth login
+```
+
+This stores your token locally so the upload scripts can push to Hugging Face. Run this once — the token persists across sessions.
+
 Initialize the local workspace.
 
 ```bash
 python scripts/common/setup.py
 ```
 
-This prepares the local `dataset/` and `models/` repositories by cloning or updating them from Hugging Face.
+This prepares the local `dataset/` and `models/` directories by downloading them from Hugging Face.
 
 ---
 
@@ -155,10 +163,9 @@ HF_DATASET_REPO_ID=biranchikulesika/lipy
 HF_DATASET_FOLDER=complete_dataset
 
 HF_MODEL_REPO_ID=biranchikulesika/lipy
-
-# Required only for uploads or private repositories.
-HF_TOKEN=hf_xxxxxxxxx
 ```
+
+Upload scripts use the Hugging Face CLI (`hf upload`). Authenticate once with `hf auth login` — no `HF_TOKEN` env var needed.
 
 Additional variables used by Supabase synchronization are documented in `.env.example`.
 
