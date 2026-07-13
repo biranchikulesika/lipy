@@ -5,7 +5,8 @@ import { motion } from 'motion/react';
 import {
   BarChart3, FileText, CheckCircle2, Clock, Users, Activity,
   TrendingUp, AlertTriangle, ShieldAlert, Loader2,
-  UserCheck, Percent, PieChart, Layers,
+  UserCheck, Percent, PieChart, Layers, Target,
+  Medal,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { odiaCharacters } from '@/lib/lipyd/odiaCharacters';
@@ -47,6 +48,12 @@ function formatLargeNumber(n: number): string {
   return String(n);
 }
 
+const MEDAL_EMOJIS = ['🥇', '🥈', '🥉'];
+const CLASS_LEGEND_ITEMS = [
+  { label: 'At / above target', color: 'bg-emerald-500' },
+  { label: 'Below target — needs samples', color: 'bg-amber-500' },
+];
+
 // ─── Stat Card ───
 
 function StatCard({
@@ -65,25 +72,25 @@ function StatCard({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.35, ease: 'easeOut' }}
-      className="bg-[#0F0F0F] border border-stone-900 rounded-xl p-4 sm:p-5 hover:shadow-md hover:shadow-stone-950/50 transition-shadow select-none"
+      className="bg-[#0F0F0F] border border-stone-900 rounded-xl p-3 sm:p-5 hover:shadow-md hover:shadow-stone-950/50 transition-shadow select-none"
     >
       <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0 space-y-1.5">
-          <p className={`font-bold uppercase tracking-widest text-stone-500 truncate ${compact ? 'text-[10px]' : 'text-[11px]'}`}>
+        <div className="min-w-0 space-y-1">
+          <p className={`font-bold uppercase tracking-widest text-stone-500 truncate ${compact ? 'text-[9px] sm:text-[10px]' : 'text-[10px] sm:text-[11px]'}`}>
             {label}
           </p>
-          <p className={`font-extrabold tracking-tight ${compact ? 'text-lg sm:text-xl' : 'text-2xl sm:text-3xl'}`}>
+          <p className={`font-extrabold tracking-tight ${compact ? 'text-base sm:text-xl' : 'text-xl sm:text-3xl'}`}>
             {typeof value === 'number' ? formatLargeNumber(value) : value}
           </p>
           {subtitle && (
-            <p className="text-[11px] text-stone-400 font-medium flex items-center gap-1">
+            <p className="text-[10px] sm:text-[11px] text-stone-400 font-medium flex items-center gap-1">
               <TrendingUp className="w-3 h-3 text-stone-500" />
               {subtitle}
             </p>
           )}
         </div>
-        <div className={`p-2.5 rounded-xl shrink-0 ${color}`}>
-          <Icon className="w-5 h-5" />
+        <div className={`p-2 sm:p-2.5 rounded-xl shrink-0 ${color}`}>
+          <Icon className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
         </div>
       </div>
     </motion.div>
@@ -97,7 +104,7 @@ function ProgressBar({ value, max, color, label }: { value: number; max: number;
   return (
     <div className="space-y-1">
       {label && (
-        <div className="flex justify-between text-[10px] font-medium text-stone-500">
+        <div className="flex justify-between text-[9px] sm:text-[10px] font-medium text-stone-500">
           <span>{label}</span>
           <span>{pct}%</span>
         </div>
@@ -127,7 +134,7 @@ function RingStat({
   const dims = size === 'sm' ? 64 : 92;
 
   return (
-    <div className="flex flex-col items-center gap-1.5">
+    <div className="flex flex-col items-center gap-1">
       <svg width={dims} height={dims} viewBox={`0 0 ${dims} ${dims}`} className="-rotate-90">
         <circle
           cx={dims / 2}
@@ -151,94 +158,79 @@ function RingStat({
           className={color}
         />
       </svg>
-      <span className={`font-bold ${size === 'sm' ? 'text-lg' : 'text-xl'}`}>{pct}%</span>
-      <span className="text-[10px] text-stone-500 font-medium">{label}</span>
+      <span className={`font-bold ${size === 'sm' ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'}`}>{pct}%</span>
+      <span className="text-[9px] sm:text-[10px] text-stone-500 font-medium">{label}</span>
     </div>
   );
 }
 
-// ─── Class Row ───
+// ─── Character Tile ───
 
-function ClassRow({ char, maxCount, target }: { char: PerCharacterCount; maxCount: number; target: number }) {
-  const barPct = maxCount > 0 ? (char.count / maxCount) * 100 : 0;
-  const targetPct = maxCount > 0 ? (target / maxCount) * 100 : 0;
-  const isBelowTarget = char.count < target;
-  const isAtTarget = char.count >= target && char.count <= target * 1.25;
-  const gap = target - char.count;
+function CharacterTile({ char, target }: { char: PerCharacterCount; target: number }) {
+  const isBelowTarget = target > 0 && char.count < target;
+  const gap = Math.max(0, target - char.count);
 
   return (
-    <div className="flex items-center gap-2 sm:gap-3 px-4 py-2.5 hover:bg-stone-900/20 transition-colors group">
-      {/* Character display */}
-      <span className="w-7 text-center text-base sm:text-lg leading-none select-none shrink-0">
+    <div
+      className={`relative flex flex-col items-center justify-center gap-1 p-2 rounded-xl border transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 select-none group ${
+        isBelowTarget
+          ? 'border-amber-900/50 bg-amber-950/10 hover:border-amber-700/50 hover:bg-amber-950/20'
+          : 'border-emerald-900/50 bg-emerald-950/10 hover:border-emerald-700/50 hover:bg-emerald-950/20'
+      }`}
+    >
+      {/* Character glyph */}
+      <span className="text-xl sm:text-2xl font-bold leading-none text-stone-100">
         {char.char}
       </span>
       {/* Class ID */}
-      <span className="w-20 sm:w-28 text-[10px] sm:text-[11px] font-mono text-stone-400 truncate shrink-0 group-hover:text-stone-300 transition-colors">
+      <span className="text-[7px] sm:text-[8px] font-mono text-stone-500 truncate max-w-full text-center leading-tight">
         {char.character_id}
       </span>
-      {/* Bar */}
-      <div className="flex-1 min-w-0 relative h-5">
-        {/* Target line */}
-        <div
-          className="absolute top-0 bottom-0 w-0.5 bg-stone-500/40 z-10 rounded-full"
-          style={{ left: `${Math.min(targetPct, 100)}%` }}
-          title={`Target: ${target}`}
-        />
-        {/* Count bar */}
-        <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: `${Math.min(barPct, 100)}%` }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
-          className={`h-full rounded-sm ${
-            isBelowTarget
-              ? 'bg-gradient-to-r from-rose-600/70 to-amber-500/60'
-              : isAtTarget
-                ? 'bg-gradient-to-r from-emerald-600/70 to-emerald-500/60'
-                : 'bg-gradient-to-r from-emerald-600/70 to-emerald-500/60'
-          }`}
-        />
-      </div>
-      {/* Count */}
-      <div className="w-12 text-right shrink-0 flex items-center justify-end gap-1">
-        <span className={`text-xs font-bold tabular-nums ${
-          isBelowTarget ? 'text-amber-400' : 'text-emerald-400'
-        }`}>
-          {char.count}
+      {/* Count / Target */}
+      <span className="text-[10px] sm:text-[11px] font-bold tabular-nums text-stone-300">
+        {char.count}<span className="text-stone-600 font-normal">/{target}</span>
+      </span>
+      {/* Status badge */}
+      {isBelowTarget && gap > 0 ? (
+        <span className="inline-flex items-center px-1 py-0.5 rounded text-[7px] sm:text-[8px] font-bold bg-amber-950/40 text-amber-400 leading-none">
+          +{gap}
         </span>
-        {isBelowTarget && gap > 0 && (
-          <span className="text-[9px] text-rose-500 font-medium hidden sm:inline">
-            -{gap}
-          </span>
-        )}
-      </div>
+      ) : (
+        <span className="inline-flex items-center px-1 py-0.5 rounded text-[7px] sm:text-[8px] font-bold bg-emerald-950/40 text-emerald-400 leading-none">
+          OK
+        </span>
+      )}
     </div>
   );
 }
 
-// ─── Group render helper ───
+// ─── Tile group render helper ───
 
-function renderClassGroup({
-  chars, type, label, color, dotColor, maxCount, target, isLast,
+function renderTileGroup({
+  chars, type, label, color, dotColor, target, isLast,
 }: {
   chars: PerCharacterCount[];
   type: string;
   label: string;
   color: string;
   dotColor: string;
-  maxCount: number;
   target: number;
   isLast?: boolean;
 }) {
   if (!chars.length) return null;
+  // Sort by count ascending so most needy classes appear first
+  const sorted = [...chars].sort((a, b) => a.count - b.count);
   return (
-    <div key={type} className={!isLast ? 'border-b border-stone-900/50' : ''}>
-      <div className={`px-4 py-2 bg-stone-900/10 text-[10px] font-bold uppercase tracking-wider ${color} flex items-center gap-2`}>
-        <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
+    <div key={type} className={!isLast ? 'border-b border-stone-900/50 pb-3 sm:pb-4 mb-3 sm:mb-4' : ''}>
+      <div className={`px-3 sm:px-4 py-1.5 sm:py-2 bg-stone-900/10 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider ${color} flex items-center gap-1.5 sm:gap-2`}>
+        <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotColor}`} />
         {label} — {chars.length} classes
       </div>
-      {chars.map((char) => (
-        <ClassRow key={char.character_id} char={char} maxCount={maxCount} target={target} />
-      ))}
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(68px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(84px,1fr))] gap-1.5 sm:gap-2 p-3 sm:p-4">
+        {sorted.map((char) => (
+          <CharacterTile key={char.character_id} char={char} target={target} />
+        ))}
+      </div>
     </div>
   );
 }
@@ -305,7 +297,7 @@ export function StatsDashboard() {
         const [totalRes, verifiedRes, contributorsRes] = await Promise.all([
           supabase.from('lipy_samples').select('*', { count: 'exact', head: true }),
           supabase.from('lipy_samples').select('*', { count: 'exact', head: true }).eq('status', 'verified'),
-          supabase.from('lipy_samples').select('contributor_id, character_id'),
+          supabase.from('lipy_samples').select('contributor_id, character_id').limit(100000),
         ]);
 
         const total = totalRes.count || 0;
@@ -405,9 +397,12 @@ export function StatsDashboard() {
   const maxCharCount = perCharacter.length > 0
     ? Math.max(...perCharacter.map((c) => c.count))
     : 0;
+  const classesWithSamples = perCharacter.filter((c) => c.count > 0).length;
+  const coveragePct = totalClasses > 0 ? Math.round((classesWithSamples / totalClasses) * 100) : 0;
+
 
   return (
-    <div className="p-3 sm:p-5 space-y-4 sm:space-y-5 overflow-y-auto flex-1">
+    <div className="p-3 sm:p-5 space-y-3 sm:space-y-5 overflow-y-auto flex-1">
       {/* ─── Header ─── */}
       <motion.div
         initial={{ opacity: 0, y: 8 }}
@@ -416,13 +411,13 @@ export function StatsDashboard() {
         className="flex items-center justify-between px-1"
       >
         <div className="flex items-center gap-2.5">
-          <div className="p-2 bg-blue-950/30 rounded-xl">
+          <div className="p-2 bg-blue-950/30 rounded-xl shrink-0">
             <BarChart3 className="w-4 h-4 text-blue-400" />
           </div>
-          <div>
-            <h2 className="text-sm sm:text-base font-bold text-stone-100">Dataset Statistics</h2>
-            <p className="text-[10px] sm:text-[11px] text-stone-500 font-medium">
-              Collection metrics, verification pipeline, and contributor insights
+          <div className="min-w-0">
+            <h2 className="text-sm sm:text-base font-bold text-stone-100 truncate">Dataset Statistics</h2>
+            <p className="text-[10px] sm:text-[11px] text-stone-500 font-medium truncate">
+              Collection metrics &amp; pipeline insights
             </p>
           </div>
         </div>
@@ -440,8 +435,8 @@ export function StatsDashboard() {
 
       {/* ─── Dataset Overview ─── */}
       <div>
-        <h3 className="mb-2 px-0.5 text-[10px] font-semibold uppercase tracking-[0.24em] text-stone-500 flex items-center gap-1.5">
-          <PieChart className="w-3.5 h-3.5" />
+        <h3 className="mb-1.5 sm:mb-2 px-0.5 text-[9px] sm:text-[10px] font-semibold uppercase tracking-[0.24em] text-stone-500 flex items-center gap-1.5">
+          <PieChart className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
           Dataset Overview
         </h3>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
@@ -467,22 +462,24 @@ export function StatsDashboard() {
             delay={0.15}
           />
           <StatCard
-            label="Contributors"
-            value={overview?.totalContributors ?? 0}
-            icon={Users}
-            color="bg-blue-950/30 text-blue-500"
+            label="Coverage"
+            value={`${coveragePct}%`}
+            icon={Target}
+            color="bg-cyan-950/30 text-cyan-500"
+            subtitle={`${classesWithSamples}/${totalClasses} classes`}
             delay={0.2}
+            compact
           />
         </div>
       </div>
 
       {/* ─── Verification Pipeline ─── */}
       <div>
-        <h3 className="mb-2 px-0.5 text-[10px] font-semibold uppercase tracking-[0.24em] text-stone-500 flex items-center gap-1.5">
-          <ShieldAlert className="w-3.5 h-3.5" />
+        <h3 className="mb-1.5 sm:mb-2 px-0.5 text-[9px] sm:text-[10px] font-semibold uppercase tracking-[0.24em] text-stone-500 flex items-center gap-1.5">
+          <ShieldAlert className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
           Verification Pipeline
         </h3>
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-2 sm:gap-3">
           {/* Left: main stats */}
           <div className="lg:col-span-3 grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
             <StatCard
@@ -512,9 +509,25 @@ export function StatsDashboard() {
               compact
             />
 
-            <div className="bg-[#0F0F0F] border border-stone-900 rounded-xl p-4 flex flex-col items-center justify-center">
+            <div className="bg-[#0F0F0F] border border-stone-900 rounded-xl p-3 sm:p-4 flex flex-col items-center justify-center col-span-2 sm:col-span-3 lg:col-span-3">
               {acceptanceRate != null ? (
-                <RingStat value={verification?.acceptedCount ?? 0} max={verification?.logCount ?? 1} label="Acceptance Rate" color="text-emerald-500" size="sm" />
+                <div className="flex items-center gap-4 sm:gap-8">
+                  <RingStat value={verification?.acceptedCount ?? 0} max={verification?.logCount ?? 1} label="Acceptance Rate" color="text-emerald-500" size="sm" />
+                  <div className="h-12 w-px bg-stone-800 hidden sm:block" />
+                  <div className="flex flex-col items-center gap-1">
+                    <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-stone-500">Unverified</p>
+                    <p className="text-base sm:text-xl font-extrabold text-amber-400">{verification ? verification.logCount - verification.acceptedCount : 0}</p>
+                    <p className="text-[9px] sm:text-[10px] text-stone-500">of {verification?.logCount ?? 0} total</p>
+                  </div>
+                  <div className="h-12 w-px bg-stone-800 hidden sm:block" />
+                  <div className="flex flex-col items-center gap-1">
+                    <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-stone-500">Avg. Confidence</p>
+                    <p className={`text-base sm:text-xl font-extrabold ${!verification?.avgConfidence ? 'text-stone-500' : verification.avgConfidence >= 0.9 ? 'text-emerald-400' : 'text-amber-400'}`}>
+                      {verification?.avgConfidence != null ? `${(verification.avgConfidence * 100).toFixed(1)}%` : '—'}
+                    </p>
+                    <p className="text-[9px] sm:text-[10px] text-stone-500">across all requests</p>
+                  </div>
+                </div>
               ) : (
                 <p className="text-xs text-stone-500">No data</p>
               )}
@@ -522,12 +535,12 @@ export function StatsDashboard() {
           </div>
 
           {/* Right: balanced target summary */}
-          <div className="bg-[#0F0F0F] border border-stone-900 rounded-xl p-4 flex flex-col items-center justify-center gap-2">
+          <div className="bg-[#0F0F0F] border border-stone-900 rounded-xl p-3 sm:p-4 flex flex-col items-center justify-center gap-2 sm:gap-3">
             {perCharacter.length > 0 && overview && overview.totalSamples > 0 ? (
               <>
-                <div className="flex flex-col items-center gap-1">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-stone-500">Balance Ratio</p>
-                  <p className={`text-xl font-extrabold ${(() => {
+                <div className="flex flex-col items-center gap-1 w-full">
+                  <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-stone-500 text-center">Balance Ratio</p>
+                  <p className={`text-lg sm:text-xl font-extrabold ${(() => {
                     const counts = perCharacter.map((c) => c.count).filter((n) => n > 0);
                     if (counts.length < 2) return 'text-stone-400';
                     const ratio = Math.max(...counts) / Math.min(...counts);
@@ -541,19 +554,19 @@ export function StatsDashboard() {
                       return `${Math.max(...counts)}×`;
                     })()}
                   </p>
-                  <p className="text-[10px] text-stone-500">max/min non-zero</p>
+                  <p className="text-[9px] sm:text-[10px] text-stone-500 text-center">max/min non-zero</p>
                 </div>
-                <div className="w-full h-px bg-stone-900" />
-                <div className="flex flex-col items-center gap-1">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-stone-500">Classes Needing Samples</p>
-                  <p className="text-xl font-extrabold text-amber-400">
+                <div className="w-3/4 h-px bg-stone-900" />
+                <div className="flex flex-col items-center gap-1 w-full">
+                  <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-stone-500 text-center">Need Samples</p>
+                  <p className="text-lg sm:text-xl font-extrabold text-amber-400">
                     {perCharacter.filter((c) => c.count < balancedTarget).length}
                   </p>
-                  <p className="text-[10px] text-stone-500">below target of {balancedTarget}</p>
+                  <p className="text-[9px] sm:text-[10px] text-stone-500 text-center">classes below target</p>
                 </div>
               </>
             ) : (
-              <p className="text-xs text-stone-500">No data</p>
+              <p className="text-xs text-stone-500 text-center">No data</p>
             )}
           </div>
         </div>
@@ -565,8 +578,8 @@ export function StatsDashboard() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5, duration: 0.35 }}
       >
-        <h3 className="mb-2 px-0.5 text-[10px] font-semibold uppercase tracking-[0.24em] text-stone-500 flex items-center gap-1.5">
-          <Layers className="w-3.5 h-3.5" />
+        <h3 className="mb-1.5 sm:mb-2 px-0.5 text-[9px] sm:text-[10px] font-semibold uppercase tracking-[0.24em] text-stone-500 flex items-center gap-1.5">
+          <Layers className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
           Class Distribution
         </h3>
         <div className="bg-[#0F0F0F] border border-stone-900 rounded-xl overflow-hidden">
@@ -574,50 +587,61 @@ export function StatsDashboard() {
             <div className="p-8 text-center text-stone-500 text-xs">No character data yet.</div>
           ) : (
             <>
-              {/* Summary bar */}
-              <div className="flex flex-wrap items-center gap-3 px-4 py-3 border-b border-stone-900 bg-stone-900/20">
-                <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">
-                  {totalClasses} classes
-                </span>
-                <span className="text-stone-700">·</span>
-                <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">
-                  Target: <span className="text-stone-200">{balancedTarget}</span> per class
-                </span>
-                <span className="text-stone-700">·</span>
-                <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">
-                  Min: <span className="text-rose-400">{Math.min(...perCharacter.map((c) => c.count))}</span>
-                </span>
-                <span className="text-stone-700">·</span>
-                <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">
-                  Max: <span className="text-emerald-400">{maxCharCount}</span>
-                </span>
+              {/* Explanation */}
+              <div className="px-3 sm:px-4 py-2.5 sm:py-3 border-b border-stone-900 bg-stone-900/20 space-y-1.5">
+                <p className="text-[10px] sm:text-[11px] text-stone-300 font-medium leading-relaxed">
+                  Each class should have at least <span className="font-bold text-stone-200">{balancedTarget}</span> samples for a balanced dataset.
+                  Tiles in <span className="text-amber-400">amber</span> need more samples; <span className="text-emerald-400">green</span> tiles meet the target.
+                </p>
+                {/* Legend */}
+                <div className="flex flex-wrap items-center gap-3">
+                  {CLASS_LEGEND_ITEMS.map((item) => (
+                    <span key={item.label} className="flex items-center gap-1.5 text-[9px] sm:text-[10px] text-stone-500">
+                      <span className={`w-2 h-2 rounded-full ${item.color}`} />
+                      {item.label}
+                    </span>
+                  ))}
+                </div>
+                {/* Summary stats */}
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3 pt-1">
+                  <span className="text-[9px] sm:text-[10px] font-bold text-stone-400 uppercase tracking-wider">{totalClasses} classes</span>
+                  <span className="text-stone-700">·</span>
+                  <span className="text-[9px] sm:text-[10px] font-bold text-stone-400">
+                    <span className="text-amber-400">{perCharacter.filter((c) => c.count < balancedTarget).length}</span> need samples
+                  </span>
+                  <span className="text-stone-700">·</span>
+                  <span className="text-[9px] sm:text-[10px] font-bold text-stone-400">
+                    Min: <span className="text-rose-400">{Math.min(...perCharacter.map((c) => c.count))}</span>
+                  </span>
+                  <span className="text-stone-700">·</span>
+                  <span className="text-[9px] sm:text-[10px] font-bold text-stone-400">
+                    Max: <span className="text-emerald-400">{maxCharCount}</span>
+                  </span>
+                </div>
               </div>
 
-              {renderClassGroup({
+              {renderTileGroup({
                 chars: perCharacter.filter((c) => c.type === 'vowel'),
                 type: 'vowels',
                 label: 'Vowels',
                 color: 'text-blue-400',
                 dotColor: 'bg-blue-500',
-                maxCount: maxCharCount,
                 target: balancedTarget,
               })}
-              {renderClassGroup({
+              {renderTileGroup({
                 chars: perCharacter.filter((c) => c.type === 'consonant'),
                 type: 'consonants',
                 label: 'Consonants',
                 color: 'text-emerald-400',
                 dotColor: 'bg-emerald-500',
-                maxCount: maxCharCount,
                 target: balancedTarget,
               })}
-              {renderClassGroup({
+              {renderTileGroup({
                 chars: perCharacter.filter((c) => c.type === 'digit'),
                 type: 'digits',
                 label: 'Digits',
                 color: 'text-amber-400',
                 dotColor: 'bg-amber-500',
-                maxCount: maxCharCount,
                 target: balancedTarget,
                 isLast: true,
               })}
@@ -632,8 +656,8 @@ export function StatsDashboard() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.55, duration: 0.35 }}
       >
-        <h3 className="mb-2 px-0.5 text-[10px] font-semibold uppercase tracking-[0.24em] text-stone-500 flex items-center gap-1.5">
-          <UserCheck className="w-3.5 h-3.5" />
+        <h3 className="mb-1.5 sm:mb-2 px-0.5 text-[9px] sm:text-[10px] font-semibold uppercase tracking-[0.24em] text-stone-500 flex items-center gap-1.5">
+          <Medal className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
           Top Contributors
         </h3>
         <div className="bg-[#0F0F0F] border border-stone-900 rounded-xl overflow-hidden">
@@ -642,27 +666,31 @@ export function StatsDashboard() {
           ) : (
             <div className="divide-y divide-stone-900/50">
               {/* Header */}
-              <div className="flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-wider text-stone-500">
-                <span className="w-6 text-center shrink-0">#</span>
+              <div className="flex items-center gap-3 px-3 sm:px-4 py-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-stone-500">
+                <span className="w-6 sm:w-8 text-center shrink-0">Rank</span>
                 <span className="flex-1 min-w-0">Contributor</span>
-                <span className="w-16 text-right shrink-0">Verified</span>
+                <span className="w-14 sm:w-16 text-right shrink-0">Verified</span>
               </div>
 
               {topContributors.map((c, i) => (
-                <div key={c.contributor_id} className="flex items-center gap-3 px-4 py-3 hover:bg-stone-900/20 transition-colors">
-                  <span className="w-6 text-center text-xs font-bold text-stone-500 shrink-0 tabular-nums">
-                    {i + 1}
-                  </span>
+                <div key={c.contributor_id} className="flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 hover:bg-stone-900/20 transition-colors">
+                  <div className="w-6 sm:w-8 text-center shrink-0">
+                    {i < 3 ? (
+                      <span className="text-sm sm:text-base">{MEDAL_EMOJIS[i]}</span>
+                    ) : (
+                      <span className="text-[10px] sm:text-xs font-bold text-stone-500 tabular-nums">{i + 1}</span>
+                    )}
+                  </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-stone-200 truncate">
+                    <p className="text-[11px] sm:text-sm font-semibold text-stone-200 truncate">
                       {c.contributor_name || 'Anonymous'}
                     </p>
-                    <p className="text-[10px] font-mono text-stone-500 truncate">
+                    <p className="text-[8px] sm:text-[10px] font-mono text-stone-500 truncate">
                       {c.contributor_id}
                     </p>
                   </div>
-                  <div className="w-16 text-right shrink-0">
-                    <span className="text-sm font-bold text-emerald-400">{c.total_verified}</span>
+                  <div className="w-14 sm:w-16 text-right shrink-0">
+                    <span className="text-xs sm:text-sm font-bold text-emerald-400">{c.total_verified}</span>
                   </div>
                 </div>
               ))}
@@ -677,13 +705,13 @@ export function StatsDashboard() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.35 }}
-          className="bg-[#0F0F0F] border border-stone-900 rounded-xl p-4 space-y-2"
+          className="bg-[#0F0F0F] border border-stone-900 rounded-xl p-3 sm:p-4 space-y-2 sm:space-y-3"
         >
-          <h4 className="text-[10px] font-bold uppercase tracking-wider text-stone-500 flex items-center gap-1.5">
+          <h4 className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-stone-500 flex items-center gap-1.5">
             <Activity className="w-3 h-3" />
             Dataset Health
           </h4>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
             <ProgressBar
               value={overview.verifiedSamples}
               max={overview.totalSamples}

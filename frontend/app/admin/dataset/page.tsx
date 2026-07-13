@@ -254,7 +254,8 @@ function DatasetViewerContent() {
       // 2b. All profiles from lipy_contributors (zero-sample contributors)
       const { data: profileContribs, error: err3 } = await client
         .from('lipy_contributors')
-        .select('contributor_id, contributor_name');
+        .select('contributor_id, contributor_name')
+        .limit(100000);
 
       if (err3) {
         console.error('Error fetching contributor profiles:', err3);
@@ -290,7 +291,7 @@ function DatasetViewerContent() {
     if (!supabase) return;
     setLoading(true);
     try {
-      let query = supabase.from('lipy_samples').select('*', { count: 'exact' });
+      let query = supabase.from('lipy_samples').select('*', { count: 'exact' }).limit(100000);
 
       // Apply search query
       if (searchQuery.trim()) {
