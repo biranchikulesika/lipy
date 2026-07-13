@@ -242,7 +242,7 @@ function LoginContent() {
               href="/"
               className="hover:opacity-70 transition-opacity"
             >
-              <Logo />
+              <Logo iDotTop="0.15em" />
             </Link>
           </motion.div>
         )}
@@ -268,7 +268,7 @@ function LoginContent() {
             onMouseLeave={handleMouseLeave}
           >
             <h1 className={`text-3xl md:text-5xl whitespace-nowrap transition-all duration-300 ${isInputFocused ? 'mb-3 md:mb-6' : 'mb-6 md:mb-10'}`}>
-              <Logo suffix=" Admin" size="lg" />
+              <Logo suffix=" Admin" size="lg" iDotTop="0.15em" />
             </h1>
 
             <form className="w-full space-y-2" onSubmit={handleSubmit}>

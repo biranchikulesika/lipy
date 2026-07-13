@@ -76,7 +76,7 @@ export function Navbar() {
 					className="flex flex-col items-start justify-center"
 					{...(pathname === "/lipyd" ? { onClick: (e) => { e.preventDefault(); window.location.href = "/lipyd"; } } : {})}
 				>
-					<Logo suffix={pathname === "/lipyd" ? "D" : ""} />
+					<Logo suffix={pathname === "/lipyd" ? "D" : ""} iDotTop="0.4em" />
 				</Link>
 
 				<nav aria-label="Primary navigation" className="hidden lg:flex items-center gap-2">

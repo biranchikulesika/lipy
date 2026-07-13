@@ -5,6 +5,7 @@ interface LogoProps {
   collapsed?: boolean;
   suffix?: string;
   className?: string;
+  iDotTop?: string;
 }
 
 const sizeMap: Record<LogoSize, string> = {
@@ -14,7 +15,7 @@ const sizeMap: Record<LogoSize, string> = {
   xl: 'text-4xl sm:text-5xl lg:text-6xl font-extrabold',
 };
 
-export function Logo({ size = 'sm', collapsed = false, suffix = '', className }: LogoProps) {
+export function Logo({ size = 'sm', collapsed = false, suffix = '', className, iDotTop = '0.2em' }: LogoProps) {
   const sizeClass = className || sizeMap[size];
   return (
     <span className={`font-display font-bold tracking-[0.02em] transition-all duration-300 text-white ${sizeClass}`}>
@@ -22,7 +23,7 @@ export function Logo({ size = 'sm', collapsed = false, suffix = '', className }:
       <span className="relative inline-flex flex-col items-center">
         <span className="text-transparent">i</span>
         <span className="absolute bottom-0 text-current">ı</span>
-        <span className="absolute top-[0.15em] left-[50%] translate-x-[-50%] w-[0.15em] h-[0.15em] rounded-full bg-amber-400" />
+        <span className="absolute left-[50%] translate-x-[-50%] w-[0.15em] h-[0.15em] rounded-full bg-amber-400" style={{ top: iDotTop }} />
       </span>
       {!collapsed && <span>Py</span>}
       {suffix && <span>{suffix}</span>}
