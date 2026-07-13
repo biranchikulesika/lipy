@@ -156,15 +156,25 @@ interface SupabaseClientShim {
   };
 }
 
-// ─── Character ID lookup map (char -> id) ───
-
+// ─── Character ID lookup maps ───
+// Map from Odia character text (e.g., "ଖ") to character ID (e.g., "CONS_KHA")
 const charToIdMap = new Map<string, string>();
+// Map from class label (e.g., "CONS_KHA") to character ID (same value, but
+// useful when the model only returns the label without the character text)
+const labelToIdMap = new Map<string, string>();
+
 for (const c of odiaCharacters) {
   charToIdMap.set(c.char, c.id);
+  labelToIdMap.set(c.id, c.id);
 }
 
 function findCharacterId(char: string): string | null {
   return charToIdMap.get(char) ?? null;
+}
+
+function findIdByLabel(label: string): string | null {
+  // The label is the same as the character ID (e.g., "CONS_KHA")
+  return labelToIdMap.get(label) ?? null;
 }
 
 // ─── Sentinel UUID for auto-verification ───
@@ -263,7 +273,7 @@ const modelPredictionStage: VerificationStage = {
         return { passed: false, reason: `Model API returned status ${response.status}` };
       }
 
-      const prediction = (await response.json()) as {
+      const rawPrediction = (await response.json()) as {
         status: string;
         prediction: string | null;
         confidence: number;
@@ -271,11 +281,33 @@ const modelPredictionStage: VerificationStage = {
         top_predictions?: Array<{ label: string; confidence: number; character: string }>;
       };
 
+      // Resolve the character ID using the best available field.
+      // Priority:
+      //   1. `character` — the actual Odia text (e.g., "ଖ")
+      //   2. `prediction` — the class label (e.g., "CONS_KHA")
+      //   3. First entry in `top_predictions[0].label` — fallback label
+      let characterId: string | null = null;
+      let characterLabel: string | null = rawPrediction.prediction ?? null;
+
+      if (rawPrediction.character) {
+        characterId = findCharacterId(rawPrediction.character);
+      }
+
+      if (!characterId && rawPrediction.prediction) {
+        characterId = findIdByLabel(rawPrediction.prediction);
+      }
+
+      if (!characterId && rawPrediction.top_predictions?.length) {
+        const topLabel = rawPrediction.top_predictions[0].label;
+        characterLabel = topLabel;
+        characterId = findIdByLabel(topLabel);
+      }
+
       ctx.prediction = {
-        character: prediction.character ?? null,
-        characterId: prediction.character ? findCharacterId(prediction.character) : null,
-        confidence: prediction.confidence ?? 0,
-        raw: prediction,
+        character: characterLabel,
+        characterId,
+        confidence: rawPrediction.confidence ?? 0,
+        raw: rawPrediction,
       };
 
       return { passed: true };
@@ -309,24 +341,47 @@ const confidenceCheckStage: VerificationStage = {
 
 /**
  * Stage 3: Check that the predicted character matches the expected character.
+ *
+ * Matching is attempted in this priority order:
+ *   1. Character ID match — predicted character ID === expected character ID
+ *   2. Character text match — predicted character text === expected character text
+ *   3. Label fallback — predicted label resolves to expected character ID
  */
 const characterMatchStage: VerificationStage = {
   name: 'character_match',
   async execute(ctx: VerificationContext): Promise<VerificationStageResult> {
-    if (!ctx.prediction || !ctx.prediction.character) {
-      return { passed: false, reason: 'Model did not return a prediction' };
+    if (!ctx.prediction) {
+      return { passed: false, reason: 'No prediction available' };
     }
 
     const expectedId = ctx.request.expectedCharacterId;
     const predictedId = ctx.prediction.characterId;
     const predictedChar = ctx.prediction.character;
 
+    // 1. Match by character ID (most reliable)
     if (predictedId && predictedId === expectedId) {
       return { passed: true };
     }
 
-    if (predictedChar && predictedChar === ctx.request.expectedCharacter) {
-      return { passed: true };
+    // 2. Match by character text with Unicode normalization
+    if (predictedChar && ctx.request.expectedCharacter) {
+      // Normalize both to NFC to avoid Unicode form mismatch
+      const normalizedPredicted = predictedChar.normalize('NFC');
+      const normalizedExpected = ctx.request.expectedCharacter.normalize('NFC');
+      if (normalizedPredicted === normalizedExpected) {
+        return { passed: true };
+      }
+    }
+
+    // 3. Try matching by prediction label via top_predictions if available
+    const raw = ctx.prediction.raw as Record<string, unknown> | null;
+    if (raw?.top_predictions && Array.isArray(raw.top_predictions)) {
+      for (const entry of raw.top_predictions) {
+        const label = String(entry?.label ?? '');
+        if (label && findIdByLabel(label) === expectedId) {
+          return { passed: true };
+        }
+      }
     }
 
     return {

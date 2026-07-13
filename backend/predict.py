@@ -102,11 +102,6 @@ def predict_upload(upload: UploadFile) -> dict[str, Any]:
         model.predict(batch, verbose=0)
     )[0]
 
-    class_to_character = {
-        value: key
-        for key, value in label_map.items()
-    }
-
     top_indices = np.argsort(probabilities)[::-1][:TOP_K]
 
     top_predictions = []
@@ -122,7 +117,7 @@ def predict_upload(upload: UploadFile) -> dict[str, Any]:
                     float(probabilities[index]),
                     4,
                 ),
-                "character": class_to_character.get(
+                "character": label_map.get(
                     class_name,
                     "",
                 ),

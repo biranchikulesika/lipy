@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   LogOut, ArrowUpRight, ShieldCheck, BarChart3, Database,
-  Menu, X, ChevronRight, ShieldAlert,
+  Menu, X, ChevronRight, ShieldAlert, TrendingUp,
   Loader2,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -48,6 +48,7 @@ const NAV_ITEMS = [
     section: 'Overview',
     items: [
       { href: '/admin', label: 'Dashboard', icon: BarChart3, enabled: true },
+      { href: '/admin/stats', label: 'Statistics', icon: TrendingUp, enabled: true },
     ],
   },
   {

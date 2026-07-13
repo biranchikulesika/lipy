@@ -1,4 +1,11 @@
-import db, { getPendingUploadCount, updateSampleSyncState, SampleRecord, incrementLifetimeCount } from './storageService';
+import db, {
+  getPendingUploadCount,
+  updateSampleSyncState,
+  deleteSample,
+  getVerificationFailedSamples,
+  SampleRecord,
+  incrementLifetimeCount,
+} from './storageService';
 import { getSupabaseClient, isSupabaseConfigured } from './supabaseClient';
 import { odiaCharacters } from './odiaCharacters';
 import { ensureValidSessionId, isValidContributorName, isValidMode } from './validators';
@@ -9,7 +16,17 @@ const MAX_RETRY_ATTEMPTS = 10;
 const VERIFICATION_API_MAX_RETRIES = 3;
 const characterIds = new Set(odiaCharacters.map((item) => item.id));
 
+const VERIFICATION_FAILED_MARKER = '__verification_failed__';
 const REJECTED_MARKER = '__rejected__';
+
+// Maximum number of automatic batch re-verify attempts per sample.
+// After this many failed re-verifications, the sample is left alone
+// until the contributor manually retries via the review panel.
+const MAX_AUTO_VERIFY_ATTEMPTS = 2;
+
+function getAutoVerifyKey(contributorId: string, clientSampleId: string): string {
+  return `lipy_auto_reverify_${contributorId}_${clientSampleId}`;
+}
 
 // Check if the verification API should be used.
 // The verification API needs the LiPy model endpoint to function.
@@ -334,6 +351,7 @@ async function markFailed(item: any, error: any) {
   const err = error as Error;
   const message = err?.message || String(error || 'Upload failed');
   const isRejection = message === REJECTED_MARKER;
+  const isVerificationFailure = message === VERIFICATION_FAILED_MARKER;
 
   // Rejected entries are discarded immediately — no retries
   if (isRejection) {
@@ -347,6 +365,28 @@ async function markFailed(item: any, error: any) {
       });
     }
     await refreshState({ lastError: REJECTED_MARKER, syncing: false });
+    return;
+  }
+
+  // Verification failures (model couldn't verify) are NOT discarded.
+  // The sample stays in local storage with a "verification_failed" status.
+  // This allows:
+  //   1. The user to see which samples failed verification
+  //   2. Future re-verification if the model improves
+  //   3. Manual review by admins
+  //
+  // Remove from upload queue (no retry), but keep in samples table.
+  if (isVerificationFailure) {
+    await db.uploadQueue.delete(item.clientSampleId);
+    if (item.sampleId) {
+      await updateSampleSyncState(item.sampleId, {
+        syncStatus: 'verification_failed',
+        uploadStatus: 'failed',
+        uploadAttempts: (item.attempts || 0) + 1,
+        uploadError: 'Verification failed — model could not verify the character',
+      });
+    }
+    await refreshState({ lastError: VERIFICATION_FAILED_MARKER, syncing: false });
     return;
   }
 
@@ -436,6 +476,10 @@ async function uploadSingleItem(client: any, item: any) {
  * ban detection, and Supabase storage/database operations.
  *
  * This is the preferred path when the verification API is configured.
+ *
+ * On rejection: throws VERIFICATION_FAILED_MARKER so the queue handler
+ * keeps the sample locally instead of discarding it entirely. On network
+ * errors: throws the original error so the queue can retry.
  */
 async function uploadViaVerificationApi(item: any) {
   const apiUrl = getVerificationApiUrl();
@@ -468,13 +512,16 @@ async function uploadViaVerificationApi(item: any) {
   });
 
   if (!response.ok) {
+    // Server-side error (5xx) — retryable, not a verification failure
     throw new Error(`Verification API returned status ${response.status}`);
   }
 
   const result = await response.json();
 
   if (!result.accepted) {
-    throw new Error(REJECTED_MARKER);
+    // Verification rejected the sample. Use VERIFICATION_FAILED_MARKER
+    // so the queue keeps the sample locally rather than discarding it.
+    throw new Error(VERIFICATION_FAILED_MARKER);
   }
 
   // Sample was accepted — it's now stored in Supabase with status "verified"
@@ -582,6 +629,126 @@ export function subscribeSyncState(listener: Function) {
   return () => {
     listeners.delete(listener);
   };
+}
+
+/**
+ * Re-queue a verification-failed sample for another verification attempt.
+ * Resets the attempt count so the queue processor picks it up fresh.
+ * Returns the new queue status or null if the sample could not be found.
+ */
+export async function reverifySample(
+  sample: SampleRecord,
+  imageBlob?: Blob,
+): Promise<{ ok: boolean; error?: string }> {
+  if (!sample || !sample.clientSampleId) {
+    return { ok: false, error: 'Invalid sample record' };
+  }
+
+  const blob = imageBlob || sample.imageBlob;
+  if (!blob) {
+    return { ok: false, error: 'No image data available for this sample' };
+  }
+
+  // Reset sync status to 'pending' so the upload queue picks it up
+  if (sample.id) {
+    await updateSampleSyncState(sample.id, {
+      syncStatus: 'pending',
+      uploadStatus: 'pending',
+      uploadAttempts: 0,
+      uploadError: '',
+    });
+  }
+
+  // Re-queue for upload (which goes through verification)
+  const result = await queueSampleUpload(sample, blob);
+
+  if (result.ok) {
+    try {
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('lipy:samples-updated'));
+      }
+    } catch (e) { }
+  }
+
+  return result;
+}
+
+/**
+ * Permanently removes a verification-failed sample from local storage.
+ * The contributor chose to discard it rather than retry.
+ */
+export async function clearFailedSample(sampleId: number): Promise<boolean> {
+  if (!sampleId) return false;
+  try {
+    const result = await deleteSample(sampleId);
+    if (result) {
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('lipy:samples-updated'));
+      }
+    }
+    return result;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Batch re-verify all verification-failed samples for a contributor.
+ * Runs automatically on startup and respects per-sample retry limits
+ * tracked in localStorage to avoid infinite re-verify loops.
+ *
+ * @returns Stats about how many samples were re-queued for verification.
+ */
+export async function batchReverifyAllFailed(
+  contributorId: string,
+): Promise<{ reQueued: number; skipped: number; total: number }> {
+  const result = { reQueued: 0, skipped: 0, total: 0 };
+
+  if (!contributorId) return result;
+
+  try {
+    const samples = await getVerificationFailedSamples(contributorId);
+    result.total = samples.length;
+
+    if (!samples.length) return result;
+
+    for (const sample of samples) {
+      const sid = sample.id;
+      if (sid == null) {
+        result.skipped++;
+        continue;
+      }
+
+      // Check how many auto-reverify attempts this sample has had
+      const key = getAutoVerifyKey(contributorId, sample.clientSampleId);
+      let attempts = 0;
+      try {
+        attempts = Number(localStorage.getItem(key) || 0) || 0;
+      } catch { /* localStorage unavailable */ }
+
+      if (attempts >= MAX_AUTO_VERIFY_ATTEMPTS) {
+        result.skipped++;
+        continue;
+      }
+
+      // Re-queue for verification
+      const verifyResult = await reverifySample(sample);
+
+      if (verifyResult.ok) {
+        // Increment auto-reverify counter
+        try {
+          localStorage.setItem(key, String(attempts + 1));
+        } catch { /* localStorage unavailable */ }
+        result.reQueued++;
+      } else {
+        result.skipped++;
+      }
+    }
+  } catch {
+    // Failed to auto-reverify — non-critical, user can manually retry
+  }
+
+  return result;
 }
 
 export async function bootDatasetSync() {

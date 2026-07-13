@@ -4,9 +4,8 @@ import useCanvasDrawing from '@/hooks/lipyd/useCanvasDrawing';
 import { odiaCharacters, OdiaCharacter } from '@/lib/lipyd/odiaCharacters';
 import { saveSample } from '@/lib/lipyd/storageService';
 import { generateFilename } from '@/lib/lipyd/filenameService';
-import { createClientSampleId, queueSampleUpload } from '@/lib/lipyd/datasetSyncService';
+import { createClientSampleId, queueSampleUpload, batchReverifyAllFailed, bootDatasetSync, processUploadQueue } from '@/lib/lipyd/datasetSyncService';
 import schedulerService from '@/lib/lipyd/randomCharacterService';
-import useDatasetSync from '@/hooks/lipyd/useDatasetSync';
 import { Trash2, SkipForward, Shuffle, Check } from 'lucide-react';
 
 export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { sessionConfig: any, onSessionConfigChange?: (cfg: any) => void }) {
@@ -15,14 +14,13 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
   const [strokePreviewWidth, setStrokePreviewWidth] = useState<number | null>(null);
   const { clearCanvas, getImageBlob } = useCanvasDrawing(canvasRef, strokeWidth);
   const [currentChar, setCurrentChar] = useState<OdiaCharacter | null>(sessionConfig.mode === 'mixed-random' ? null : sessionConfig.selected || odiaCharacters[0]);
-  const [invalidMsg, setInvalidMsg] = useState('');
 
-  const [completed, setCompleted] = useState(0);
-  const [skipped, setSkipped] = useState(0);
-  const syncState = useDatasetSync(sessionConfig);
   const [showStrokePanel, setShowStrokePanel] = useState(false);
   const strokeWrapperRef = useRef<HTMLDivElement>(null);
   const [animating, setAnimating] = useState(false);
+  const [savedToast, setSavedToast] = useState(false);
+  const savedToastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoBatchDoneRef = useRef(false);
 
   // Transition helper
   const transitionTo = async (nextCharFn: () => Promise<void>) => {
@@ -31,6 +29,12 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
     await nextCharFn();
     setAnimating(false);
   };
+
+  // ─── Boot dataset sync on mount (silent — no status shown to user) ───
+  useEffect(() => {
+    bootDatasetSync().catch(() => {});
+    processUploadQueue().catch(() => {});
+  }, []);
 
   useEffect(() => {
     let alive = true;
@@ -52,22 +56,24 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
     };
   }, [sessionConfig]);
 
+  // ─── Auto batch re-verify on mount (once per page load, runs silently) ───
   useEffect(() => {
-    let mounted = true;
-    async function loadStats() {
-      if (!sessionConfig || !sessionConfig.contributorId) return;
-      try {
-        const progress = await schedulerService.getSchedulerProgress(sessionConfig);
-        if (mounted) {
-          setCompleted(progress.completedCount || 0);
-          setSkipped(progress.skippedCount || 0);
-        }
-      } catch (e) { }
-    }
-    loadStats();
-    window.addEventListener('lipy:samples-updated', loadStats);
-    window.addEventListener('lipy:scheduler-state-changed', loadStats);
+    if (!sessionConfig?.contributorId || autoBatchDoneRef.current) return;
+    autoBatchDoneRef.current = true;
 
+    const timer = setTimeout(async () => {
+      try {
+        await batchReverifyAllFailed(sessionConfig.contributorId);
+        try { window.dispatchEvent(new CustomEvent('lipy:samples-updated')); } catch {}
+      } catch {
+        // Silently retry in background — never expose to user
+      }
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [sessionConfig?.contributorId]);
+
+  useEffect(() => {
     function handleDocClick(e: any) {
       try {
         if (strokeWrapperRef.current && !strokeWrapperRef.current.contains(e.target)) {
@@ -95,13 +101,10 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
     window.addEventListener('keydown', handleKeyDown);
 
     return () => {
-      window.removeEventListener('lipy:samples-updated', loadStats);
-      window.removeEventListener('lipy:scheduler-state-changed', loadStats);
       window.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('click', handleDocClick);
-      mounted = false;
     };
-  }, [sessionConfig, clearCanvas]);
+  }, [clearCanvas]);
 
   useEffect(() => {
     const getCookie = (cname: string) => {
@@ -162,55 +165,8 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
     setStrokePreviewWidth(null);
   };
 
-  function validateDrawing() {
-    const canvas = canvasRef.current;
-    if (!canvas) return { ok: false, reason: 'Canvas unavailable' };
-    const width = canvas.width || 0;
-    const height = canvas.height || 0;
-    if (!width || !height) return { ok: false, reason: 'Canvas empty' };
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return { ok: false, reason: 'Canvas context unavailable' };
-
-    let nonWhite = 0;
-    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-    const step = 4;
-    try {
-      const imageData = ctx.getImageData(0, 0, width, height).data;
-      for (let y = 0; y < height; y += step) {
-        for (let x = 0; x < width; x += step) {
-          const idx = (y * width + x) * 4;
-          const r = imageData[idx], g = imageData[idx + 1], b = imageData[idx + 2], a = imageData[idx + 3];
-          if (a > 16 && (r < 250 || g < 250 || b < 250)) {
-            nonWhite++;
-            if (x < minX) minX = x;
-            if (y < minY) minY = y;
-            if (x > maxX) maxX = x;
-            if (y > maxY) maxY = y;
-          }
-        }
-      }
-    } catch (e) {
-      return { ok: false, reason: 'Unable to read canvas pixels' };
-    }
-
-    if (nonWhite === 0) return { ok: false, reason: 'Drawing is empty' };
-
-    const bboxW = isFinite(minX) ? (maxX - minX + 1) : 0;
-    const bboxH = isFinite(minY) ? (maxY - minY + 1) : 0;
-
-    const ok = nonWhite >= 200 || (bboxW >= 16 && bboxH >= 16);
-    return ok ? { ok: true } : { ok: false, reason: 'Drawing is too small or sparse' };
-  }
-
   async function handleSave() {
     if (!currentChar) return;
-
-    const v = validateDrawing();
-    if (!v.ok) {
-      setInvalidMsg(v.reason || 'Please draw the character before saving');
-      setTimeout(() => setInvalidMsg(''), 1800);
-      return;
-    }
 
     const blob = await getImageBlob();
     const sid = sessionConfig.sessionId || 'S01';
@@ -232,6 +188,9 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
     await queueSampleUpload(sampleRecord as any, blob);
     await schedulerService.recordCharacterOutcome(sessionConfig, currentChar, 'completed');
     try { window.dispatchEvent(new CustomEvent('lipy:samples-updated')); } catch (e) { }
+    if (savedToastTimer.current) clearTimeout(savedToastTimer.current);
+    setSavedToast(true);
+    savedToastTimer.current = setTimeout(() => setSavedToast(false), 1200);
     clearCanvas();
     if (sessionConfig.mode === 'mixed-random') {
       transitionTo(async () => {
@@ -275,9 +234,6 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
             <span className="text-3xl lg:text-5xl leading-none text-white font-bold select-none">
               {currentChar ? currentChar.char : '…'}
             </span>
-            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-verdigris-200/90 text-slate-900 text-[7px] lg:text-[9px] font-extrabold px-1.5 py-0.5 rounded-full tracking-widest uppercase shadow-sm whitespace-nowrap">
-              {currentChar?.id || 'LOAD'}
-            </div>
           </div>
 
           {strokePreviewWidth != null && (
@@ -287,11 +243,6 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
             />
           )}
 
-          {!canvasRef.current && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none text-slate-500 font-medium">
-              Draw character here
-            </div>
-          )}
 
           <div className="absolute top-2 right-2 lg:top-4 lg:right-4 z-10 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-200" ref={strokeWrapperRef}>
             <button
@@ -360,65 +311,11 @@ export default function CanvasBoard({ sessionConfig, onSessionConfigChange }: { 
           </button>
         </div>
 
-        {/* Compact stats */}
-        <div className="flex flex-col items-center justify-center pt-3 lg:pt-4 gap-2">
-          <div className="flex items-center gap-1 w-full max-w-40 h-1 bg-verdigris-800 rounded-full overflow-hidden">
-             <div className="h-full bg-verdigris-400 rounded-full" style={{ width: `${Math.min(100, completed % 100)}%` }} />
-          </div>
-          <div className="flex items-center justify-center gap-2 text-[11px] font-bold tracking-widest uppercase text-slate-400">
-            <span>Done: <span className="text-white">{completed}</span></span>
-            <span className="opacity-40">•</span>
-            <span>Skipped: <span className="text-white">{skipped}</span></span>
-
-            {(() => {
-              const dot = <span className="opacity-40">•</span>;
-              if (syncState.lastError) {
-                const isRejected = syncState.lastError === '__rejected__';
-                return (
-                  <>
-                    {dot}
-                    <span
-                      className={`${isRejected ? 'text-amber-400' : 'text-rose-400'} cursor-help underline decoration-dotted underline-offset-2`}
-                      title={isRejected ? 'Submission rejected by server' : syncState.lastError}
-                    >
-                      {isRejected ? 'Invalid' : 'Sync failed'}
-                    </span>
-                    {syncState.pendingCount > 0 && (
-                      <span className="text-slate-400">, {syncState.pendingCount} pending</span>
-                    )}
-                  </>
-                );
-              }
-              if (syncState.syncing) {
-                return (
-                  <>
-                    {dot}
-                    <span className="text-verdigris-400 animate-pulse">Syncing</span>
-                  </>
-                );
-              }
-              if (!syncState.online) {
-                return (
-                  <>
-                    {dot}
-                    <span className="text-amber-500">Offline</span>
-                  </>
-                );
-              }
-              return (
-                <>
-                  {dot}
-                  <span className="text-slate-500">Synced</span>
-                </>
-              );
-            })()}
-          </div>
-        </div>
-
-        {invalidMsg && (
+        {/* Generic saved toast — no verification status exposed */}
+        {savedToast && (
           <div className="fixed inset-x-0 bottom-8 z-60 flex justify-center pointer-events-none animate-in fade-in slide-in-from-bottom-4">
-            <div className="rounded-2xl bg-verdigris-900 px-6 py-3 text-sm font-bold text-white shadow-xl">
-              {invalidMsg}
+            <div className="rounded-2xl bg-verdigris-800/90 px-6 py-3 text-sm font-bold text-verdigris-200 shadow-xl backdrop-blur-sm">
+              Saved!
             </div>
           </div>
         )}

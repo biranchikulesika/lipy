@@ -15,7 +15,7 @@ export interface SampleRecord {
   imageBlob: Blob;
   createdAt?: string;
   updatedAt?: string;
-  syncStatus?: 'pending' | 'uploaded';
+  syncStatus?: 'pending' | 'uploaded' | 'verification_failed';
   uploadStatus?: 'pending' | 'retrying' | 'uploaded' | 'failed';
   uploadAttempts?: number;
   uploadError?: string;
@@ -239,6 +239,54 @@ export async function getUploadedSampleCount(contributorId: string): Promise<num
 }
 
 /**
+ * Counts verification-failed samples for a given contributor.
+ * Used by the review panel badge to show the count.
+ */
+export async function getVerificationFailedCount(contributorId: string): Promise<number> {
+  if (!contributorId) return 0;
+  try {
+    const cid = String(contributorId).trim();
+    return await db.samples
+      .where({ contributorId: cid, syncStatus: 'verification_failed' })
+      .count();
+  } catch (e) {
+    return 0;
+  }
+}
+
+/**
+ * Returns all samples with 'verification_failed' status for a given
+ * contributor. Used by the Unverified Review Panel to show samples
+ * that the model could not verify.
+ */
+export async function getVerificationFailedSamples(contributorId: string): Promise<SampleRecord[]> {
+  if (!contributorId) return [];
+  try {
+    const cid = String(contributorId).trim();
+    return await db.samples
+      .where({ contributorId: cid, syncStatus: 'verification_failed' })
+      .reverse()
+      .sortBy('timestamp');
+  } catch (e) {
+    return [];
+  }
+}
+
+/**
+ * Permanently deletes a sample from the local IndexedDB.
+ * Used when the contributor wants to discard a verification-failed sample.
+ */
+export async function deleteSample(sampleId: number): Promise<boolean> {
+  if (!sampleId) return false;
+  try {
+    await db.samples.delete(sampleId);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+/**
  * Clears ALL local data associated with a contributor profile:
  * - Lifetime contribution count (localStorage)
  * - Session config (localStorage)
@@ -265,7 +313,8 @@ export async function clearContributorData(contributorId: string) {
         k.startsWith(`lipy_sample_counter_${cid}`) ||
         k.startsWith(`lipy_last_sample_ts_${cid}`) ||
         k.startsWith(`lipy_last_export_ts_${cid}`) ||
-        k.startsWith(`lipy_mixed_scheduler_state_v1_${cid}`)
+        k.startsWith(`lipy_mixed_scheduler_state_v1_${cid}`) ||
+        k.startsWith(`lipy_auto_reverify_${cid}_`)
       )) {
         keysToRemove.push(k);
       }
