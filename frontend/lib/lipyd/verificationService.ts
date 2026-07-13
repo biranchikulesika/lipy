@@ -423,10 +423,15 @@ const acceptanceStage: VerificationStage = {
       const now = nowIso();
       const isFullVerification = ctx.config.verificationMode === 'full';
 
+      // Always include all stats fields with proper defaults so new
+      // contributors are fully initialised and existing values persist.
       const contributorPayload: Record<string, unknown> = {
         contributor_id: req.contributorId,
         contributor_name: req.contributorName,
         last_seen_at: now,
+        total_rejected: ctx.contributor?.totalRejected ?? 0,
+        invalid_streak: ctx.contributor?.invalidStreak ?? 0,
+        trust_score: ctx.contributor?.trustScore ?? TRUST_SCORE_INITIAL,
       };
 
       if (isFullVerification) {

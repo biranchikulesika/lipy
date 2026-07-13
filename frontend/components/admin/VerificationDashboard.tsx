@@ -6,7 +6,7 @@ import {
   ShieldAlert, AlertTriangle, CheckCircle2, XCircle,
   Clock, UserCheck, Ban, TrendingUp, Loader2,
   ChevronDown, Search, RefreshCw, Activity,
-  Users,
+  Users, Fingerprint,
 } from 'lucide-react';
 
 // ─── Types ───
@@ -146,7 +146,6 @@ export function VerificationDashboard() {
   const [showOnlyBanned, setShowOnlyBanned] = useState(false);
   const [showOnlyWithStreak, setShowOnlyWithStreak] = useState(false);
   const [logFilter, setLogFilter] = useState<'all' | 'accepted' | 'rejected'>('all');
-  const [expandedContributor, setExpandedContributor] = useState<string | null>(null);
   const [showContributors, setShowContributors] = useState(true);
 
   const fetchData = useCallback(async () => {
@@ -193,6 +192,16 @@ export function VerificationDashboard() {
     if (logFilter === 'rejected') return !l.accepted;
     return true;
   }) ?? [];
+
+  // ─── Sub-component: Stat Pill ───
+  function StatPill({ label, value, color }: { label: string; value: number | string; color: string }) {
+    return (
+      <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold leading-none ${color}`}>
+        <span className="opacity-70 font-semibold">{label}:</span>
+        <span>{value}</span>
+      </span>
+    );
+  }
 
   // ─── Loading State ───
   if (loading && !data) {
@@ -377,7 +386,7 @@ export function VerificationDashboard() {
                   </button>
                 </div>
 
-                {/* Contributor List */}
+                {/* Contributor List — all stats visible inline, no expand needed */}
                 <div className="divide-y divide-stone-900/50 max-h-96 overflow-y-auto">
                   {filteredContributors.length === 0 ? (
                     <div className="p-8 text-center text-stone-500 text-xs">
@@ -389,130 +398,99 @@ export function VerificationDashboard() {
                     filteredContributors.map((contributor) => {
                       const banned = isBanned(contributor);
                       const hasStreak = (contributor.invalid_streak ?? 0) > 0;
-                      const expanded = expandedContributor === contributor.contributor_id;
                       const trustLevel = contributor.trust_score ?? 0;
 
                       return (
-                        <div key={contributor.contributor_id} className="group">
-                          <button
-                            onClick={() => setExpandedContributor(expanded ? null : contributor.contributor_id)}
-                            className="w-full flex items-center justify-between px-4 py-3 hover:bg-stone-900/20 transition-colors text-left"
-                          >
-                            <div className="flex items-center gap-3 min-w-0">
-                              {/* Status dot */}
-                              <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-                                banned
-                                  ? 'bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.4)]'
-                                  : hasStreak
-                                    ? 'bg-amber-500'
-                                    : 'bg-emerald-500'
-                              }`} />
-                              <div className="min-w-0">
-                                <p className="text-sm font-semibold text-stone-200 truncate group-hover:text-stone-100 transition-colors">
+                        <div key={contributor.contributor_id} className="group px-4 py-2.5 hover:bg-stone-900/20 transition-colors">
+                          <div className="flex items-center gap-3 min-w-0">
+                            {/* Status dot */}
+                            <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+                              banned
+                                ? 'bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.4)]'
+                                : hasStreak
+                                  ? 'bg-amber-500'
+                                  : 'bg-emerald-500'
+                            }`} />
+
+                            {/* Name + ID */}
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-sm font-semibold text-stone-200 truncate max-w-32 sm:max-w-48 group-hover:text-stone-100 transition-colors">
                                   {contributor.contributor_name || 'Anonymous'}
-                                </p>
-                                <p className="text-[10px] font-mono text-stone-500 truncate">
+                                </span>
+                                {banned && (
+                                  <span className="text-[9px] font-bold text-red-400 bg-red-950/20 px-1.5 py-0.5 rounded border border-red-900/40 uppercase leading-none">
+                                    Banned
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-[10px] font-mono text-stone-500 truncate max-w-28 sm:max-w-44" title={contributor.contributor_id}>
+                                  <Fingerprint className="w-2.5 h-2.5 inline mr-0.5 opacity-60" />
                                   {contributor.contributor_id}
-                                </p>
+                                </span>
+                                {contributor.last_seen_at && (
+                                  <span className="text-[9px] text-stone-600 whitespace-nowrap">
+                                    <Clock className="w-2.5 h-2.5 inline mr-0.5 opacity-50" />
+                                    {formatTimeAgo(contributor.last_seen_at)}
+                                  </span>
+                                )}
+                                {contributor.last_verified_at && (
+                                  <span className="text-[9px] text-emerald-700 whitespace-nowrap">
+                                    <CheckCircle2 className="w-2.5 h-2.5 inline mr-0.5" />
+                                    Verified {formatTimeAgo(contributor.last_verified_at)}
+                                  </span>
+                                )}
+                                {contributor.last_invalid_at && (
+                                  <span className="text-[9px] text-rose-700 whitespace-nowrap">
+                                    <XCircle className="w-2.5 h-2.5 inline mr-0.5" />
+                                    Invalid {formatTimeAgo(contributor.last_invalid_at)}
+                                  </span>
+                                )}
                               </div>
                             </div>
-                            <div className="flex items-center gap-2 shrink-0">
-                              {/* Trust badge */}
-                              <span className={`hidden sm:inline-flex items-center text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                                trustLevel >= 80
+
+                            {/* Stats pills — always visible */}
+                            <div className="flex items-center gap-1.5 shrink-0 flex-wrap justify-end">
+                              <StatPill
+                                label="V"
+                                value={contributor.total_verified ?? 0}
+                                color="text-emerald-400 bg-emerald-950/20"
+                              />
+                              <StatPill
+                                label="R"
+                                value={contributor.total_rejected ?? 0}
+                                color="text-rose-400 bg-rose-950/20"
+                              />
+                              <StatPill
+                                label="S"
+                                value={contributor.invalid_streak ?? 0}
+                                color={hasStreak ? 'text-amber-400 bg-amber-950/20' : 'text-stone-500 bg-stone-900/40'}
+                              />
+                              <StatPill
+                                label="T"
+                                value={trustLevel}
+                                color={trustLevel >= 80
                                   ? 'text-emerald-400 bg-emerald-950/20'
                                   : trustLevel >= 40
                                     ? 'text-amber-400 bg-amber-950/20'
-                                    : 'text-stone-400 bg-stone-900/40'
-                              }`}>
-                                T:{trustLevel}
-                              </span>
-                              {/* Status badges */}
-                              {banned && (
-                                <span className="text-[10px] font-bold text-red-400 bg-red-950/20 px-2 py-0.5 rounded border border-red-900/40 whitespace-nowrap">
-                                  BANNED
-                                </span>
-                              )}
-                              {hasStreak && !banned && (
-                                <span className="text-[10px] font-bold text-amber-400 bg-amber-950/20 px-2 py-0.5 rounded border border-amber-900/40">
-                                  S:{contributor.invalid_streak}
-                                </span>
-                              )}
-                              <ChevronDown className={`w-3.5 h-3.5 text-stone-500 transition-transform duration-200 ${expanded ? '' : '-rotate-90'}`} />
+                                    : 'text-stone-500 bg-stone-900/40'
+                                }
+                              />
                             </div>
-                          </button>
+                          </div>
 
-                          <AnimatePresence>
-                            {expanded && (
-                              <motion.div
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: 'auto', opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                transition={{ duration: 0.15 }}
-                                className="overflow-hidden"
-                              >
-                                <div className="px-4 pb-4 pt-1 space-y-2 bg-stone-900/10">
-                                  {/* Metrics grid */}
-                                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                    <div className="p-2.5 bg-stone-900/30 rounded-lg">
-                                      <p className="text-[10px] text-stone-500 font-medium">Invalid Streak</p>
-                                      <p className={`text-sm font-bold ${(contributor.invalid_streak ?? 0) > 0 ? 'text-amber-400' : 'text-stone-300'}`}>
-                                        {contributor.invalid_streak ?? 0}
-                                      </p>
-                                    </div>
-                                    <div className="p-2.5 bg-stone-900/30 rounded-lg">
-                                      <p className="text-[10px] text-stone-500 font-medium">Trust Score</p>
-                                      <p className="text-sm font-bold text-stone-300">{trustLevel}</p>
-                                    </div>
-                                    <div className="p-2.5 bg-stone-900/30 rounded-lg">
-                                      <p className="text-[10px] text-stone-500 font-medium">Verified</p>
-                                      <p className="text-sm font-bold text-emerald-400">{contributor.total_verified ?? 0}</p>
-                                    </div>
-                                    <div className="p-2.5 bg-stone-900/30 rounded-lg">
-                                      <p className="text-[10px] text-stone-500 font-medium">Rejected</p>
-                                      <p className="text-sm font-bold text-rose-400">{contributor.total_rejected ?? 0}</p>
-                                    </div>
-                                  </div>
-
-                                  {/* Ban notice */}
-                                  {banned && (
-                                    <div className="p-3 bg-red-950/10 border border-red-900/30 rounded-lg">
-                                      <p className="text-[11px] font-semibold text-red-400 flex items-center gap-1.5">
-                                        <Ban className="w-3.5 h-3.5" />
-                                        Banned until {new Date(contributor.banned_until!).toLocaleDateString('en-IN', {
-                                          day: 'numeric', month: 'short', year: 'numeric',
-                                          hour: '2-digit', minute: '2-digit',
-                                        })}
-                                        <span className="text-red-300 font-normal">({getBanRemaining(contributor)})</span>
-                                      </p>
-                                    </div>
-                                  )}
-
-                                  {/* Timestamps */}
-                                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[10px] text-stone-500 pt-1">
-                                    {contributor.last_verified_at && (
-                                      <p className="flex items-center gap-1">
-                                        <CheckCircle2 className="w-3 h-3 text-emerald-500/60" />
-                                        Verified {formatTimeAgo(contributor.last_verified_at)}
-                                      </p>
-                                    )}
-                                    {contributor.last_invalid_at && (
-                                      <p className="flex items-center gap-1">
-                                        <XCircle className="w-3 h-3 text-rose-500/60" />
-                                        Invalid {formatTimeAgo(contributor.last_invalid_at)}
-                                      </p>
-                                    )}
-                                    {contributor.last_seen_at && (
-                                      <p className="flex items-center gap-1">
-                                        <Clock className="w-3 h-3 text-stone-500/60" />
-                                        Seen {formatTimeAgo(contributor.last_seen_at)}
-                                      </p>
-                                    )}
-                                  </div>
-                                </div>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
+                          {/* Ban notice for banned contributors */}
+                          {banned && (
+                            <div className="mt-1.5 ml-6 text-[10px] text-red-400/70 flex items-center gap-1.5">
+                              <Ban className="w-3 h-3" />
+                              Banned until {new Date(contributor.banned_until!).toLocaleDateString('en-IN', {
+                                day: 'numeric', month: 'short', year: 'numeric',
+                                hour: '2-digit', minute: '2-digit',
+                              })}
+                              <span className="text-red-300/50 font-normal">({getBanRemaining(contributor)})</span>
+                            </div>
+                          )}
                         </div>
                       );
                     })
