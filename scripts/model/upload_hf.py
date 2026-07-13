@@ -8,7 +8,7 @@ import os
 import sys
 from pathlib import Path
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
+sys.path.append(str(Path(__file__).resolve().parents[2]))
 from scripts.common.git_utils import commit_and_push, ensure_nested_repo, run_git  # noqa: E402
 
 
