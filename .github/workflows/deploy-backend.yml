@@ -45,13 +45,11 @@ jobs:
       - name: Build Docker image
         run: |
           docker build \
-            -t $REGISTRY/$IMAGE_NAME:${{ github.sha }} \
             -t $REGISTRY/$IMAGE_NAME:latest \
             .
 
       - name: Push Docker image
         run: |
-          docker push $REGISTRY/$IMAGE_NAME:${{ github.sha }}
           docker push $REGISTRY/$IMAGE_NAME:latest
 
       - name: Update Container App
@@ -59,7 +57,7 @@ jobs:
           az containerapp update \
             --name "$CONTAINER_APP" \
             --resource-group "$RESOURCE_GROUP" \
-            --image "$REGISTRY/$IMAGE_NAME:${{ github.sha }}"
+            --image "$REGISTRY/$IMAGE_NAME:latest"
 
       - name: Wait for deployment
         run: sleep 30
