@@ -40,7 +40,7 @@ jobs:
 
       - name: Login to Azure Container Registry
         run: |
-          az acr login --name $REGISTRY_NAME
+          az acr login --name "$REGISTRY_NAME"
 
       - name: Build Docker image
         run: |
@@ -57,27 +57,76 @@ jobs:
       - name: Update Container App
         run: |
           az containerapp update \
-            --name $CONTAINER_APP \
-            --resource-group $RESOURCE_GROUP \
-            --image $REGISTRY/$IMAGE_NAME:${{ github.sha }}
+            --name "$CONTAINER_APP" \
+            --resource-group "$RESOURCE_GROUP" \
+            --image "$REGISTRY/$IMAGE_NAME:${{ github.sha }}"
 
       - name: Wait for deployment
-        run: sleep 20
+        run: sleep 30
 
-      - name: Show latest revision
+      - name: Show latest revisions
         run: |
           az containerapp revision list \
-            --name $CONTAINER_APP \
-            --resource-group $RESOURCE_GROUP \
-            --output table
+            --name "$CONTAINER_APP" \
+            --resource-group "$RESOURCE_GROUP" \
+            -o table
+
+      - name: Show latest revision details
+        run: |
+          REVISION=$(az containerapp show \
+            --name "$CONTAINER_APP" \
+            --resource-group "$RESOURCE_GROUP" \
+            --query properties.latestRevisionName \
+            -o tsv)
+
+          echo "Latest Revision: $REVISION"
+
+          az containerapp revision show \
+            --name "$CONTAINER_APP" \
+            --resource-group "$RESOURCE_GROUP" \
+            --revision "$REVISION"
 
       - name: Verify application
         run: |
+          set -euxo pipefail
+
           APP_URL=$(az containerapp show \
-            --name $CONTAINER_APP \
-            --resource-group $RESOURCE_GROUP \
+            --name "$CONTAINER_APP" \
+            --resource-group "$RESOURCE_GROUP" \
             --query properties.configuration.ingress.fqdn \
             -o tsv)
 
-          curl --fail --retry 10 --retry-delay 5 \
+          echo "Testing https://$APP_URL"
+
+          curl \
+            --verbose \
+            --retry 12 \
+            --retry-delay 5 \
+            --retry-all-errors \
             "https://$APP_URL/"
+
+      - name: Show system logs on failure
+        if: failure()
+        run: |
+          echo "===== System Events ====="
+
+          az containerapp logs show \
+            --name "$CONTAINER_APP" \
+            --resource-group "$RESOURCE_GROUP" \
+            --type system || true
+
+          echo
+          echo "===== Revisions ====="
+
+          az containerapp revision list \
+            --name "$CONTAINER_APP" \
+            --resource-group "$RESOURCE_GROUP" \
+            -o table || true
+
+          echo
+          echo "===== Replicas ====="
+
+          az containerapp replica list \
+            --name "$CONTAINER_APP" \
+            --resource-group "$RESOURCE_GROUP" \
+            -o table || true
