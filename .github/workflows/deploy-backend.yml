@@ -59,8 +59,7 @@ jobs:
             --resource-group "$RESOURCE_GROUP" \
             --image "$REGISTRY/$IMAGE_NAME:latest" \
             --min-replicas 0 \
-            --max-replicas 1 \
-            --scale-rule-cooldown 900
+            --max-replicas 1
 
       - name: Wait for deployment
         run: sleep 30
