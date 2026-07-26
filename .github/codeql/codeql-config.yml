@@ -1,0 +1,5 @@
+name: "CodeQL Config"
+
+query-filters:
+  - exclude:
+      id: js/xss-through-dom

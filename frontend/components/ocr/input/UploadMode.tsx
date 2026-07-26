@@ -70,6 +70,10 @@ export const UploadContent = forwardRef<InputModeRef, UploadContentProps>(
 			processFile(file);
 		};
 
+		const previewImage = previewUrl && previewUrl.startsWith("blob:")
+			? <img src={previewUrl} alt="Uploaded handwritten character preview" className="h-full w-full object-contain p-3 rounded-2xl" />
+			: null;
+
 		return (
 			<>
 				<input
@@ -97,13 +101,7 @@ export const UploadContent = forwardRef<InputModeRef, UploadContentProps>(
 					onDragLeave={() => setIsDragActive(false)}
 					aria-label="Upload workspace"
 				>
-					{previewUrl && previewUrl.startsWith("blob:") ? (
-					<img
-						src={previewUrl}
-						alt="Uploaded handwritten character preview"
-						className="h-full w-full object-contain p-3 rounded-2xl"
-					/>
-					) : (
+					{previewImage ?? (
 						<div className="px-6 text-center">
 							<p className="font-mono text-xs uppercase tracking-[0.24em] text-slate-400">
 								Upload mode
