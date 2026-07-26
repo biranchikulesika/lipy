@@ -1,9 +1,5 @@
 ﻿import { countSamplesByKey } from './storageService';
 
-function shortRandomSuffix(length = 6): string {
-  return Math.random().toString(36).substring(2, 2 + length);
-}
-
 function isoTimestampSafe(date = new Date()): string {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -35,9 +31,7 @@ export async function generateFilename({ characterId, contributorId, sessionId =
 
   const sn = String(next).padStart(4, '0');
   const ts = isoTimestampSafe(new Date());
-  const rand = (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
-    ? crypto.randomUUID().split('-')[0]
-    : shortRandomSuffix(8);
+  const rand = crypto.randomUUID().split('-')[0];
 
   const filename = `${characterId}_${contributorId}_${sessionId}_${sn}_${ts}_${rand}.png`;
   return { filename, sampleNumber: next };
