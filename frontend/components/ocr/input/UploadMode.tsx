@@ -98,7 +98,6 @@ export const UploadContent = forwardRef<InputModeRef, UploadContentProps>(
 					aria-label="Upload workspace"
 				>
 					{previewUrl && previewUrl.startsWith("blob:") ? (
-					{/* codeql[lang/js/xss-through-dom] previewUrl is a blob: URL from URL.createObjectURL, not untrusted DOM text */}
 					<img
 						src={previewUrl}
 						alt="Uploaded handwritten character preview"
