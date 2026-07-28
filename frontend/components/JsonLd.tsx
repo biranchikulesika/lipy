@@ -117,7 +117,6 @@ export function AboutJsonLd() {
 export function TeamJsonLd() {
   const team = [
     {
-      "@type": "Person",
       name: "Gundala Anushka",
       jobTitle: "Project Lead",
       description: "Co-ordinated project activities, mentor communication, and presentations.",
@@ -127,7 +126,6 @@ export function TeamJsonLd() {
       ],
     },
     {
-      "@type": "Person",
       name: "Biranchi Kulesika",
       jobTitle: "Technical Lead",
       description:
@@ -139,27 +137,28 @@ export function TeamJsonLd() {
       ],
     },
     {
-      "@type": "Person",
       name: "Baibhab Sahu",
       jobTitle: "Dataset & Documentation",
       description: "Contributed to dataset verification, sample review, and documentation.",
       sameAs: "https://github.com/baibhab911",
     },
     {
-      "@type": "Person",
       name: "Soumyasmita Mohapatra",
       jobTitle: "Dataset & Documentation",
       description: "Contributed to documentation, dataset validation, and quality checking.",
       sameAs: "https://github.com/soumyasmitamohapatra2005",
     },
     {
-      "@type": "Person",
       name: "Prajna Dash",
       jobTitle: "Dataset & Documentation",
       description: "Contributed to dataset review, sample verification, and documentation support.",
       sameAs: "https://github.com/prajnadash73-netizen",
     },
-  ].map((person, idx) => ({ ...person, position: idx + 1 }));
+  ].map((person, idx) => ({
+    "@type": "ListItem",
+    position: idx + 1,
+    item: { "@type": "Person", ...person },
+  }));
 
   const json = {
     "@context": "https://schema.org",
