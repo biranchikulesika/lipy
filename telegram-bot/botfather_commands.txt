@@ -1,0 +1,8 @@
+start - Start the bot and receive a drawing canvas
+help - Learn how to use LiPy OCR
+about - About the LiPy project
+characters - Browse supported Odia characters
+grapheme - Look up an Odia character
+contribute - Contribute handwriting samples
+stats - View model statistics
+version - View bot and model versions

@@ -46,6 +46,8 @@ lipy/
 │   ├── labels.json
 │   └── training_history.json
 │
+├── telegram-bot/            # Telegram bot for character recognition
+│
 ├── notebooks/
 │   └── L.ipynb              # End-to-end training notebook
 │
@@ -69,6 +71,7 @@ lipy/
 |-----------|-------------|
 | `backend/` | FastAPI inference backend with Docker support. Provides a REST API for OCR — see [backend/README.md](backend/README.md) for endpoints, response formats, and deployment |
 | `frontend/` | Web interface for handwriting recognition |
+| `telegram-bot/` | Telegram bot — sends images to the backend API and returns recognised characters |
 | `dataset/` | Local nested Git repository containing datasets |
 | `models/` | Local nested Git repository containing trained models |
 | `notebooks/` | Training notebooks and experiments |
@@ -178,6 +181,7 @@ Each major component contains its own documentation.
 | Directory | Description |
 |-----------|-------------|
 | `backend/README.md` | Backend API (endpoints, response models, status-based predictions), inference pipeline, Docker deployment, and Azure setup |
+| `telegram-bot/README.md` | Telegram bot setup, deployment on Vercel, and usage |
 | `frontend/README.md` | Frontend setup and development |
 | `scripts/README.md` | Dataset and model management utilities |
 | `scripts/database/schema.sql` | Supabase database schema — run in SQL Editor to set up all tables (`lipy_contributors`, `lipy_sessions`, `lipy_samples`, `security_events`), RLS policies, indexes, session revocation function, and storage bucket. Safe to re-run (uses `IF NOT EXISTS`) |
@@ -195,6 +199,7 @@ Each major component contains its own documentation.
 - TensorFlow / Keras
 - FastAPI
 - Next.js
+- python-telegram-bot
 - Hugging Face Hub
 - Supabase
 - Azure

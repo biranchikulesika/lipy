@@ -1,0 +1,17 @@
+{
+  "routes": [
+    {
+      "src": "/api/webhook",
+      "dest": "api/index.py"
+    },
+    {
+      "src": "/health",
+      "dest": "api/index.py"
+    }
+  ],
+  "functions": {
+    "api/index.py": {
+      "maxDuration": 30
+    }
+  }
+}
