@@ -6,6 +6,7 @@ from telegram.ext import Application, CallbackQueryHandler, CommandHandler, Mess
 
 from config import config
 from handlers import (
+    _warmup_handler,
     about_handler,
     animation_handler,
     audio_handler,
@@ -47,6 +48,7 @@ def main() -> None:
         .build()
     )
 
+    application.add_handler(MessageHandler(filters.ALL, _warmup_handler), group=-1)
     application.add_handler(CommandHandler("start", start_handler))
     application.add_handler(CommandHandler("help", help_handler))
     application.add_handler(CommandHandler("about", about_handler))

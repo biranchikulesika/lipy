@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import threading
 import time
 from dataclasses import dataclass
 
@@ -9,6 +10,25 @@ import httpx
 from config import config
 
 logger = logging.getLogger(__name__)
+
+_client: httpx.AsyncClient | None = None
+_client_lock = threading.Lock()
+
+
+def _get_client() -> httpx.AsyncClient:
+    global _client
+    if _client is None:
+        with _client_lock:
+            if _client is None:
+                _client = httpx.AsyncClient(
+                    timeout=config.httpx_timeout,
+                    limits=httpx.Limits(
+                        max_keepalive_connections=5,
+                        max_connections=10,
+                        keepalive_expiry=60,
+                    ),
+                )
+    return _client
 
 
 @dataclass(frozen=True)
@@ -54,12 +74,13 @@ def _safe_json(response: httpx.Response) -> dict:
 async def predict(image_bytes: bytes, filename: str, content_type: str) -> PredictionResult:
     start = time.perf_counter()
 
+    client = _get_client()
+
     try:
-        async with httpx.AsyncClient(timeout=config.api_timeout) as client:
-            response = await client.post(
-                config.predict_url,
-                files={"image": (filename, image_bytes, content_type)},
-            )
+        response = await client.post(
+            config.predict_url,
+            files={"image": (filename, image_bytes, content_type)},
+        )
     except httpx.TimeoutException:
         elapsed = time.perf_counter() - start
         logger.error("API timeout after %.2fs", elapsed)

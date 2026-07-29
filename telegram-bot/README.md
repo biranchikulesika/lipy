@@ -100,10 +100,11 @@ The bot starts in long-polling mode. Open Telegram, find your bot, and send it a
 ## Environment Variables
 
 | Variable | Required | Default | Description |
-|---|---|---|---|
+|---|---|---|---|---|
 | `TELEGRAM_BOT_TOKEN` | Yes | — | Bot token from BotFather |
 | `LIPY_API_URL` | No | `https://api.lipy.app` | Base URL of the LiPy OCR API |
-| `API_TIMEOUT` | No | `30` | HTTP timeout in seconds for OCR requests |
+| `API_TIMEOUT` | No | `30` | Read timeout in seconds for OCR API requests |
+| `API_CONNECT_TIMEOUT` | No | `10` | Connection timeout in seconds for OCR API requests |
 | `WEBHOOK_SECRET` | No | — | Secret token for webhook request verification |
 | `LOG_LEVEL` | No | `INFO` | Python logging level |
 | `MAX_IMAGE_SIZE_MB` | No | `10` | Maximum allowed image size in megabytes |
@@ -399,35 +400,67 @@ The model supports **55** Odia characters from the Unicode block U+0B00–U+0B7F
 
 ## Deploy to Vercel
 
-### 1. Install Vercel CLI
+> **Full end-to-end flow.** Follow these steps in order every time you deploy
+> fresh, change the domain, or something goes wrong.
 
-```bash
-npm i -g vercel
-```
+### 1. Generate a Webhook Secret
 
-### 2. Deploy
-
-```bash
-vercel --prod
-```
-
-### 3. Set Environment Variables
-
-```bash
-vercel env add TELEGRAM_BOT_TOKEN production
-vercel env add LIPY_API_URL production
-vercel env add WEBHOOK_SECRET production
-```
-
-### 4. Generate a Webhook Secret
+This secret must be the **same** in your Vercel env and the `setWebhook` call.
+Generate it once and reuse it:
 
 ```bash
 openssl rand -hex 32
 ```
 
-Copy the output and use it as the `WEBHOOK_SECRET` value.
+Example output: `6mF9nK2xQpL8YtR4ZwA7BcDeHgJkMnPq` — save this value.
 
-### 5. Set the Telegram Webhook
+### 2. Install Vercel CLI
+
+```bash
+npm i -g vercel
+```
+
+### 3. Deploy
+
+```bash
+vercel --prod
+```
+
+Note the deployment URL (e.g. `bot-lipy-app-abc123.vercel.app`). If you use a
+custom domain (e.g. `bot.lipy.app`), configure it in the Vercel dashboard under
+**Domains**.
+
+### 4. Set Environment Variables on Vercel
+
+```bash
+vercel env add TELEGRAM_BOT_TOKEN production
+vercel env add LIPY_API_URL production
+vercel env add WEBHOOK_SECRET production   # use the value from step 1
+```
+
+Alternatively, set them in the Vercel dashboard: **Settings → Environment
+Variables**.
+
+> **Important:** The `WEBHOOK_SECRET` value here **must match** the
+> `secret_token` you will use in the `setWebhook` call in step 6. If they
+> differ, Telegram will get a **403 Forbidden** and the bot won't respond.
+
+After adding/changing environment variables, **redeploy**:
+
+```bash
+vercel --prod
+```
+
+### 5. Verify the Deployment
+
+Check that the health endpoint responds:
+
+```bash
+curl -s https://<YOUR_VERCEL_DOMAIN>/health
+# → {"status":"ok"}
+```
+
+### 6. Set the Telegram Webhook
 
 ```bash
 curl -X POST "https://api.telegram.org/bot<TOKEN>/setWebhook" \
@@ -440,17 +473,39 @@ curl -X POST "https://api.telegram.org/bot<TOKEN>/setWebhook" \
 ```
 
 Replace:
-- `<TOKEN>` with your bot token
-- `<YOUR_VERCEL_DOMAIN>` with your Vercel deployment URL
-- `<YOUR_WEBHOOK_SECRET>` with the secret you generated
+- `<TOKEN>` — your bot token from BotFather
+- `<YOUR_VERCEL_DOMAIN>` — your Vercel deployment URL (e.g. `bot.lipy.app`)
+- `<YOUR_WEBHOOK_SECRET>` — the secret from step 1
 
-### 6. Verify
+### 7. Verify the Webhook
 
 ```bash
 curl "https://api.telegram.org/bot<TOKEN>/getWebhookInfo"
 ```
 
-The `url` field should show your Vercel webhook URL. The `secret_token_ok` field should be `true`.
+Expected response (key fields):
+
+```json
+{
+  "ok": true,
+  "result": {
+    "url": "https://bot.lipy.app/api/webhook",
+    "has_custom_certificate": false,
+    "pending_update_count": 0,
+    "last_error_date": 0,
+    "max_connections": 40,
+    "ip_address": "188.114.97.0",
+    "allowed_updates": ["message", "edited_message", "channel_post", "callback_query"]
+  }
+}
+```
+
+- `url` must match your deployment URL
+- `pending_update_count` should be `0` (or decreasing if resending old ones)
+- If `last_error_message` is present, see [Troubleshooting](#troubleshooting) below
+
+After the webhook is set, send `/start` to your bot on Telegram. It should
+reply within a few seconds.
 
 ### Vercel Routing
 
@@ -460,6 +515,51 @@ The `url` field should show your Vercel webhook URL. The `secret_token_ok` field
 | `GET /health` | `api/index.py` — Health check endpoint |
 
 The serverless function has a 30-second timeout (`vercel.json`).
+
+---
+
+## Troubleshooting
+
+### Bot doesn't respond at all
+
+1. **Check the webhook info:**
+   ```bash
+   curl "https://api.telegram.org/bot<TOKEN>/getWebhookInfo"
+   ```
+   Look for `last_error_message` and `last_error_date`.
+
+2. **403 Forbidden** — `WEBHOOK_SECRET` mismatch.
+   The `secret_token` in the `setWebhook` call must match the `WEBHOOK_SECRET`
+   environment variable on Vercel. Update whichever one is wrong, then
+   **redeploy** the bot and re-run `setWebhook`.
+
+3. **404 Not Found** — wrong URL.
+   The `url` in `setWebhook` doesn't point to a working Vercel deployment.
+   Verify with:
+   ```bash
+   curl -s https://<YOUR_VERCEL_DOMAIN>/health
+   ```
+
+4. **Webhook URL changed** (e.g. after a new deploy without a custom domain).
+   Vercel assigns a new URL on each deploy unless you use a custom domain.
+   Update the webhook:
+   ```bash
+   curl -X POST "https://api.telegram.org/bot<TOKEN>/setWebhook" \
+     -H "Content-Type: application/json" \
+     -d '{"url": "https://<NEW_URL>/api/webhook", "secret_token": "<SECRET>", "allowed_updates": ["message", "edited_message", "channel_post", "callback_query"]}'
+   ```
+
+5. **Check Vercel logs:**
+   ```bash
+   vercel logs
+   ```
+   Or view them in the Vercel dashboard under **Logs**.
+
+### Bot responds but OCR fails
+
+- Check that `LIPY_API_URL` is set correctly on Vercel
+- Verify the OCR API is running: `curl -s https://api.lipy.app/health`
+- Check the Azure container isn't cold-starting — send a second image after a few seconds
 
 ## Deploy with Docker
 

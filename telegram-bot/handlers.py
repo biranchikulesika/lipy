@@ -5,7 +5,6 @@ import io
 import logging
 import time
 
-import httpx
 from PIL import Image
 from telegram import (InlineKeyboardButton, InlineKeyboardMarkup, Message,
                       Update)
@@ -391,6 +390,11 @@ async def _reply_with_kb(message: Message, text: str, kb: InlineKeyboardMarkup) 
 
 # ── Command handlers ───────────────────────────────────────────────────────
 
+async def _warmup_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Fires API warm-up in the background on every user message."""
+    asyncio.create_task(warmup_api())
+
+
 async def start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     msg = update.effective_message
     if not msg:
@@ -401,7 +405,6 @@ async def start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         await msg.reply_text(WELCOME_TEXT, parse_mode="HTML")
     except TelegramError as exc:
         logger.error("Failed to send /start reply: %s", exc)
-    asyncio.create_task(warmup_api())
     await _send_canvas(msg)
 
 
@@ -474,6 +477,7 @@ async def version_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 # ── Callback query handler ─────────────────────────────────────────────────
 
 async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    asyncio.create_task(warmup_api())
     query = update.callback_query
     if not query or not query.data:
         return
@@ -736,14 +740,9 @@ async def _download_image(message: Message) -> tuple[bytes, str, str]:
         raise ValueError("Bot instance not available.")
 
     telegram_file = await bot.get_file(file_id)
-    if not telegram_file.file_path:
-        raise ValueError("Could not retrieve file path from Telegram.")
+    image_data = await telegram_file.download_as_bytearray()
 
-    async with httpx.AsyncClient(timeout=config.api_timeout) as client:
-        response = await client.get(telegram_file.file_path)
-        response.raise_for_status()
-
-    return response.content, file_name, mime_type
+    return bytes(image_data), file_name, mime_type
 
 
 def _preprocess_image(image_bytes: bytes, filename: str) -> bytes:
@@ -773,7 +772,8 @@ def _preprocess_image(image_bytes: bytes, filename: str) -> bytes:
             best_var = variance
             threshold = i
 
-    img = img.point(lambda x: 0 if x < threshold else 255, "1")
+    table = bytes(255 if i >= threshold else 0 for i in range(256))
+    img = img.point(table, "1")
     buf = io.BytesIO()
     img.save(buf, format="PNG")
     return buf.getvalue()

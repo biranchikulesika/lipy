@@ -15,6 +15,7 @@ from telegram import Update
 from telegram.ext import Application, CallbackQueryHandler, CommandHandler, MessageHandler, filters
 
 from handlers import (
+    _warmup_handler,
     about_handler,
     animation_handler,
     audio_handler,
@@ -71,6 +72,7 @@ async def _ensure_app() -> Application:
         .token(config.telegram_bot_token)
         .build()
     )
+    app.add_handler(MessageHandler(filters.ALL, _warmup_handler), group=-1)
     app.add_handler(CommandHandler("start", start_handler))
     app.add_handler(CommandHandler("help", help_handler))
     app.add_handler(CommandHandler("about", about_handler))
