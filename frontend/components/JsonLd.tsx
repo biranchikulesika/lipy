@@ -19,7 +19,7 @@ export function RootJsonLd() {
         "@id": `${baseUrl}/#organization`,
         name: "LiPy",
         url: baseUrl,
-        logo: `${baseUrl}/og-ocr.png`,
+        logo: `${baseUrl}/og-default.png`,
         description:
           "An open academic project for Odia handwritten character recognition, OCR, dataset creation, and machine learning research.",
         foundingDate: "2025",

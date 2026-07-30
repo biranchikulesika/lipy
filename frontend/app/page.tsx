@@ -14,7 +14,7 @@ export const metadata: Metadata = {
       "Draw or upload a handwritten Odia character and LiPy's deep learning OCR identifies it right away — free, no signup needed.",
     images: [
       {
-        url: "/og-ocr.png",
+        url: "/og-default.png",
         width: 1200,
         height: 630,
         alt: "LiPy Odia handwriting recognition web interface showing a character being analyzed by the deep learning OCR model",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     title: "Odia Handwriting Recognition",
     description:
       "Draw or upload a handwritten Odia character and LiPy's AI identifies it right away — a free OCR tool for everyone, no signup required.",
-    images: ["/og-ocr.png"],
+    images: ["/og-default.png"],
   },
 
   alternates: {

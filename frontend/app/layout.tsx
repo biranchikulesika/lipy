@@ -87,7 +87,7 @@ export const metadata: Metadata = {
     siteName: "LiPy",
     images: [
       {
-        url: "/og-ocr.png",
+        url: "/og-default.png",
         width: 1200,
         height: 630,
         alt: "LiPy Odia handwriting recognition web interface showing a character being analyzed by the deep learning OCR model",
@@ -102,7 +102,7 @@ export const metadata: Metadata = {
     title: "LiPy",
     description:
       "LiPy is an open-source platform that uses deep learning to recognize handwritten Odia characters, build a crowdsourced dataset, and advance OCR research.",
-    images: ["/og-ocr.png"],
+    images: ["/og-default.png"],
   },
 
   robots: {

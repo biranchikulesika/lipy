@@ -17,7 +17,7 @@ export const metadata: Metadata = {
       "LiPy Privacy Policy — how we collect, use, and protect your data when you use our Odia handwritten character recognition platform.",
     images: [
       {
-        url: "/og-ocr.png",
+        url: "/og-default.png",
         width: 1200,
         height: 630,
         alt: "LiPy Privacy Policy",
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     title: "Privacy Policy | LiPy",
     description:
       "LiPy Privacy Policy — how we collect, use, and protect your data when you use our Odia handwritten character recognition platform.",
-    images: ["/og-ocr.png"],
+    images: ["/og-default.png"],
   },
 };
 

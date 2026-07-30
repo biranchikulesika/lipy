@@ -17,7 +17,7 @@ export const metadata: Metadata = {
       "LiPy Terms of Service — the terms governing your use of the LiPy Odia handwritten character recognition platform.",
     images: [
       {
-        url: "/og-ocr.png",
+        url: "/og-default.png",
         width: 1200,
         height: 630,
         alt: "LiPy Terms of Service",
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     title: "Terms of Service | LiPy",
     description:
       "LiPy Terms of Service — the terms governing your use of the LiPy Odia handwritten character recognition platform.",
-    images: ["/og-ocr.png"],
+    images: ["/og-default.png"],
   },
 };
 
